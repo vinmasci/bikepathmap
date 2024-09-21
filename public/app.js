@@ -1,18 +1,14 @@
 // Initialize the Mapbox map
-mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
+mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your Mapbox token
 
 const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v11', // You can use any Mapbox style
-    center: [144.9631, -37.8136], // Center it on Melbourne, adjust as needed
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [144.9631, -37.8136], // Center on Melbourne
     zoom: 10
 });
 
-// GPX URLs
-const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
-const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
-
-// Function to load GPX data, parse it, and display it as a line on the map
+// Function to load and parse GPX data
 function loadGPXLayer(url, map, layerId) {
     fetch(url)
         .then(response => response.text())
@@ -20,15 +16,16 @@ function loadGPXLayer(url, map, layerId) {
             const parser = new DOMParser();
             const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
             
-            // Convert GPX to GeoJSON using togeojson
-            const geojson = togeojson.gpx(gpxDoc);
+            // Convert GPX to GeoJSON using the locally loaded toGeoJSON library
+            const geojson = toGeoJSON.gpx(gpxDoc);
 
-            // Add the GeoJSON as a line on the map
+            // Remove existing layer if it exists
             if (map.getSource(layerId)) {
                 map.removeLayer(layerId);
                 map.removeSource(layerId);
             }
 
+            // Add the GeoJSON data as a new source and layer to the map
             map.addSource(layerId, {
                 type: 'geojson',
                 data: geojson
@@ -43,12 +40,12 @@ function loadGPXLayer(url, map, layerId) {
                     'line-cap': 'round'
                 },
                 paint: {
-                    'line-color': '#FF0000', // Customize the color
+                    'line-color': '#FF0000', // Customize the color as needed
                     'line-width': 4
                 }
             });
 
-            // Optionally, fit the map to the bounds of the route
+            // Fit the map to the bounds of the route
             const coordinates = geojson.features[0].geometry.coordinates;
             const bounds = coordinates.reduce(function(bounds, coord) {
                 return bounds.extend(coord);
@@ -59,6 +56,10 @@ function loadGPXLayer(url, map, layerId) {
             });
         });
 }
+
+// GPX URLs (adjust to the lowercase filenames as requested)
+const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
+const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
 
 // Load Road Routes GPX Layer
 function loadRoadRoutes() {
@@ -79,9 +80,13 @@ document.getElementById('gravel-tab').addEventListener('click', function() {
 });
 
 function switchLayer(layer) {
+    // Deactivate all tabs
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+
+    // Activate the current tab
     document.getElementById(layer + '-tab').classList.add('active');
 
+    // Load corresponding GPX layer based on selected tab
     if (layer === 'road') {
         loadRoadRoutes();
     } else if (layer === 'gravel') {
