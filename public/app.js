@@ -23,30 +23,13 @@ let layerVisibility = {
 // Store the markers for the POIs so we can remove them later
 let poiMarkers = [];
 
-// Custom icons for different types of POIs
-const poiIcons = {
-    restaurant: '/icons/restaurant.png',
-    landmark: '/icons/landmark.png',
-    default: '/icons/default.png' // Fallback icon
-};
-
-// Function to add POI markers to the map
-function loadPOIMarkers() {
-    pois.forEach(poi => {
-        addPOIMarker(poi);
-    });
-}
-
-// Function to add a single POI marker
+// Function to add a POI marker using FontAwesome icons
 function addPOIMarker(poi) {
     const markerElement = document.createElement('div');
     markerElement.className = 'poi-marker';
-
-    // Use a custom icon for the marker
-    markerElement.style.backgroundImage = `url(${poiIcons[poi.type] || poiIcons.default})`;
-    markerElement.style.width = '30px';
-    markerElement.style.height = '30px';
-    markerElement.style.backgroundSize = '100%';
+    markerElement.style.fontSize = '24px';
+    markerElement.style.color = poi.type === 'restaurant' ? 'red' : 'blue'; // Color based on POI type
+    markerElement.innerHTML = poi.type === 'restaurant' ? '<i class="fas fa-utensils"></i>' : '<i class="fas fa-landmark"></i>';
 
     // Create a marker for each POI
     const marker = new mapboxgl.Marker(markerElement)
@@ -64,13 +47,26 @@ function addPOIMarker(poi) {
     poiMarkers.push(marker);
 }
 
+// Function to load all POIs
+function loadPOIMarkers() {
+    pois.forEach(poi => {
+        addPOIMarker(poi);
+    });
+}
+
+// Function to remove POI markers
+function removePOIMarkers() {
+    poiMarkers.forEach(marker => marker.remove());
+    poiMarkers = [];
+}
+
 // Example POI data with coordinates and details
 let pois = [
     {
         coordinates: [144.9631, -37.814], // Melbourne
         title: 'Federation Square',
         description: 'A famous cultural precinct in the heart of Melbourne.',
-        type: 'landmark' // Custom type to apply specific marker icon
+        type: 'landmark' // Use landmark icon for this
     },
     {
         coordinates: [144.978, -37.819], // Nearby location
@@ -79,28 +75,6 @@ let pois = [
         type: 'landmark'
     }
 ];
-
-// Function to dynamically add POIs on map click
-map.on('click', function(e) {
-    const coordinates = [e.lngLat.lng, e.lngLat.lat];
-    const title = prompt('Enter POI title:');
-    const description = prompt('Enter POI description:');
-    const type = prompt('Enter POI type (e.g., restaurant, landmark):');
-
-    // Create new POI object
-    const newPOI = {
-        coordinates: coordinates,
-        title: title,
-        description: description,
-        type: type || 'default'
-    };
-
-    // Add the new POI to the list of POIs
-    pois.push(newPOI);
-
-    // Add the new POI marker to the map
-    addPOIMarker(newPOI);
-});
 
 // Function to toggle POI markers
 function togglePOILayer() {
@@ -115,11 +89,44 @@ function togglePOILayer() {
     }
 }
 
-// Function to remove POI markers
-function removePOIMarkers() {
-    poiMarkers.forEach(marker => marker.remove());
-    poiMarkers = [];
-}
+// Floating button to add a new POI
+const addPOIButton = document.createElement('button');
+addPOIButton.innerHTML = '<i class="fas fa-plus"></i>';
+addPOIButton.style.position = 'fixed';
+addPOIButton.style.bottom = '20px';
+addPOIButton.style.right = '20px';
+addPOIButton.style.width = '50px';
+addPOIButton.style.height = '50px';
+addPOIButton.style.backgroundColor = '#007bff';
+addPOIButton.style.color = 'white';
+addPOIButton.style.border = 'none';
+addPOIButton.style.borderRadius = '50%';
+addPOIButton.style.cursor = 'pointer';
+document.body.appendChild(addPOIButton);
+
+// Add click event to the floating button to place a new POI
+addPOIButton.addEventListener('click', function() {
+    map.once('click', function(e) {
+        const coordinates = [e.lngLat.lng, e.lngLat.lat];
+        const title = prompt('Enter POI title:');
+        const description = prompt('Enter POI description:');
+        const type = prompt('Enter POI type (e.g., restaurant, landmark):');
+
+        // Create new POI object
+        const newPOI = {
+            coordinates: coordinates,
+            title: title,
+            description: description,
+            type: type || 'landmark'
+        };
+
+        // Add the new POI to the list of POIs
+        pois.push(newPOI);
+
+        // Add the new POI marker to the map
+        addPOIMarker(newPOI);
+    });
+});
 
 // Handle tab switching logic
 document.getElementById('road-tab').addEventListener('click', function() {
@@ -134,3 +141,12 @@ document.getElementById('photos-tab').addEventListener('click', function() {
 document.getElementById('pois-tab').addEventListener('click', function() {
     togglePOILayer();
 });
+
+// Dummy toggleGPXLayer and togglePhotoLayer functions for now (replace with actual logic)
+function toggleGPXLayer() {
+    console.log("GPX layer toggle not yet implemented");
+}
+
+function togglePhotoLayer() {
+    console.log("Photo layer toggle not yet implemented");
+}
