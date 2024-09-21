@@ -16,7 +16,8 @@ const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
 let layerVisibility = {
     road: false,
     gravel: false,
-    photos: false
+    photos: false,
+    pois: false
 };
 
 // Function to remove layers
@@ -126,6 +127,62 @@ const photos = [
     }
 ];
 
+// Function to toggle POI markers
+function togglePOILayer() {
+    if (layerVisibility.pois) {
+        // POIs are visible, remove them
+        removePOIMarkers();
+        layerVisibility.pois = false;
+    } else {
+        // POIs are not visible, add them
+        loadPOIMarkers();
+        layerVisibility.pois = true;
+    }
+}
+
+// Store the markers for the POIs so we can remove them later
+let poiMarkers = [];
+
+// Function to add POI markers to the map
+function loadPOIMarkers() {
+    pois.forEach(poi => {
+        // Create a marker for each POI
+        const marker = new mapboxgl.Marker({ color: 'blue' }) // Blue markers for POIs
+            .setLngLat(poi.coordinates)
+            .addTo(map);
+
+        // Create a popup for each marker with the POI details
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
+
+        // Link the popup to the marker
+        marker.setPopup(popup);
+
+        // Store the marker so it can be removed later
+        poiMarkers.push(marker);
+    });
+}
+
+// Function to remove POI markers
+function removePOIMarkers() {
+    poiMarkers.forEach(marker => marker.remove());
+    poiMarkers = [];
+}
+
+// Example POI data with coordinates and details
+const pois = [
+    {
+        coordinates: [144.9631, -37.814], // Melbourne
+        title: 'Federation Square',
+        description: 'A famous cultural precinct in the heart of Melbourne.'
+    },
+    {
+        coordinates: [144.978, -37.819], // Nearby location
+        title: 'Flinders Street Station',
+        description: 'One of Melbourne\'s most iconic buildings.'
+    }
+];
+
 // Handle tab switching logic
 document.getElementById('road-tab').addEventListener('click', function() {
     toggleGPXLayer(roadGPX, map, 'road');
@@ -135,4 +192,7 @@ document.getElementById('gravel-tab').addEventListener('click', function() {
 });
 document.getElementById('photos-tab').addEventListener('click', function() {
     togglePhotoLayer();
+});
+document.getElementById('pois-tab').addEventListener('click', function() {
+    togglePOILayer();
 });
