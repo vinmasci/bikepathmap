@@ -9,7 +9,7 @@ const map = new mapboxgl.Map({
 });
 
 // GPX URLs
-const roadGPX = '/GPX/Road/Capital_City_Trail.GPX'; // Corrected URL
+const roadGPX = '/GPX/Road/Capital_City_Trail.gpx'; // Corrected URL
 const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx'; // Corrected URL
 
 
