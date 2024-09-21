@@ -9,34 +9,65 @@ const map = new mapboxgl.Map({
 });
 
 // GPX URLs
-const roadGPX = '/GPX/Road/Capital_City_Trail.gpx'; // Corrected URL
-const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx'; // Corrected URL
+const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
+const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
 
-
-// Function to load GPX data and display it on the map
-function loadGPXLayer(url, map) {
+// Function to load GPX data, parse it, and display it as a line on the map
+function loadGPXLayer(url, map, layerId) {
     fetch(url)
         .then(response => response.text())
         .then(gpxData => {
-            console.log(gpxData); // Here we'll parse the GPX data
-            // You can add actual GPX parsing logic here
-            // For example, using libraries like togpx or leaflet-omnivore
+            const parser = new DOMParser();
+            const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
+            
+            // Convert GPX to GeoJSON using togeojson
+            const geojson = togeojson.gpx(gpxDoc);
 
-            // Example of adding a marker, replace this with GPX parsing and rendering
-            new mapboxgl.Marker()
-                .setLngLat([144.9631, -37.8136]) // Adjust based on GPX data
-                .addTo(map);
+            // Add the GeoJSON as a line on the map
+            if (map.getSource(layerId)) {
+                map.removeLayer(layerId);
+                map.removeSource(layerId);
+            }
+
+            map.addSource(layerId, {
+                type: 'geojson',
+                data: geojson
+            });
+
+            map.addLayer({
+                id: layerId,
+                type: 'line',
+                source: layerId,
+                layout: {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                paint: {
+                    'line-color': '#FF0000', // Customize the color
+                    'line-width': 4
+                }
+            });
+
+            // Optionally, fit the map to the bounds of the route
+            const coordinates = geojson.features[0].geometry.coordinates;
+            const bounds = coordinates.reduce(function(bounds, coord) {
+                return bounds.extend(coord);
+            }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+
+            map.fitBounds(bounds, {
+                padding: 20
+            });
         });
 }
 
 // Load Road Routes GPX Layer
 function loadRoadRoutes() {
-    loadGPXLayer(roadGPX, map);
+    loadGPXLayer(roadGPX, map, 'road-route');
 }
 
 // Load Gravel Routes GPX Layer
 function loadGravelRoutes() {
-    loadGPXLayer(gravelGPX, map);
+    loadGPXLayer(gravelGPX, map, 'gravel-route');
 }
 
 // Handle tab switching logic
@@ -46,21 +77,11 @@ document.getElementById('road-tab').addEventListener('click', function() {
 document.getElementById('gravel-tab').addEventListener('click', function() {
     switchLayer('gravel');
 });
-document.getElementById('photos-tab').addEventListener('click', function() {
-    switchLayer('photos');
-});
-document.getElementById('pois-tab').addEventListener('click', function() {
-    switchLayer('pois');
-});
 
 function switchLayer(layer) {
-    // Deactivate all tabs
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-
-    // Activate the current tab
     document.getElementById(layer + '-tab').classList.add('active');
 
-    // Load corresponding GPX layers based on the tab selected
     if (layer === 'road') {
         loadRoadRoutes();
     } else if (layer === 'gravel') {
