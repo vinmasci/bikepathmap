@@ -20,112 +20,87 @@ let layerVisibility = {
     pois: false
 };
 
-// Function to remove layers
-function removeLayer(layerId) {
-    if (map.getLayer(layerId)) {
-        map.removeLayer(layerId);
-        map.removeSource(layerId);
-    }
-}
+// Store the markers for the POIs so we can remove them later
+let poiMarkers = [];
 
-// Function to toggle GPX layers
-function toggleGPXLayer(url, map, layerId) {
-    if (layerVisibility[layerId]) {
-        // Layer is currently visible, so remove it
-        removeLayer(layerId);
-        layerVisibility[layerId] = false;
-    } else {
-        // Layer is not visible, so add it
-        fetch(url)
-            .then(response => response.text())
-            .then(gpxData => {
-                const parser = new DOMParser();
-                const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
+// Custom icons for different types of POIs
+const poiIcons = {
+    restaurant: '/icons/restaurant.png',
+    landmark: '/icons/landmark.png',
+    default: '/icons/default.png' // Fallback icon
+};
 
-                // Convert GPX to GeoJSON using toGeoJSON
-                const geojson = toGeoJSON.gpx(gpxDoc);
-
-                // Add the GeoJSON data as a new source and layer to the map
-                map.addSource(layerId, {
-                    type: 'geojson',
-                    data: geojson
-                });
-
-                map.addLayer({
-                    id: layerId,
-                    type: 'line',
-                    source: layerId,
-                    layout: {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    paint: {
-                        'line-color': '#FF0000', // Customize the color as needed
-                        'line-width': 4
-                    }
-                });
-
-                // Update layer visibility state
-                layerVisibility[layerId] = true;
-            });
-    }
-}
-
-// Function to toggle photo markers
-function togglePhotoLayer() {
-    if (layerVisibility.photos) {
-        // Photos are visible, remove them
-        removePhotoMarkers();
-        layerVisibility.photos = false;
-    } else {
-        // Photos are not visible, add them
-        loadPhotoMarkers();
-        layerVisibility.photos = true;
-    }
-}
-
-// Store the markers for the photos so we can remove them later
-let photoMarkers = [];
-
-// Function to add photo markers to the map
-function loadPhotoMarkers() {
-    photos.forEach(photo => {
-        // Create a marker for each photo
-        const marker = new mapboxgl.Marker()
-            .setLngLat(photo.coordinates)
-            .addTo(map);
-
-        // Create a popup for each marker with the photo
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" width="200px">`);
-
-        // Link the popup to the marker
-        marker.setPopup(popup);
-
-        // Store the marker so it can be removed later
-        photoMarkers.push(marker);
+// Function to add POI markers to the map
+function loadPOIMarkers() {
+    pois.forEach(poi => {
+        addPOIMarker(poi);
     });
 }
 
-// Function to remove photo markers
-function removePhotoMarkers() {
-    photoMarkers.forEach(marker => marker.remove());
-    photoMarkers = [];
+// Function to add a single POI marker
+function addPOIMarker(poi) {
+    const markerElement = document.createElement('div');
+    markerElement.className = 'poi-marker';
+
+    // Use a custom icon for the marker
+    markerElement.style.backgroundImage = `url(${poiIcons[poi.type] || poiIcons.default})`;
+    markerElement.style.width = '30px';
+    markerElement.style.height = '30px';
+    markerElement.style.backgroundSize = '100%';
+
+    // Create a marker for each POI
+    const marker = new mapboxgl.Marker(markerElement)
+        .setLngLat(poi.coordinates)
+        .addTo(map);
+
+    // Create a popup for each marker with the POI details
+    const popup = new mapboxgl.Popup({ offset: 25 })
+        .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
+
+    // Link the popup to the marker
+    marker.setPopup(popup);
+
+    // Store the marker so it can be removed later
+    poiMarkers.push(marker);
 }
 
-// Example photo data with coordinates and image paths (photos are in .jpeg format)
-const photos = [
+// Example POI data with coordinates and details
+let pois = [
     {
         coordinates: [144.9631, -37.814], // Melbourne
-        imageUrl: '/photos/photo1.jpeg',
-        title: 'Photo 1'
+        title: 'Federation Square',
+        description: 'A famous cultural precinct in the heart of Melbourne.',
+        type: 'landmark' // Custom type to apply specific marker icon
     },
     {
         coordinates: [144.978, -37.819], // Nearby location
-        imageUrl: '/photos/photo2.jpeg',
-        title: 'Photo 2'
+        title: 'Flinders Street Station',
+        description: 'One of Melbourne\'s most iconic buildings.',
+        type: 'landmark'
     }
 ];
+
+// Function to dynamically add POIs on map click
+map.on('click', function(e) {
+    const coordinates = [e.lngLat.lng, e.lngLat.lat];
+    const title = prompt('Enter POI title:');
+    const description = prompt('Enter POI description:');
+    const type = prompt('Enter POI type (e.g., restaurant, landmark):');
+
+    // Create new POI object
+    const newPOI = {
+        coordinates: coordinates,
+        title: title,
+        description: description,
+        type: type || 'default'
+    };
+
+    // Add the new POI to the list of POIs
+    pois.push(newPOI);
+
+    // Add the new POI marker to the map
+    addPOIMarker(newPOI);
+});
 
 // Function to toggle POI markers
 function togglePOILayer() {
@@ -140,48 +115,11 @@ function togglePOILayer() {
     }
 }
 
-// Store the markers for the POIs so we can remove them later
-let poiMarkers = [];
-
-// Function to add POI markers to the map
-function loadPOIMarkers() {
-    pois.forEach(poi => {
-        // Create a marker for each POI
-        const marker = new mapboxgl.Marker({ color: 'blue' }) // Blue markers for POIs
-            .setLngLat(poi.coordinates)
-            .addTo(map);
-
-        // Create a popup for each marker with the POI details
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
-
-        // Link the popup to the marker
-        marker.setPopup(popup);
-
-        // Store the marker so it can be removed later
-        poiMarkers.push(marker);
-    });
-}
-
 // Function to remove POI markers
 function removePOIMarkers() {
     poiMarkers.forEach(marker => marker.remove());
     poiMarkers = [];
 }
-
-// Example POI data with coordinates and details
-const pois = [
-    {
-        coordinates: [144.9631, -37.814], // Melbourne
-        title: 'Federation Square',
-        description: 'A famous cultural precinct in the heart of Melbourne.'
-    },
-    {
-        coordinates: [144.978, -37.819], // Nearby location
-        title: 'Flinders Street Station',
-        description: 'One of Melbourne\'s most iconic buildings.'
-    }
-];
 
 // Handle tab switching logic
 document.getElementById('road-tab').addEventListener('click', function() {
