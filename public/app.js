@@ -9,8 +9,9 @@ const map = new mapboxgl.Map({
 });
 
 // GPX URLs
-const roadGPX = 'GPX/Road/Capital_City_Trail.GPX'; // Path to road GPX file
-const gravelGPX = 'GPX/Gravel/Dandenong_Creek_Trail_.gpx'; // Path to gravel GPX file
+const roadGPX = '/GPX/Road/Capital_City_Trail.GPX'; // Corrected URL
+const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx'; // Corrected URL
+
 
 // Function to load GPX data and display it on the map
 function loadGPXLayer(url, map) {
