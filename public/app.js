@@ -1,5 +1,5 @@
-// Initialize the Mapbox map with your stored token
-mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // No need to re-add this if already set elsewhere
+// Initialize the Mapbox map with the token
+mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your actual token
 
 const map = new mapboxgl.Map({
     container: 'map',
@@ -11,6 +11,18 @@ const map = new mapboxgl.Map({
 // GPX URLs
 const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
 const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
+
+// Store the current active layers
+let activeLayers = {};
+
+// Function to remove layers
+function removeLayer(layerId) {
+    if (map.getLayer(layerId)) {
+        map.removeLayer(layerId);
+        map.removeSource(layerId);
+        delete activeLayers[layerId];
+    }
+}
 
 // Function to load and parse GPX data
 function loadGPXLayer(url, map, layerId) {
@@ -24,10 +36,7 @@ function loadGPXLayer(url, map, layerId) {
             const geojson = toGeoJSON.gpx(gpxDoc);
 
             // Remove existing layer if it exists
-            if (map.getSource(layerId)) {
-                map.removeLayer(layerId);
-                map.removeSource(layerId);
-            }
+            removeLayer(layerId);
 
             // Add the GeoJSON data as a new source and layer to the map
             map.addSource(layerId, {
@@ -48,6 +57,9 @@ function loadGPXLayer(url, map, layerId) {
                     'line-width': 4
                 }
             });
+
+            // Store the active layer
+            activeLayers[layerId] = true;
 
             // Fit the map to the bounds of the route
             const coordinates = geojson.features[0].geometry.coordinates;
@@ -71,6 +83,37 @@ function loadGravelRoutes() {
     loadGPXLayer(gravelGPX, map, 'gravel-route');
 }
 
+// Store the markers for the photos so we can remove them later
+let photoMarkers = [];
+
+// Function to add photo markers to the map
+function loadPhotoLayer() {
+    removePhotoMarkers(); // Remove existing markers before adding new ones
+
+    photos.forEach(photo => {
+        // Create a marker for each photo
+        const marker = new mapboxgl.Marker()
+            .setLngLat(photo.coordinates)
+            .addTo(map);
+
+        // Create a popup for each marker with the photo
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" width="200px">`);
+
+        // Link the popup to the marker
+        marker.setPopup(popup);
+
+        // Store the marker so it can be removed later
+        photoMarkers.push(marker);
+    });
+}
+
+// Function to remove photo markers
+function removePhotoMarkers() {
+    photoMarkers.forEach(marker => marker.remove());
+    photoMarkers = [];
+}
+
 // Example photo data with coordinates and image paths (photos are in .jpeg format)
 const photos = [
     {
@@ -84,23 +127,6 @@ const photos = [
         title: 'Photo 2'
     }
 ];
-
-// Function to add photo markers to the map
-function loadPhotoLayer() {
-    photos.forEach(photo => {
-        // Create a marker for each photo
-        const marker = new mapboxgl.Marker()
-            .setLngLat(photo.coordinates)
-            .addTo(map);
-
-        // Create a popup for each marker with the photo
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" width="200px">`);
-
-        // Link the popup to the marker
-        marker.setPopup(popup);
-    });
-}
 
 // Handle tab switching logic
 document.getElementById('road-tab').addEventListener('click', function() {
@@ -118,7 +144,12 @@ function switchLayer(layer) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.getElementById(layer + '-tab').classList.add('active');
 
-    // Load corresponding GPX layer or photo layer based on selected tab
+    // Remove other layers
+    removeLayer('road-route');
+    removeLayer('gravel-route');
+    removePhotoMarkers();
+
+    // Load the corresponding GPX layer or photo layer based on selected tab
     if (layer === 'road') {
         loadRoadRoutes();
     } else if (layer === 'gravel') {
