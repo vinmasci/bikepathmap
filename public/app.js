@@ -1,5 +1,5 @@
 // Initialize the Mapbox map
-mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your own Mapbox token
+mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
 
 const map = new mapboxgl.Map({
     container: 'map',
@@ -8,11 +8,35 @@ const map = new mapboxgl.Map({
     zoom: 10
 });
 
-// Placeholder for layers
-let roadLayer = {}; // Placeholder for road routes GPX layer
-let gravelLayer = {}; // Placeholder for gravel routes GPX layer
-let photosLayer = {}; // Placeholder for photos layer
-let poisLayer = {}; // Placeholder for POIs layer
+// GPX URLs
+const roadGPX = 'GPX/Road/Capital_City_Trail.GPX'; // Path to road GPX file
+const gravelGPX = 'GPX/Gravel/Dandenong_Creek_Trail_.gpx'; // Path to gravel GPX file
+
+// Function to load GPX data and display it on the map
+function loadGPXLayer(url, map) {
+    fetch(url)
+        .then(response => response.text())
+        .then(gpxData => {
+            console.log(gpxData); // Here we'll parse the GPX data
+            // You can add actual GPX parsing logic here
+            // For example, using libraries like togpx or leaflet-omnivore
+
+            // Example of adding a marker, replace this with GPX parsing and rendering
+            new mapboxgl.Marker()
+                .setLngLat([144.9631, -37.8136]) // Adjust based on GPX data
+                .addTo(map);
+        });
+}
+
+// Load Road Routes GPX Layer
+function loadRoadRoutes() {
+    loadGPXLayer(roadGPX, map);
+}
+
+// Load Gravel Routes GPX Layer
+function loadGravelRoutes() {
+    loadGPXLayer(gravelGPX, map);
+}
 
 // Handle tab switching logic
 document.getElementById('road-tab').addEventListener('click', function() {
@@ -35,6 +59,10 @@ function switchLayer(layer) {
     // Activate the current tab
     document.getElementById(layer + '-tab').classList.add('active');
 
-    // Placeholder logic for switching layers (to be implemented later)
-    console.log(`Switched to ${layer} layer`);
+    // Load corresponding GPX layers based on the tab selected
+    if (layer === 'road') {
+        loadRoadRoutes();
+    } else if (layer === 'gravel') {
+        loadGravelRoutes();
+    }
 }
