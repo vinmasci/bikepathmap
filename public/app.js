@@ -68,32 +68,71 @@ function removeLayer(layerId) {
     }
 }
 
-// Function to toggle the dropdown when the "Edit" tab is clicked
-document.getElementById('edit-tab').addEventListener('click', function () {
-    const dropdown = document.getElementById('edit-dropdown');
-    dropdown.classList.toggle('show');
-    highlightTab('edit-tab');
+// Handle tab switching logic for Road, Gravel, Photos, and POIs
+document.getElementById('road-tab').addEventListener('click', function () {
+    toggleGPXLayer(roadGPX, 'road');
+    highlightTab('road-tab');
 });
 
-// Handle adding GPX, Photos, POIs
-document.getElementById('add-road-gpx').addEventListener('click', function () {
-    alert('Add GPX Road file logic here');
-    // Logic for uploading GPX road files
-});
-document.getElementById('add-gravel-gpx').addEventListener('click', function () {
-    alert('Add GPX Gravel file logic here');
-    // Logic for uploading GPX gravel files
-});
-document.getElementById('add-photo').addEventListener('click', function () {
-    alert('Add Photo logic here');
-    // Logic for adding a photo
-});
-document.getElementById('add-poi').addEventListener('click', function () {
-    alert('Add POI logic here');
-    // Logic for adding a POI
+document.getElementById('gravel-tab').addEventListener('click', function () {
+    toggleGPXLayer(gravelGPX, 'gravel');
+    highlightTab('gravel-tab');
 });
 
-// Highlight active tab function
+document.getElementById('photos-tab').addEventListener('click', function () {
+    togglePhotoLayer();
+    highlightTab('photos-tab');
+});
+
+document.getElementById('pois-tab').addEventListener('click', function () {
+    togglePOILayer();
+    highlightTab('pois-tab');
+});
+
+// Function to toggle the photo layer
+function togglePhotoLayer() {
+    if (layerVisibility.photos) {
+        removePhotoMarkers();
+        layerVisibility.photos = false;
+        document.getElementById('photos-tab').classList.remove('active');
+    } else {
+        loadPhotoMarkers();
+        layerVisibility.photos = true;
+        document.getElementById('photos-tab').classList.add('active');
+    }
+}
+
+// Function to toggle the POI markers
+function togglePOILayer() {
+    if (layerVisibility.pois) {
+        removePOIMarkers();
+        layerVisibility.pois = false;
+        document.getElementById('pois-tab').classList.remove('active');
+    } else {
+        loadPOIMarkers();
+        layerVisibility.pois = true;
+        document.getElementById('pois-tab').classList.add('active');
+    }
+}
+
+// Dummy functions to remove markers for now
+function removePhotoMarkers() {
+    console.log('Removing photo markers');
+}
+
+function loadPhotoMarkers() {
+    console.log('Loading photo markers');
+}
+
+function removePOIMarkers() {
+    console.log('Removing POI markers');
+}
+
+function loadPOIMarkers() {
+    console.log('Loading POI markers');
+}
+
+// Function to highlight the active tab
 function highlightTab(tabId) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
