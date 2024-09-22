@@ -1,74 +1,73 @@
-const express = require('express');
-const AWS = require('aws-sdk');
 const multer = require('multer');
+const AWS = require('aws-sdk');
 const fs = require('fs');
-const path = require('path');
-const cors = require('cors'); // Ensure CORS is handled
-require('dotenv').config(); // Loads environment variables
+require('dotenv').config();
 
-const app = express();
-const port = process.env.PORT || 3000;
-
-// Enable CORS for all routes
-app.use(cors());
-
-// AWS S3 configuration
+// AWS S3 Configuration
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION
 });
 
-// Multer setup for file upload
-const upload = multer({ dest: 'uploads/' }); // Save files locally first
-
-// File upload route
-app.post('/api/upload-photo', upload.single('photoFile'), (req, res) => {
-    if (!req.file) {
-        console.error('No file uploaded');
-        return res.status(400).json({ error: 'No file uploaded' });
+// Multer configuration for file uploads
+const upload = multer({
+    dest: '/tmp/',  // Use '/tmp/' for serverless environments like Vercel
+    limits: { fileSize: 50000000 }, // 50MB file size limit
+    fileFilter: function (req, file, cb) {
+        const filetypes = /jpeg|jpg|png/;
+        const extname = filetypes.test(file.originalname.toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        } else {
+            cb('Error: Only JPEG and PNG images are allowed');
+        }
     }
+}).single('photoFile');
 
-    try {
-        // Read the file from the local folder
-        const fileContent = fs.readFileSync(req.file.path);
+module.exports = (req, res) => {
+    upload(req, res, function (err) {
+        if (err) {
+            return res.status(400).json({ error: err.message });
+        }
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
 
-        // Create params for S3 upload
-        const params = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: `${Date.now().toString()}-${req.file.originalname}`, // File name
-            Body: fileContent,
-            ACL: 'public-read',
-            ContentType: req.file.mimetype // Image type (e.g., 'image/jpeg')
-        };
+        try {
+            // Read the file from /tmp directory in serverless environment
+            const fileContent = fs.readFileSync(req.file.path);
 
-        // Upload to S3
-        s3.upload(params, (err, data) => {
-            if (err) {
-                console.error('Error uploading to S3:', err);
-                return res.status(500).json({ error: 'Failed to upload to S3' });
-            }
+            // S3 upload params
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `${Date.now().toString()}-${req.file.originalname}`, // File name
+                Body: fileContent,
+                ACL: 'public-read',
+                ContentType: req.file.mimetype // Image type (e.g., 'image/jpeg')
+            };
 
-            // Successful upload
-            res.status(200).json({ message: 'Upload successful', url: data.Location });
-
-            // Delete the local file after upload
-            fs.unlink(req.file.path, (unlinkErr) => {
-                if (unlinkErr) {
-                    console.error('Failed to delete local file:', unlinkErr);
+            // Upload to S3
+            s3.upload(params, (err, data) => {
+                if (err) {
+                    console.error('Error uploading to S3:', err);
+                    return res.status(500).json({ error: 'Failed to upload to S3' });
                 }
+
+                // Successful upload
+                res.status(200).json({ message: 'Upload successful', url: data.Location });
+
+                // Clean up local file from /tmp
+                fs.unlink(req.file.path, (unlinkErr) => {
+                    if (unlinkErr) {
+                        console.error('Failed to delete local file:', unlinkErr);
+                    }
+                });
             });
-        });
-    } catch (err) {
-        console.error('Error processing upload:', err);
-        res.status(500).json({ error: 'Server error during upload' });
-    }
-});
-
-// Serve static frontend files from the public folder
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Start the server
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+        } catch (err) {
+            console.error('Error processing upload:', err);
+            res.status(500).json({ error: 'Server error during upload' });
+        }
+    });
+};
