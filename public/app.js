@@ -11,6 +11,7 @@ const map = new mapboxgl.Map({
 const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
 const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
 
+// State to track whether layers are on or off
 let layerVisibility = {
     road: false,
     gravel: false,
@@ -58,14 +59,16 @@ function toggleGPXLayer(url, layerId) {
     }
 }
 
-// Photo and POI layer toggle functions (similar to GPX layers)
+// Toggle functions for Photos and POIs
 function togglePhotoLayer() {
     if (layerVisibility.photos) {
         removePhotoMarkers();
         layerVisibility.photos = false;
+        document.getElementById('photos-tab').classList.remove('active');
     } else {
         loadPhotoMarkers();
         layerVisibility.photos = true;
+        document.getElementById('photos-tab').classList.add('active');
     }
 }
 
@@ -73,44 +76,60 @@ function togglePOILayer() {
     if (layerVisibility.pois) {
         removePOIMarkers();
         layerVisibility.pois = false;
+        document.getElementById('pois-tab').classList.remove('active');
     } else {
         loadPOIMarkers();
         layerVisibility.pois = true;
+        document.getElementById('pois-tab').classList.add('active');
     }
 }
 
-// Dummy functions to handle loading and removing markers
-function loadPhotoMarkers() { console.log("Loading photo markers"); }
-function removePhotoMarkers() { console.log("Removing photo markers"); }
-function loadPOIMarkers() { console.log("Loading POI markers"); }
-function removePOIMarkers() { console.log("Removing POI markers"); }
+// Dummy functions for marker operations
+function loadPhotoMarkers() {
+    console.log("Loading photo markers");
+}
+
+function removePhotoMarkers() {
+    console.log("Removing photo markers");
+}
+
+function loadPOIMarkers() {
+    console.log("Loading POI markers");
+}
+
+function removePOIMarkers() {
+    console.log("Removing POI markers");
+}
 
 // Tab Switch Event Listeners
 document.getElementById('road-tab').addEventListener('click', function () {
     toggleGPXLayer(roadGPX, 'road');
     highlightTab('road-tab');
 });
+
 document.getElementById('gravel-tab').addEventListener('click', function () {
     toggleGPXLayer(gravelGPX, 'gravel');
     highlightTab('gravel-tab');
 });
+
 document.getElementById('photos-tab').addEventListener('click', function () {
     togglePhotoLayer();
     highlightTab('photos-tab');
 });
+
 document.getElementById('pois-tab').addEventListener('click', function () {
     togglePOILayer();
     highlightTab('pois-tab');
 });
 
-// Function to toggle the dropdown on the Add tab
+// Dropdown functionality under "Add" tab
 document.getElementById('add-tab').addEventListener('click', function () {
     const dropdown = document.getElementById('add-dropdown');
     dropdown.classList.toggle('show');
     highlightTab('add-tab');
 });
 
-// Highlight the active tab
+// Function to highlight active tabs
 function highlightTab(tabId) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
