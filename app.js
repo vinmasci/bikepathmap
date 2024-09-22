@@ -1,15 +1,13 @@
+// Backend app.js (Express server for API)
 const express = require('express');
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const path = require('path');
-require('dotenv').config(); // Loads environment variables
+require('dotenv').config(); // Load environment variables
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-console.log('S3 Bucket Name:', process.env.AWS_BUCKET_NAME);
-
 
 // AWS S3 configuration
 const s3 = new AWS.S3({
@@ -18,7 +16,7 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION
 });
 
-// Multer configuration for S3 upload
+// Multer S3 configuration for file upload
 const upload = multer({
     storage: multerS3({
         s3: s3,
@@ -50,7 +48,7 @@ app.post('/api/upload-photo', upload.single('photoFile'), (req, res) => {
     res.json({ message: 'Upload successful', url: imageUrl });
 });
 
-// Serve static frontend files from the public folder
+// Serve static frontend files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Start the server
