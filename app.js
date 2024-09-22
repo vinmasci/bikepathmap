@@ -40,7 +40,7 @@ async function uploadToS3(filePath, originalName, mimeType) {
 // Example function call (this would typically be triggered by a route or an event)
 const filePath = '/tmp/example-file.jpeg';  // Example file path
 const originalName = 'example-file.jpeg';  // Example file original name
-const mimeType = 'image/jpeg';  // Example mime type
+const mimeType = 'image/jpeg';  // Example mime type push
 
 uploadToS3(filePath, originalName, mimeType)
     .then(result => {
