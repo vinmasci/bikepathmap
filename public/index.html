@@ -51,6 +51,38 @@
             background-color: #ddd;
         }
         .show { display: block; }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -78,37 +110,41 @@
     <div class="modal-content">
       <span class="close" onclick="closeModal('road-modal')">&times;</span>
       <h2>Add GPX Road File</h2>
-      <!-- Add form or functionality for uploading GPX road file -->
+      <input type="file" id="road-file">
+      <button onclick="uploadGPXFile('road-file')">Upload</button>
     </div>
-  </div>
-  
-  <!-- Modal for adding GPX Gravel file -->
-  <div id="gravel-modal" class="modal">
+</div>
+
+<!-- Modal for adding GPX Gravel file -->
+<div id="gravel-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('gravel-modal')">&times;</span>
       <h2>Add GPX Gravel File</h2>
-      <!-- Add form or functionality for uploading GPX gravel file -->
+      <input type="file" id="gravel-file">
+      <button onclick="uploadGPXFile('gravel-file')">Upload</button>
     </div>
-  </div>
-  
-  <!-- Modal for adding a photo -->
-  <div id="photo-modal" class="modal">
+</div>
+
+<!-- Modal for adding a photo -->
+<div id="photo-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('photo-modal')">&times;</span>
       <h2>Add Photo</h2>
-      <!-- Add form or functionality for adding a photo -->
+      <input type="file" id="photo-file">
+      <button onclick="uploadPhotoFile('photo-file')">Upload</button>
     </div>
-  </div>
-  
-  <!-- Modal for adding a POI -->
-  <div id="poi-modal" class="modal">
+</div>
+
+<!-- Modal for adding a POI -->
+<div id="poi-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('poi-modal')">&times;</span>
       <h2>Add POI</h2>
-      <!-- Add form or functionality for adding POI -->
+      <input type="text" id="poi-title" placeholder="Title">
+      <textarea id="poi-description" placeholder="Description"></textarea>
+      <button onclick="savePOI()">Save POI</button>
     </div>
-  </div>
-  
+</div>
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
 <script src="/js/toGeoJSON.js"></script>
