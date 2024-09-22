@@ -239,11 +239,16 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData();
             formData.append('photoFile', file);
 
-            fetch('/upload-photo', { // Update to match your backend endpoint
+            fetch('/api/upload-photo', { 
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();  // Ensure the response is JSON
+            })
             .then(data => {
                 if (data.error) {
                     alert('Error: ' + data.error);
@@ -255,6 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 console.error('Error uploading photo:', error);
             });
+            
         });
     }
 });
