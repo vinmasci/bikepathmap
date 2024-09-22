@@ -19,6 +19,14 @@ let layerVisibility = {
     pois: false
 };
 
+// Function to remove layers
+function removeLayer(layerId) {
+    if (map.getLayer(layerId)) {
+        map.removeLayer(layerId);
+        map.removeSource(layerId);
+    }
+}
+
 // GPX Layer Toggle
 function toggleGPXLayer(url, layerId) {
     if (layerVisibility[layerId]) {
