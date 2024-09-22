@@ -13,6 +13,68 @@ document.addEventListener("DOMContentLoaded", function () {
     const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
     const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
 
+    let layerVisibility = {
+        road: false,
+        gravel: false,
+        photos: false,
+        pois: false
+    };
+
+    // Functions to handle layer toggling
+    function toggleGPXLayer(url, layerId) {
+        if (layerVisibility[layerId]) {
+            removeLayer(layerId);
+            layerVisibility[layerId] = false;
+        } else {
+            fetch(url)
+                .then(response => response.text())
+                .then(gpxData => {
+                    const parser = new DOMParser();
+                    const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
+                    const geojson = toGeoJSON.gpx(gpxDoc);
+
+                    map.addSource(layerId, {
+                        type: 'geojson',
+                        data: geojson
+                    });
+
+                    map.addLayer({
+                        id: layerId,
+                        type: 'line',
+                        source: layerId,
+                        layout: {
+                            'line-join': 'round',
+                            'line-cap': 'round'
+                        },
+                        paint: {
+                            'line-color': '#FF0000',
+                            'line-width': 4
+                        }
+                    });
+
+                    layerVisibility[layerId] = true;
+                })
+                .catch(error => console.error('Error loading GPX:', error));
+        }
+    }
+
+    function togglePhotoLayer() {
+        // Implement your logic to toggle the photo layer
+        console.log('Toggling photos');
+    }
+
+    function togglePOILayer() {
+        // Implement your logic to toggle POIs
+        console.log('Toggling POIs');
+    }
+
+    function removeLayer(layerId) {
+        if (map.getLayer(layerId)) {
+            map.removeLayer(layerId);
+            map.removeSource(layerId);
+        }
+    }
+
     // Handle the tabs functionality
     document.getElementById('road-tab').addEventListener('click', function () {
         toggleGPXLayer(roadGPX, 'road');
