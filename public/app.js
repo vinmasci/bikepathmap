@@ -23,13 +23,19 @@ let layerVisibility = {
 // Store the markers for the POIs so we can remove them later
 let poiMarkers = [];
 
+// Custom icons for different types of POIs
+const poiIcons = {
+    cafe: '<i class="fas fa-coffee"></i>',
+    caution: '<i class="fas fa-exclamation-triangle"></i>',
+    tourist: '<i class="fas fa-map-marker-alt"></i>'
+};
+
 // Function to add a POI marker using FontAwesome icons
 function addPOIMarker(poi) {
     const markerElement = document.createElement('div');
     markerElement.className = 'poi-marker';
     markerElement.style.fontSize = '24px';
-    markerElement.style.color = poi.type === 'restaurant' ? 'red' : 'blue'; // Color based on POI type
-    markerElement.innerHTML = poi.type === 'restaurant' ? '<i class="fas fa-utensils"></i>' : '<i class="fas fa-landmark"></i>';
+    markerElement.innerHTML = poiIcons[poi.type] || poiIcons['tourist']; // Default to tourist spot if no type
 
     // Create a marker for each POI
     const marker = new mapboxgl.Marker(markerElement)
@@ -66,30 +72,17 @@ let pois = [
         coordinates: [144.9631, -37.814], // Melbourne
         title: 'Federation Square',
         description: 'A famous cultural precinct in the heart of Melbourne.',
-        type: 'landmark' // Use landmark icon for this
+        type: 'tourist' // Default to tourist spot
     },
     {
         coordinates: [144.978, -37.819], // Nearby location
         title: 'Flinders Street Station',
         description: 'One of Melbourne\'s most iconic buildings.',
-        type: 'landmark'
+        type: 'tourist'
     }
 ];
 
-// Function to toggle POI markers
-function togglePOILayer() {
-    if (layerVisibility.pois) {
-        // POIs are visible, remove them
-        removePOIMarkers();
-        layerVisibility.pois = false;
-    } else {
-        // POIs are not visible, add them
-        loadPOIMarkers();
-        layerVisibility.pois = true;
-    }
-}
-
-// Floating button to add a new POI
+// Add floating button for adding POIs
 const addPOIButton = document.createElement('button');
 addPOIButton.innerHTML = '<i class="fas fa-plus"></i>';
 addPOIButton.style.position = 'fixed';
@@ -104,20 +97,50 @@ addPOIButton.style.borderRadius = '50%';
 addPOIButton.style.cursor = 'pointer';
 document.body.appendChild(addPOIButton);
 
-// Add click event to the floating button to place a new POI
+// Function to enable "POI placement mode"
 addPOIButton.addEventListener('click', function() {
+    document.body.style.cursor = 'crosshair'; // Change cursor to crosshair
     map.once('click', function(e) {
-        const coordinates = [e.lngLat.lng, e.lngLat.lat];
-        const title = prompt('Enter POI title:');
-        const description = prompt('Enter POI description:');
-        const type = prompt('Enter POI type (e.g., restaurant, landmark):');
+        document.body.style.cursor = ''; // Reset cursor after click
+
+        // Open modal window for POI info
+        openPOIModal(e.lngLat.lng, e.lngLat.lat);
+    });
+});
+
+// Function to open the POI modal
+function openPOIModal(lng, lat) {
+    const modal = document.createElement('div');
+    modal.className = 'poi-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Create New POI</h3>
+            <label>Title: <input type="text" id="poi-title"></label>
+            <label>Description: <textarea id="poi-description"></textarea></label>
+            <label>Type:
+                <select id="poi-type">
+                    <option value="cafe">Café</option>
+                    <option value="caution">Caution</option>
+                    <option value="tourist">Tourist Spot</option>
+                </select>
+            </label>
+            <button id="save-poi">Save POI</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Handle saving the POI
+    document.getElementById('save-poi').addEventListener('click', function() {
+        const title = document.getElementById('poi-title').value;
+        const description = document.getElementById('poi-description').value;
+        const type = document.getElementById('poi-type').value;
 
         // Create new POI object
         const newPOI = {
-            coordinates: coordinates,
+            coordinates: [lng, lat],
             title: title,
             description: description,
-            type: type || 'landmark'
+            type: type
         };
 
         // Add the new POI to the list of POIs
@@ -125,8 +148,11 @@ addPOIButton.addEventListener('click', function() {
 
         // Add the new POI marker to the map
         addPOIMarker(newPOI);
+
+        // Close the modal
+        document.body.removeChild(modal);
     });
-});
+}
 
 // Handle tab switching logic
 document.getElementById('road-tab').addEventListener('click', function() {
