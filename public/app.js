@@ -1,3 +1,4 @@
+// Mapbox initialization
 mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your token
 
 const map = new mapboxgl.Map({
@@ -11,7 +12,6 @@ const map = new mapboxgl.Map({
 const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
 const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
 
-// State to track whether layers are on or off
 let layerVisibility = {
     road: false,
     gravel: false,
@@ -67,117 +67,6 @@ function toggleGPXLayer(url, layerId) {
     }
 }
 
-// Photos data
-const photos = [
-    { coordinates: [144.9631, -37.8136], title: 'Photo 1', imageUrl: '/photos/photo1.jpeg' },
-    { coordinates: [144.9781, -37.8196], title: 'Photo 2', imageUrl: '/photos/photo2.jpeg' }
-];
-
-// POI data
-const pois = [
-    { coordinates: [144.9631, -37.814], title: 'Federation Square', description: 'A famous cultural precinct in Melbourne.' },
-    { coordinates: [144.978, -37.819], title: 'Flinders Street Station', description: 'One of Melbourne\'s most iconic buildings.' }
-];
-
-// Toggle functions for Photos and POIs
-function togglePhotoLayer() {
-    if (layerVisibility.photos) {
-        removePhotoMarkers();
-        layerVisibility.photos = false;
-        updateTabHighlight('photos-tab', false);
-    } else {
-        loadPhotoMarkers();
-        layerVisibility.photos = true;
-        updateTabHighlight('photos-tab', true);
-    }
-}
-
-function togglePOILayer() {
-    if (layerVisibility.pois) {
-        removePOIMarkers();
-        layerVisibility.pois = false;
-        updateTabHighlight('pois-tab', false);
-    } else {
-        loadPOIMarkers();
-        layerVisibility.pois = true;
-        updateTabHighlight('pois-tab', true);
-    }
-}
-
-// Functions to handle marker loading and removal
-let photoMarkers = [];
-let poiMarkers = [];
-
-// Load photo markers
-function loadPhotoMarkers() {
-    photos.forEach(photo => {
-        const marker = new mapboxgl.Marker()
-            .setLngLat(photo.coordinates)
-            .addTo(map);
-
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" style="width:200px;">`);
-
-        marker.setPopup(popup);
-        photoMarkers.push(marker);
-    });
-    console.log("Photo markers loaded");
-}
-
-// Remove photo markers
-function removePhotoMarkers() {
-    photoMarkers.forEach(marker => marker.remove());
-    photoMarkers = [];
-    console.log("Photo markers removed");
-}
-
-// Load POI markers
-function loadPOIMarkers() {
-    pois.forEach(poi => {
-        const marker = new mapboxgl.Marker()
-            .setLngLat(poi.coordinates)
-            .addTo(map);
-
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
-
-        marker.setPopup(popup);
-        poiMarkers.push(marker);
-    });
-    console.log("POI markers loaded");
-}
-
-// Remove POI markers
-function removePOIMarkers() {
-    poiMarkers.forEach(marker => marker.remove());
-    poiMarkers = [];
-    console.log("POI markers removed");
-}
-
-// Tab Switch Event Listeners
-document.getElementById('road-tab').addEventListener('click', function () {
-    toggleGPXLayer(roadGPX, 'road');
-});
-
-document.getElementById('gravel-tab').addEventListener('click', function () {
-    toggleGPXLayer(gravelGPX, 'gravel');
-});
-
-document.getElementById('photos-tab').addEventListener('click', function () {
-    togglePhotoLayer();
-});
-
-document.getElementById('pois-tab').addEventListener('click', function () {
-    togglePOILayer();
-});
-
-// Dropdown functionality under "Add" tab
-document.getElementById('add-tab').addEventListener('click', function () {
-    const dropdown = document.getElementById('add-dropdown');
-    dropdown.classList.toggle('show');
-    updateTabHighlight('add-tab', dropdown.classList.contains('show'));
-});
-
 // Function to update tab highlights based on the layer visibility
 function updateTabHighlight(tabId, isActive) {
     const tabElement = document.getElementById(tabId);
@@ -186,4 +75,96 @@ function updateTabHighlight(tabId, isActive) {
     } else {
         tabElement.classList.remove('active');
     }
+}
+
+// Modal creation and handling
+function createModal(content) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            ${content}
+            <button id="close-modal">Close</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('close-modal').addEventListener('click', function () {
+        document.body.removeChild(modal);
+    });
+}
+
+// Functions for handling each modal
+function openAddRoadGPXModal() {
+    const content = `
+        <h3>Add GPX Road File</h3>
+        <input type="file" id="road-gpx-input" accept=".gpx">
+        <button id="upload-road-gpx">Upload</button>
+    `;
+    createModal(content);
+}
+
+function openAddGravelGPXModal() {
+    const content = `
+        <h3>Add GPX Gravel File</h3>
+        <input type="file" id="gravel-gpx-input" accept=".gpx">
+        <button id="upload-gravel-gpx">Upload</button>
+    `;
+    createModal(content);
+}
+
+function openAddPhotoModal() {
+    const content = `
+        <h3>Add Photo</h3>
+        <label for="photo-coordinates">Coordinates (Lng, Lat):</label>
+        <input type="text" id="photo-coordinates" placeholder="e.g., 144.9631,-37.8136">
+        <input type="file" id="photo-input" accept="image/*">
+        <button id="upload-photo">Upload</button>
+    `;
+    createModal(content);
+}
+
+function openAddPOIModal() {
+    const content = `
+        <h3>Add POI</h3>
+        <label for="poi-coordinates">Coordinates (Lng, Lat):</label>
+        <input type="text" id="poi-coordinates" placeholder="e.g., 144.9631,-37.8136">
+        <input type="text" id="poi-title" placeholder="POI Title">
+        <textarea id="poi-description" placeholder="POI Description"></textarea>
+        <button id="save-poi">Save POI</button>
+    `;
+    createModal(content);
+}
+
+// Add tab dropdown event listeners
+document.getElementById('add-road-gpx').addEventListener('click', openAddRoadGPXModal);
+document.getElementById('add-gravel-gpx').addEventListener('click', openAddGravelGPXModal);
+document.getElementById('add-photo').addEventListener('click', openAddPhotoModal);
+document.getElementById('add-poi').addEventListener('click', openAddPOIModal);
+
+// Tab Switch Event Listeners for Layers
+document.getElementById('road-tab').addEventListener('click', function () {
+    toggleGPXLayer(roadGPX, 'road');
+    highlightTab('road-tab');
+});
+
+document.getElementById('gravel-tab').addEventListener('click', function () {
+    toggleGPXLayer(gravelGPX, 'gravel');
+    highlightTab('gravel-tab');
+});
+
+document.getElementById('photos-tab').addEventListener('click', function () {
+    togglePhotoLayer();
+    highlightTab('photos-tab');
+});
+
+document.getElementById('pois-tab').addEventListener('click', function () {
+    togglePOILayer();
+    highlightTab('pois-tab');
+});
+
+// Function to highlight active tabs
+function highlightTab(tabId) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
 }
