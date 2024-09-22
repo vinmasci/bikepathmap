@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
+    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';  // Use your actual Mapbox token
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData();
             formData.append('photoFile', file);
 
-            fetch('/api/upload-photo', { 
+            fetch('/api/upload-photo', { // Update to match your backend endpoint
                 method: 'POST',
                 body: formData
             })
@@ -260,7 +260,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 console.error('Error uploading photo:', error);
             });
-            
         });
     }
 });

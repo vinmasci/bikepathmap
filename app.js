@@ -3,10 +3,14 @@ const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors'); // Ensure CORS is handled
 require('dotenv').config(); // Loads environment variables
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Enable CORS for all routes
+app.use(cors());
 
 // AWS S3 configuration
 const s3 = new AWS.S3({
