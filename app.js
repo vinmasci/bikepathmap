@@ -53,3 +53,4 @@ uploadToS3(filePath, originalName, mimeType)
     .catch(err => {
         console.error('Error during upload process:', err);
     });
+    
