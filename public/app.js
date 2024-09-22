@@ -1,5 +1,5 @@
 // Initialize the Mapbox map
-mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your actual token
+mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'; // Use your actual token
 
 const map = new mapboxgl.Map({
     container: 'map',
@@ -19,6 +19,57 @@ let layerVisibility = {
     photos: false,
     pois: false
 };
+
+// Function to toggle GPX layers
+function toggleGPXLayer(url, map, layerId) {
+    if (layerVisibility[layerId]) {
+        // Layer is currently visible, remove it
+        removeLayer(layerId);
+        layerVisibility[layerId] = false;
+    } else {
+        // Layer is not visible, add it
+        fetch(url)
+            .then(response => response.text())
+            .then(gpxData => {
+                const parser = new DOMParser();
+                const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
+
+                // Convert GPX to GeoJSON using toGeoJSON
+                const geojson = toGeoJSON.gpx(gpxDoc);
+
+                // Add the GeoJSON data as a new source and layer to the map
+                map.addSource(layerId, {
+                    type: 'geojson',
+                    data: geojson
+                });
+
+                map.addLayer({
+                    id: layerId,
+                    type: 'line',
+                    source: layerId,
+                    layout: {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    paint: {
+                        'line-color': '#FF0000', // Customize the color as needed
+                        'line-width': 4
+                    }
+                });
+
+                // Update layer visibility state
+                layerVisibility[layerId] = true;
+            });
+    }
+}
+
+// Function to remove layers
+function removeLayer(layerId) {
+    if (map.getLayer(layerId)) {
+        map.removeLayer(layerId);
+        map.removeSource(layerId);
+    }
+}
 
 // Store the markers for the POIs so we can remove them later
 let poiMarkers = [];
@@ -154,6 +205,19 @@ function openPOIModal(lng, lat) {
     });
 }
 
+// Function to toggle POI markers
+function togglePOILayer() {
+    if (layerVisibility.pois) {
+        // POIs are visible, remove them
+        removePOIMarkers();
+        layerVisibility.pois = false;
+    } else {
+        // POIs are not visible, add them
+        loadPOIMarkers();
+        layerVisibility.pois = true;
+    }
+}
+
 // Handle tab switching logic
 document.getElementById('road-tab').addEventListener('click', function() {
     toggleGPXLayer(roadGPX, map, 'road');
@@ -168,11 +232,7 @@ document.getElementById('pois-tab').addEventListener('click', function() {
     togglePOILayer();
 });
 
-// Dummy toggleGPXLayer and togglePhotoLayer functions for now (replace with actual logic)
-function toggleGPXLayer() {
-    console.log("GPX layer toggle not yet implemented");
-}
-
+// Dummy togglePhotoLayer function for now (replace with actual logic)
 function togglePhotoLayer() {
     console.log("Photo layer toggle not yet implemented");
 }
