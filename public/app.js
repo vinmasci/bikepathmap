@@ -20,7 +20,7 @@ let layerVisibility = {
     pois: false
 };
 
-// Function to toggle GPX layers
+// Function to toggle GPX layers using the local toGeoJSON script
 function toggleGPXLayer(url, layerId) {
     if (layerVisibility[layerId]) {
         removeLayer(layerId);
@@ -32,6 +32,7 @@ function toggleGPXLayer(url, layerId) {
                 const parser = new DOMParser();
                 const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
 
+                // Using your saved toGeoJSON script
                 const geojson = toGeoJSON.gpx(gpxDoc);
 
                 map.addSource(layerId, {
@@ -131,7 +132,8 @@ addPOIButton.style.bottom = '20px';
 addPOIButton.style.right = '20px';
 addPOIButton.style.width = '50px';
 addPOIButton.style.height = '50px';
-addPOIButton.style.backgroundColor = '#007bff';
+addPOIButton.style.backgroundColor = '#FF0000'; // Red color
+addPOIButton.style.opacity = '1'; // No opacity
 addPOIButton.style.color = 'white';
 addPOIButton.style.border = 'none';
 addPOIButton.style.borderRadius = '50%';
@@ -140,7 +142,7 @@ document.body.appendChild(addPOIButton);
 
 // Function to enable "POI placement mode"
 addPOIButton.addEventListener('click', function() {
-    document.body.style.cursor = 'url("https://img.icons8.com/ios-filled/50/000000/plus-math.png"), auto';
+    document.body.style.cursor = 'url("https://img.icons8.com/ios-filled/50/FF0000/plus-math.png"), auto'; // Red cursor
     map.once('click', function(e) {
         document.body.style.cursor = ''; // Reset cursor
         openPOIModal(e.lngLat.lng, e.lngLat.lat);
