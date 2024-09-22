@@ -28,13 +28,13 @@ function toggleGPXLayer(url, layerId) {
     if (layerVisibility[layerId]) {
         removeLayer(layerId);
         layerVisibility[layerId] = false;
+        document.getElementById(layerId + '-tab').classList.remove('active');
     } else {
         fetch(url)
             .then(response => response.text())
             .then(gpxData => {
                 const parser = new DOMParser();
                 const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
-
                 const geojson = toGeoJSON.gpx(gpxDoc);
 
                 map.addSource(layerId, {
@@ -57,6 +57,7 @@ function toggleGPXLayer(url, layerId) {
                 });
 
                 layerVisibility[layerId] = true;
+                document.getElementById(layerId + '-tab').classList.add('active');
             })
             .catch(error => console.error('Error loading GPX:', error));
     }
@@ -197,36 +198,47 @@ function togglePOILayer() {
         console.log("Removing POI layer");
         removePOIMarkers();
         layerVisibility.pois = false;
+        document.getElementById('pois-tab').classList.remove('active');
     } else {
         console.log("Adding POI layer");
         loadPOIMarkers();
         layerVisibility.pois = true;
+        document.getElementById('pois-tab').classList.add('active');
     }
+}
+
+// Function to toggle Photo markers (Example, assuming similar to GPX layers)
+function togglePhotoLayer() {
+    if (layerVisibility.photos) {
+        removePhotoMarkers(); // Function to remove photo markers
+        layerVisibility.photos = false;
+        document.getElementById('photos-tab').classList.remove('active');
+    } else {
+        loadPhotoMarkers(); // Function to load photo markers
+        layerVisibility.photos = true;
+        document.getElementById('photos-tab').classList.add('active');
+    }
+}
+
+// Highlight active tab and toggle layers
+function highlightTab(tabId) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
 }
 
 // Handle tab switching logic
 document.getElementById('road-tab').addEventListener('click', function () {
     toggleGPXLayer(roadGPX, 'road');
-    highlightTab('road-tab');
 });
 
 document.getElementById('gravel-tab').addEventListener('click', function () {
     toggleGPXLayer(gravelGPX, 'gravel');
-    highlightTab('gravel-tab');
 });
 
 document.getElementById('photos-tab').addEventListener('click', function () {
     togglePhotoLayer();
-    highlightTab('photos-tab');
 });
 
 document.getElementById('pois-tab').addEventListener('click', function () {
     togglePOILayer();
-    highlightTab('pois-tab');
 });
-
-// Function to highlight the active tab
-function highlightTab(tabId) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-}
