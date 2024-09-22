@@ -13,14 +13,12 @@
 
     <style>
         body { margin: 0; padding: 0; }
-
         #map { 
             position: absolute; 
             top: 0; 
             bottom: 50px; 
             width: 100%; 
         }
-
         .tabs {
             position: fixed; 
             bottom: 0; 
@@ -29,7 +27,6 @@
             display: flex; 
             background-color: #333;
         }
-
         .tab {
             flex: 1;
             text-align: center;
@@ -37,17 +34,10 @@
             color: white;
             cursor: pointer;
         }
-
         .tab.active {
             background-color: #555;
         }
-
-        /* Custom cursor when in POI placement mode */
-        .poi-marker {
-            cursor: crosshair;
-        }
-
-        /* Modal styling */
+        .poi-marker { cursor: crosshair; }
         .poi-modal {
             position: fixed;
             top: 50%;
@@ -59,18 +49,12 @@
             z-index: 1000;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         .modal-content {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-
-        .modal-content h3 {
-            margin: 0;
-        }
-
-        /* Styling for floating button */
+        .modal-content h3 { margin: 0; }
         #add-poi-btn {
             position: fixed;
             bottom: 20px;
@@ -84,13 +68,11 @@
             cursor: pointer;
             font-size: 24px;
         }
-
     </style>
 </head>
 <body>
 
 <div id="map"></div>
-
 <div class="tabs">
     <div class="tab" id="road-tab">Road Routes</div>
     <div class="tab" id="gravel-tab">Gravel Routes</div>
@@ -103,6 +85,9 @@
 
 <!-- Include Mapbox JS -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+
+<!-- Add toGeoJSON script from your app folder -->
+<script src="/app/togeojson.min.js"></script>
 
 <!-- Link to your app.js -->
 <script src="/app.js"></script>
