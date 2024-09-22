@@ -1,215 +1,73 @@
-mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your token
+require('dotenv').config(); // Add this line to load .env variables
 
-const map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v11',
-    center: [144.9631, -37.8136], // Center on Melbourne
-    zoom: 10
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const app = express();
+const port = 3000; // Set your preferred port
+
+// Middleware to serve static files (CSS, JS, etc.)
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json()); // For JSON handling
+
+// Use Mapbox token from environment variables
+const MAPBOX_TOKEN = process.env.MAPBOX_TOKEN;
+const MONGODB_URI = process.env.MONGODB_URI; // MongoDB URI
+
+// Create storage engine for Multer to handle file uploads
+const storage = multer.diskStorage({
+    destination: './public/uploads', // Save files in public/uploads
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
 });
 
-// GPX URLs
-const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
-const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
-
-// State to track whether layers are on or off
-let layerVisibility = {
-    road: false,
-    gravel: false,
-    photos: false,
-    pois: false
-};
-
-// Function to remove layers
-function removeLayer(layerId) {
-    if (map.getLayer(layerId)) {
-        map.removeLayer(layerId);
-        map.removeSource(layerId);
+// Initialize upload with file size limit
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 1000000 }, // 1 MB file size limit
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
     }
-}
+}).single('photoFile');
 
-// GPX Layer Toggle
-function toggleGPXLayer(url, layerId) {
-    if (layerVisibility[layerId]) {
-        removeLayer(layerId);
-        layerVisibility[layerId] = false;
-        updateTabHighlight(layerId + '-tab', false);
+// Check file type for image uploads (only JPEG and PNG allowed)
+function checkFileType(file, cb) {
+    const filetypes = /jpeg|jpg|png/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
     } else {
-        fetch(url)
-            .then(response => response.text())
-            .then(gpxData => {
-                const parser = new DOMParser();
-                const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
-                const geojson = toGeoJSON.gpx(gpxDoc);
-
-                map.addSource(layerId, {
-                    type: 'geojson',
-                    data: geojson
-                });
-
-                map.addLayer({
-                    id: layerId,
-                    type: 'line',
-                    source: layerId,
-                    layout: {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    paint: {
-                        'line-color': '#FF0000',
-                        'line-width': 4
-                    }
-                });
-
-                layerVisibility[layerId] = true;
-                updateTabHighlight(layerId + '-tab', true);
-            })
-            .catch(error => console.error('Error loading GPX:', error));
+        cb('Error: Only JPEG or PNG images are allowed!');
     }
 }
 
-// Photos data
-const photos = [
-    { coordinates: [144.9631, -37.8136], title: 'Photo 1', imageUrl: '/photos/photo1.jpeg' },
-    { coordinates: [144.9781, -37.8196], title: 'Photo 2', imageUrl: '/photos/photo2.jpeg' }
-];
-
-// POI data
-const pois = [
-    { coordinates: [144.9631, -37.814], title: 'Federation Square', description: 'A famous cultural precinct in Melbourne.' },
-    { coordinates: [144.978, -37.819], title: 'Flinders Street Station', description: 'One of Melbourne\'s most iconic buildings.' }
-];
-
-// Toggle functions for Photos and POIs
-function togglePhotoLayer() {
-    if (layerVisibility.photos) {
-        removePhotoMarkers();
-        layerVisibility.photos = false;
-        updateTabHighlight('photos-tab', false);
-    } else {
-        loadPhotoMarkers();
-        layerVisibility.photos = true;
-        updateTabHighlight('photos-tab', true);
-    }
-}
-
-function togglePOILayer() {
-    if (layerVisibility.pois) {
-        removePOIMarkers();
-        layerVisibility.pois = false;
-        updateTabHighlight('pois-tab', false);
-    } else {
-        loadPOIMarkers();
-        layerVisibility.pois = true;
-        updateTabHighlight('pois-tab', true);
-    }
-}
-
-// Functions to handle marker loading and removal
-let photoMarkers = [];
-let poiMarkers = [];
-
-// Load photo markers
-function loadPhotoMarkers() {
-    photos.forEach(photo => {
-        const marker = new mapboxgl.Marker()
-            .setLngLat(photo.coordinates)
-            .addTo(map);
-
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" style="width:200px;">`);
-
-        marker.setPopup(popup);
-        photoMarkers.push(marker);
+// API route to handle photo upload
+app.post('/upload-photo', (req, res) => {
+    upload(req, res, (err) => {
+        if (err) {
+            return res.status(400).json({ error: err });
+        }
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        // Successfully uploaded, send back file details
+        res.json({
+            message: 'File uploaded successfully',
+            filename: req.file.filename,
+            filepath: `/uploads/${req.file.filename}`
+        });
     });
-    console.log("Photo markers loaded");
-}
-
-// Remove photo markers
-function removePhotoMarkers() {
-    photoMarkers.forEach(marker => marker.remove());
-    photoMarkers = [];
-    console.log("Photo markers removed");
-}
-
-// Load POI markers
-function loadPOIMarkers() {
-    pois.forEach(poi => {
-        const marker = new mapboxgl.Marker()
-            .setLngLat(poi.coordinates)
-            .addTo(map);
-
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
-
-        marker.setPopup(popup);
-        poiMarkers.push(marker);
-    });
-    console.log("POI markers loaded");
-}
-
-// Remove POI markers
-function removePOIMarkers() {
-    poiMarkers.forEach(marker => marker.remove());
-    poiMarkers = [];
-    console.log("POI markers removed");
-}
-
-// Tab Switch Event Listeners
-document.getElementById('road-tab').addEventListener('click', function () {
-    toggleGPXLayer(roadGPX, 'road');
 });
 
-document.getElementById('gravel-tab').addEventListener('click', function () {
-    toggleGPXLayer(gravelGPX, 'gravel');
+// Serve index.html for the frontend
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-document.getElementById('photos-tab').addEventListener('click', function () {
-    togglePhotoLayer();
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
 });
-
-document.getElementById('pois-tab').addEventListener('click', function () {
-    togglePOILayer();
-});
-
-// Function to open modals for "Add" actions
-function openAddModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.style.display = "block";
-}
-
-// Close modals
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.style.display = "none";
-}
-
-// Add modal events
-document.getElementById('add-road-gpx').addEventListener('click', function() {
-    openAddModal('road-modal');
-});
-document.getElementById('add-gravel-gpx').addEventListener('click', function() {
-    openAddModal('gravel-modal');
-});
-document.getElementById('add-photo').addEventListener('click', function() {
-    openAddModal('photo-modal');
-});
-document.getElementById('add-poi').addEventListener('click', function() {
-    openAddModal('poi-modal');
-});
-
-// Dropdown functionality under "Add" tab
-document.getElementById('add-tab').addEventListener('click', function () {
-    const dropdown = document.getElementById('add-dropdown');
-    dropdown.classList.toggle('show');
-    updateTabHighlight('add-tab', dropdown.classList.contains('show'));
-});
-
-// Function to update tab highlights based on the layer visibility
-function updateTabHighlight(tabId, isActive) {
-    const tabElement = document.getElementById(tabId);
-    if (isActive) {
-        tabElement.classList.add('active');
-    } else {
-        tabElement.classList.remove('active');
-    }
-}
