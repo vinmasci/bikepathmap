@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
+    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';  // Use your actual Mapbox token
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let photoMarkers = [];
     let poiMarkers = [];
 
+    // Helper function to highlight tabs
     function updateTabHighlight(tabId, isActive) {
         const tab = document.getElementById(tabId);
         if (isActive) {
@@ -79,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Photo marker functions
     function loadPhotoMarkers() {
         photos.forEach(photo => {
             const marker = new mapboxgl.Marker()
@@ -89,13 +91,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" style="width:200px;">`);
 
             marker.setPopup(popup);
-            photoMarkers.push(marker);  
+            photoMarkers.push(marker);
         });
     }
 
     function removePhotoMarkers() {
-        photoMarkers.forEach(marker => marker.remove());  
-        photoMarkers = [];  
+        photoMarkers.forEach(marker => marker.remove());
+        photoMarkers = [];
     }
 
     function togglePhotoLayer() {
@@ -110,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // POI marker functions
     function loadPOIMarkers() {
         pois.forEach(poi => {
             const marker = new mapboxgl.Marker()
@@ -120,13 +123,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
 
             marker.setPopup(popup);
-            poiMarkers.push(marker);  
+            poiMarkers.push(marker);
         });
     }
 
     function removePOIMarkers() {
-        poiMarkers.forEach(marker => marker.remove());  
-        poiMarkers = [];  
+        poiMarkers.forEach(marker => marker.remove());
+        poiMarkers = [];
     }
 
     function togglePOILayer() {
@@ -141,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Remove layers
     function removeLayer(layerId) {
         if (map.getLayer(layerId)) {
             map.removeLayer(layerId);
@@ -148,6 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Tab Switch Event Listeners
     document.getElementById('road-tab').addEventListener('click', function () {
         toggleGPXLayer(roadGPX, 'road');
     });
@@ -164,12 +169,14 @@ document.addEventListener("DOMContentLoaded", function () {
         togglePOILayer();
     });
 
+    // Dropdown toggle for the "Add" tab
     document.getElementById('add-tab').addEventListener('click', function () {
         const dropdown = document.getElementById('add-dropdown');
         dropdown.classList.toggle('show');
         updateTabHighlight('add-tab', dropdown.classList.contains('show'));
     });
 
+    // Modal Logic for Add Tab Buttons
     function openAddModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -184,6 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Event listeners for dropdown buttons to open modals
     document.getElementById('add-road-gpx').addEventListener('click', function() {
         openAddModal('road-modal');
     });
@@ -197,6 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
         openAddModal('poi-modal');
     });
 
+    // Close modals when clicking the close button (X)
     const closeButtons = document.querySelectorAll('.close');
     closeButtons.forEach(button => {
         button.addEventListener('click', function () {
@@ -205,6 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // Close modals if the user clicks outside of the modal content
     window.onclick = function(event) {
         const modals = document.querySelectorAll('.modal');
         modals.forEach(modal => {
@@ -229,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData();
             formData.append('photoFile', file);
 
-            fetch('/upload-photo', {
+            fetch('/api/upload-photo', {
                 method: 'POST',
                 body: formData
             })
@@ -240,7 +250,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     alert('Photo uploaded successfully: ' + data.url);
                     closeModal('photo-modal');
-                    // Optionally, add the uploaded photo to the map
                 }
             })
             .catch(error => {
