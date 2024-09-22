@@ -89,6 +89,12 @@ document.getElementById('pois-tab').addEventListener('click', function () {
     highlightTab('pois-tab');
 });
 
+document.getElementById('add-tab').addEventListener('click', function () {
+    const dropdown = document.getElementById('edit-dropdown');
+    dropdown.classList.toggle('show');
+    highlightTab('add-tab'); // Use 'add-tab' instead of 'edit-tab'
+});
+
 // Function to toggle the photo layer
 function togglePhotoLayer() {
     if (layerVisibility.photos) {
