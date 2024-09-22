@@ -239,11 +239,16 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData();
             formData.append('photoFile', file);
 
-            fetch('/api/upload-photo', {
+            fetch('/upload-photo', { // Update to match your backend endpoint
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.error) {
                     alert('Error: ' + data.error);
