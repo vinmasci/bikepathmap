@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
+const exifParser = require('exif-parser');  // Import the EXIF parser
 require('dotenv').config();  // Ensure .env is loaded correctly
 
 // AWS S3 configuration
@@ -49,6 +50,21 @@ module.exports = (req, res) => {
                 ContentType: req.file.mimetype  // Correct content type (e.g., 'image/jpeg')
             };
 
+            // Extract EXIF data (if available)
+            let latitude = null;
+            let longitude = null;
+
+            try {
+                const parser = exifParser.create(fileContent);
+                const exifData = parser.parse();
+                if (exifData.tags.GPSLatitude && exifData.tags.GPSLongitude) {
+                    latitude = exifData.tags.GPSLatitude;
+                    longitude = exifData.tags.GPSLongitude;
+                }
+            } catch (exifError) {
+                console.error('Error extracting EXIF data:', exifError);
+            }
+
             // Upload the file to S3
             s3.upload(params, (err, data) => {
                 if (err) {
@@ -56,8 +72,13 @@ module.exports = (req, res) => {
                     return res.status(500).json({ error: 'Failed to upload to S3' });
                 }
 
-                // Respond with the S3 file URL
-                res.status(200).json({ message: 'Upload successful', url: data.Location });
+                // Respond with the S3 file URL and GPS coordinates (if available)
+                res.status(200).json({
+                    message: 'Upload successful',
+                    url: data.Location,
+                    latitude: latitude,
+                    longitude: longitude
+                });
 
                 // Clean up local file after upload
                 fs.unlink(req.file.path, (unlinkErr) => {

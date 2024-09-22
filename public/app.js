@@ -244,6 +244,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     alert('Photo uploaded successfully: ' + data.url);
                     closeModal('photo-modal');
+
+                    // Adding the uploaded photo as a marker on the map dynamically
+                    const photoCoordinates = [144.9631, -37.8136]; // Replace with actual coordinates if available
+
+                    const newPhotoMarker = new mapboxgl.Marker()
+                        .setLngLat(photoCoordinates)
+                        .addTo(map);
+
+                    const newPopup = new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(`<h3>New Photo</h3><img src="${data.url}" style="width:200px;">`);
+
+                    newPhotoMarker.setPopup(newPopup);
+                    photoMarkers.push(newPhotoMarker);
                 }
             })
             .catch(error => {
