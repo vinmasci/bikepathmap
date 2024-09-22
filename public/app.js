@@ -1,15 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
-    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; 
+    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
 
     const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: [144.9631, -37.8136], 
+        center: [144.9631, -37.8136],
         zoom: 10
     });
 
+    // GPX URLs
     const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
     const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
+
+    // Photos and POI data
     const photos = [
         { coordinates: [144.9631, -37.8136], title: 'Photo 1', imageUrl: '/photos/photo1.jpeg' },
         { coordinates: [144.9781, -37.8196], title: 'Photo 2', imageUrl: '/photos/photo2.jpeg' }
@@ -19,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
         { coordinates: [144.978, -37.819], title: 'Flinders Street Station', description: 'Melbourne’s iconic building.' }
     ];
 
+    // State to track visibility of layers
     let layerVisibility = {
         road: false,
         gravel: false,
@@ -36,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Functions to load/remove layers (GPX, Photos, POIs)
+    // GPX Layer Toggle
     function toggleGPXLayer(url, layerId) {
         if (layerVisibility[layerId]) {
             removeLayer(layerId);
@@ -76,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Load and toggle photos
     function loadPhotoMarkers() {
         photos.forEach(photo => {
             const marker = new mapboxgl.Marker()
@@ -91,8 +96,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function togglePhotoLayer() {
         if (layerVisibility.photos) {
-            layerVisibility.photos = false;
             removeLayer('photos');
+            layerVisibility.photos = false;
             updateTabHighlight('photos-tab', false);
         } else {
             loadPhotoMarkers();
@@ -101,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Load and toggle POIs
     function loadPOIMarkers() {
         pois.forEach(poi => {
             const marker = new mapboxgl.Marker()
@@ -116,8 +122,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function togglePOILayer() {
         if (layerVisibility.pois) {
-            layerVisibility.pois = false;
             removeLayer('pois');
+            layerVisibility.pois = false;
             updateTabHighlight('pois-tab', false);
         } else {
             loadPOIMarkers();
@@ -157,4 +163,52 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdown.classList.toggle('show');
         updateTabHighlight('add-tab', dropdown.classList.contains('show'));
     });
+
+    // Modal Logic for Add Tab Buttons
+    function openAddModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = "block";
+        }
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // Event listeners for dropdown buttons to open modals
+    document.getElementById('add-road-gpx').addEventListener('click', function() {
+        openAddModal('road-modal');
+    });
+    document.getElementById('add-gravel-gpx').addEventListener('click', function() {
+        openAddModal('gravel-modal');
+    });
+    document.getElementById('add-photo').addEventListener('click', function() {
+        openAddModal('photo-modal');
+    });
+    document.getElementById('add-poi').addEventListener('click', function() {
+        openAddModal('poi-modal');
+    });
+
+    // Close modals when clicking the close button (X)
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const modalId = button.parentElement.parentElement.id;
+            closeModal(modalId);
+        });
+    });
+
+    // Close modals if the user clicks outside of the modal content
+    window.onclick = function(event) {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    };
 });

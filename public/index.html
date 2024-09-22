@@ -108,43 +108,44 @@
 <!-- Modal for adding GPX Road file -->
 <div id="road-modal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal('road-modal')">&times;</span>
-      <h2>Add GPX Road File</h2>
-      <input type="file" id="road-file">
-      <button onclick="uploadGPXFile('road-file')">Upload</button>
+        <span class="close" onclick="closeModal('road-modal')">&times;</span>
+        <h2>Add GPX Road File</h2>
+        <input type="file" id="road-file">
+        <button onclick="uploadGPXFile('road-file')">Upload</button>
     </div>
 </div>
 
 <!-- Modal for adding GPX Gravel file -->
 <div id="gravel-modal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal('gravel-modal')">&times;</span>
-      <h2>Add GPX Gravel File</h2>
-      <input type="file" id="gravel-file">
-      <button onclick="uploadGPXFile('gravel-file')">Upload</button>
+        <span class="close" onclick="closeModal('gravel-modal')">&times;</span>
+        <h2>Add GPX Gravel File</h2>
+        <input type="file" id="gravel-file">
+        <button onclick="uploadGPXFile('gravel-file')">Upload</button>
     </div>
 </div>
 
 <!-- Modal for adding a photo -->
 <div id="photo-modal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal('photo-modal')">&times;</span>
-      <h2>Add Photo</h2>
-      <input type="file" id="photo-file">
-      <button onclick="uploadPhotoFile('photo-file')">Upload</button>
+        <span class="close" onclick="closeModal('photo-modal')">&times;</span>
+        <h2>Add Photo</h2>
+        <input type="file" id="photo-file">
+        <button onclick="uploadPhotoFile('photo-file')">Upload</button>
     </div>
 </div>
 
 <!-- Modal for adding a POI -->
 <div id="poi-modal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal('poi-modal')">&times;</span>
-      <h2>Add POI</h2>
-      <input type="text" id="poi-title" placeholder="Title">
-      <textarea id="poi-description" placeholder="Description"></textarea>
-      <button onclick="savePOI()">Save POI</button>
+        <span class="close" onclick="closeModal('poi-modal')">&times;</span>
+        <h2>Add POI</h2>
+        <input type="text" id="poi-title" placeholder="Title">
+        <textarea id="poi-description" placeholder="Description"></textarea>
+        <button onclick="savePOI()">Save POI</button>
     </div>
 </div>
+
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
 <script src="/js/toGeoJSON.js"></script>
