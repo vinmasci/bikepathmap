@@ -20,7 +20,6 @@ async function uploadToS3(filePath, originalName, mimeType) {
             Bucket: process.env.AWS_BUCKET_NAME,  // Ensure this is correct
             Key: `${Date.now().toString()}-${originalName}`,  // Unique file name
             Body: fileContent,
-            ACL: 'public-read',
             ContentType: mimeType  // Image type (e.g., 'image/jpeg')
         };
 

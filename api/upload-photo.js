@@ -46,7 +46,6 @@ module.exports = (req, res) => {
                 Bucket: process.env.AWS_BUCKET_NAME,
                 Key: `${Date.now().toString()}-${req.file.originalname}`,
                 Body: fileContent,
-                ACL: 'public-read',
                 ContentType: req.file.mimetype  // Correct content type (e.g., 'image/jpeg')
             };
 
