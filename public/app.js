@@ -67,6 +67,18 @@ function toggleGPXLayer(url, layerId) {
     }
 }
 
+// Photos data
+const photos = [
+    { coordinates: [144.9631, -37.8136], title: 'Photo 1', imageUrl: '/photos/photo1.jpg' },
+    { coordinates: [144.9781, -37.8196], title: 'Photo 2', imageUrl: '/photos/photo2.jpg' }
+];
+
+// POI data
+const pois = [
+    { coordinates: [144.9631, -37.814], title: 'Federation Square', description: 'A famous cultural precinct in Melbourne.' },
+    { coordinates: [144.978, -37.819], title: 'Flinders Street Station', description: 'One of Melbourne\'s most iconic buildings.' }
+];
+
 // Toggle functions for Photos and POIs
 function togglePhotoLayer() {
     if (layerVisibility.photos) {
@@ -92,21 +104,54 @@ function togglePOILayer() {
     }
 }
 
-// Dummy functions for marker operations
+// Functions to handle marker loading and removal
+let photoMarkers = [];
+let poiMarkers = [];
+
+// Load photo markers
 function loadPhotoMarkers() {
-    console.log("Loading photo markers");
+    photos.forEach(photo => {
+        const marker = new mapboxgl.Marker()
+            .setLngLat(photo.coordinates)
+            .addTo(map);
+
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" style="width:200px;">`);
+
+        marker.setPopup(popup);
+        photoMarkers.push(marker);
+    });
+    console.log("Photo markers loaded");
 }
 
+// Remove photo markers
 function removePhotoMarkers() {
-    console.log("Removing photo markers");
+    photoMarkers.forEach(marker => marker.remove());
+    photoMarkers = [];
+    console.log("Photo markers removed");
 }
 
+// Load POI markers
 function loadPOIMarkers() {
-    console.log("Loading POI markers");
+    pois.forEach(poi => {
+        const marker = new mapboxgl.Marker()
+            .setLngLat(poi.coordinates)
+            .addTo(map);
+
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
+
+        marker.setPopup(popup);
+        poiMarkers.push(marker);
+    });
+    console.log("POI markers loaded");
 }
 
+// Remove POI markers
 function removePOIMarkers() {
-    console.log("Removing POI markers");
+    poiMarkers.forEach(marker => marker.remove());
+    poiMarkers = [];
+    console.log("POI markers removed");
 }
 
 // Tab Switch Event Listeners
