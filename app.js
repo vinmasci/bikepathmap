@@ -8,6 +8,8 @@ require('dotenv').config(); // Loads environment variables
 const app = express();
 const port = process.env.PORT || 3000;
 
+console.log('S3 Bucket Name:', process.env.AWS_BUCKET_NAME);
+
 // AWS S3 configuration
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
