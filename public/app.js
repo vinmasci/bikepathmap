@@ -192,6 +192,57 @@ function openPOIModal(lng, lat) {
     });
 }
 
+// Store the markers for the photos
+let photoMarkers = [];
+
+// Example photos array
+const photos = [
+    {
+        coordinates: [144.9631, -37.814],
+        imageUrl: '/photos/photo1.jpeg',
+        title: 'Photo 1'
+    },
+    {
+        coordinates: [144.978, -37.819],
+        imageUrl: '/photos/photo2.jpeg',
+        title: 'Photo 2'
+    }
+];
+
+// Function to load photo markers
+function loadPhotoMarkers() {
+    photos.forEach(photo => {
+        const marker = new mapboxgl.Marker()
+            .setLngLat(photo.coordinates)
+            .addTo(map);
+
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" width="200px">`);
+
+        marker.setPopup(popup);
+        photoMarkers.push(marker);
+    });
+}
+
+// Function to remove photo markers
+function removePhotoMarkers() {
+    photoMarkers.forEach(marker => marker.remove());
+    photoMarkers = [];
+}
+
+// Function to toggle Photo markers
+function togglePhotoLayer() {
+    if (layerVisibility.photos) {
+        removePhotoMarkers();
+        layerVisibility.photos = false;
+        document.getElementById('photos-tab').classList.remove('active');
+    } else {
+        loadPhotoMarkers();
+        layerVisibility.photos = true;
+        document.getElementById('photos-tab').classList.add('active');
+    }
+}
+
 // Function to toggle POI markers
 function togglePOILayer() {
     if (layerVisibility.pois) {
@@ -205,25 +256,6 @@ function togglePOILayer() {
         layerVisibility.pois = true;
         document.getElementById('pois-tab').classList.add('active');
     }
-}
-
-// Function to toggle Photo markers (Example, assuming similar to GPX layers)
-function togglePhotoLayer() {
-    if (layerVisibility.photos) {
-        removePhotoMarkers(); // Function to remove photo markers
-        layerVisibility.photos = false;
-        document.getElementById('photos-tab').classList.remove('active');
-    } else {
-        loadPhotoMarkers(); // Function to load photo markers
-        layerVisibility.photos = true;
-        document.getElementById('photos-tab').classList.add('active');
-    }
-}
-
-// Highlight active tab and toggle layers
-function highlightTab(tabId) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
 }
 
 // Handle tab switching logic
