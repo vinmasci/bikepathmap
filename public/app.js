@@ -20,55 +20,43 @@ let layerVisibility = {
     pois: false
 };
 
-// Helper function to check if a layer exists on the map
-function layerExists(layerId) {
-    return map.getLayer(layerId);
-}
+// Track POI placement mode state
+let isPOIActive = false;
 
 // Function to toggle GPX layers using toGeoJSON
 function toggleGPXLayer(url, layerId) {
     if (layerVisibility[layerId]) {
-        console.log(`Removing layer: ${layerId}`);
         removeLayer(layerId);
         layerVisibility[layerId] = false;
     } else {
-        console.log(`Adding layer: ${layerId}`);
         fetch(url)
             .then(response => response.text())
             .then(gpxData => {
                 const parser = new DOMParser();
                 const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
 
-                // Ensure toGeoJSON is loaded and accessible
-                if (typeof toGeoJSON === 'undefined') {
-                    console.error('toGeoJSON is not loaded');
-                    return;
-                }
-
                 const geojson = toGeoJSON.gpx(gpxDoc);
 
-                if (!layerExists(layerId)) {
-                    map.addSource(layerId, {
-                        type: 'geojson',
-                        data: geojson
-                    });
+                map.addSource(layerId, {
+                    type: 'geojson',
+                    data: geojson
+                });
 
-                    map.addLayer({
-                        id: layerId,
-                        type: 'line',
-                        source: layerId,
-                        layout: {
-                            'line-join': 'round',
-                            'line-cap': 'round'
-                        },
-                        paint: {
-                            'line-color': '#FF0000', // Customize the color
-                            'line-width': 4
-                        }
-                    });
+                map.addLayer({
+                    id: layerId,
+                    type: 'line',
+                    source: layerId,
+                    layout: {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    paint: {
+                        'line-color': '#FF0000',
+                        'line-width': 4
+                    }
+                });
 
-                    layerVisibility[layerId] = true;
-                }
+                layerVisibility[layerId] = true;
             })
             .catch(error => console.error('Error loading GPX:', error));
     }
@@ -76,7 +64,7 @@ function toggleGPXLayer(url, layerId) {
 
 // Function to remove layers
 function removeLayer(layerId) {
-    if (layerExists(layerId)) {
+    if (map.getLayer(layerId)) {
         map.removeLayer(layerId);
         map.removeSource(layerId);
     }
@@ -130,58 +118,80 @@ let pois = [
     }
 ];
 
-// Store the markers for the photos
-let photoMarkers = [];
+// Custom icons for different types of POIs
+const poiIcons = {
+    cafe: '<i class="fas fa-coffee"></i>',
+    caution: '<i class="fas fa-exclamation-triangle"></i>',
+    tourist: '<i class="fas fa-map-marker-alt"></i>'
+};
 
-// Function to load photo markers
-function loadPhotoMarkers() {
-    photos.forEach(photo => {
-        const marker = new mapboxgl.Marker()
-            .setLngLat(photo.coordinates)
-            .addTo(map);
+// Add floating button for adding POIs
+const addPOIButton = document.getElementById('add-poi-btn');
 
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" width="200px">`);
+// Function to enable "POI placement mode" with toggling and color change
+addPOIButton.addEventListener('click', function () {
+    isPOIActive = !isPOIActive;
+    
+    if (isPOIActive) {
+        addPOIButton.style.backgroundColor = '#FF5555'; // Lighter red when active
+        document.body.style.cursor = 'url("https://img.icons8.com/ios-filled/50/FF0000/plus-math.png"), auto'; // Red cursor
+        map.once('click', function (e) {
+            document.body.style.cursor = ''; // Reset cursor
+            openPOIModal(e.lngLat.lng, e.lngLat.lat);
+            isPOIActive = false; // Deactivate after adding POI
+            addPOIButton.style.backgroundColor = '#FF0000'; // Reset button color
+        });
+    } else {
+        addPOIButton.style.backgroundColor = '#FF0000'; // Back to original color
+        document.body.style.cursor = ''; // Reset cursor
+    }
+});
 
-        marker.setPopup(popup);
-        photoMarkers.push(marker);
+// Function to open the POI modal
+function openPOIModal(lng, lat) {
+    const modal = document.createElement('div');
+    modal.className = 'poi-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Create New POI</h3>
+            <label>Title: <input type="text" id="poi-title"></label>
+            <label>Description: <textarea id="poi-description"></textarea></label>
+            <label>Type:
+                <select id="poi-type">
+                    <option value="cafe">Café</option>
+                    <option value="caution">Caution</option>
+                    <option value="tourist">Tourist Spot</option>
+                </select>
+            </label>
+            <button id="save-poi">Save POI</button>
+            <button id="close-poi-modal">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('save-poi').addEventListener('click', function () {
+        const title = document.getElementById('poi-title').value;
+        const description = document.getElementById('poi-description').value;
+        const type = document.getElementById('poi-type').value;
+
+        const newPOI = {
+            coordinates: [lng, lat],
+            title: title,
+            description: description,
+            type: type
+        };
+
+        pois.push(newPOI);
+        addPOIMarker(newPOI);
+        document.body.removeChild(modal);
+    });
+
+    document.getElementById('close-poi-modal').addEventListener('click', function () {
+        document.body.removeChild(modal); // Close modal
     });
 }
 
-// Function to remove photo markers
-function removePhotoMarkers() {
-    photoMarkers.forEach(marker => marker.remove());
-    photoMarkers = [];
-}
-
-// Photos array
-const photos = [
-    {
-        coordinates: [144.9631, -37.814],
-        imageUrl: '/photos/photo1.jpeg',
-        title: 'Photo 1'
-    },
-    {
-        coordinates: [144.978, -37.819],
-        imageUrl: '/photos/photo2.jpeg',
-        title: 'Photo 2'
-    }
-];
-
-// Toggle Photos Layer
-function togglePhotoLayer() {
-    if (layerVisibility.photos) {
-        console.log("Removing photo layer");
-        removePhotoMarkers();
-        layerVisibility.photos = false;
-    } else {
-        console.log("Adding photo layer");
-        loadPhotoMarkers();
-        layerVisibility.photos = true;
-    }
-}
-
-// Toggle POI Layer
+// Function to toggle POI markers
 function togglePOILayer() {
     if (layerVisibility.pois) {
         console.log("Removing POI layer");
