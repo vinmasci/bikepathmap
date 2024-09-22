@@ -30,6 +30,10 @@ document.addEventListener("DOMContentLoaded", function () {
         pois: false
     };
 
+    // Arrays to store photo and POI markers
+    let photoMarkers = [];
+    let poiMarkers = [];
+
     // Helper function to highlight tabs
     function updateTabHighlight(tabId, isActive) {
         const tab = document.getElementById(tabId);
@@ -80,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Load and toggle photos
+    // Load and remove photo markers
     function loadPhotoMarkers() {
         photos.forEach(photo => {
             const marker = new mapboxgl.Marker()
@@ -91,12 +95,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" style="width:200px;">`);
 
             marker.setPopup(popup);
+            photoMarkers.push(marker);  // Keep track of marker
         });
+    }
+
+    function removePhotoMarkers() {
+        photoMarkers.forEach(marker => marker.remove());  // Remove all photo markers
+        photoMarkers = [];  // Clear the array
     }
 
     function togglePhotoLayer() {
         if (layerVisibility.photos) {
-            removeLayer('photos');
+            removePhotoMarkers();
             layerVisibility.photos = false;
             updateTabHighlight('photos-tab', false);
         } else {
@@ -106,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Load and toggle POIs
+    // Load and remove POI markers
     function loadPOIMarkers() {
         pois.forEach(poi => {
             const marker = new mapboxgl.Marker()
@@ -117,12 +127,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
 
             marker.setPopup(popup);
+            poiMarkers.push(marker);  // Keep track of marker
         });
+    }
+
+    function removePOIMarkers() {
+        poiMarkers.forEach(marker => marker.remove());  // Remove all POI markers
+        poiMarkers = [];  // Clear the array
     }
 
     function togglePOILayer() {
         if (layerVisibility.pois) {
-            removeLayer('pois');
+            removePOIMarkers();
             layerVisibility.pois = false;
             updateTabHighlight('pois-tab', false);
         } else {
