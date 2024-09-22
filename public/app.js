@@ -171,6 +171,32 @@ document.getElementById('pois-tab').addEventListener('click', function () {
     togglePOILayer();
 });
 
+// Function to open modals for "Add" actions
+function openAddModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = "block";
+}
+
+// Close modals
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = "none";
+}
+
+// Add modal events
+document.getElementById('add-road-gpx').addEventListener('click', function() {
+    openAddModal('road-modal');
+});
+document.getElementById('add-gravel-gpx').addEventListener('click', function() {
+    openAddModal('gravel-modal');
+});
+document.getElementById('add-photo').addEventListener('click', function() {
+    openAddModal('photo-modal');
+});
+document.getElementById('add-poi').addEventListener('click', function() {
+    openAddModal('poi-modal');
+});
+
 // Dropdown functionality under "Add" tab
 document.getElementById('add-tab').addEventListener('click', function () {
     const dropdown = document.getElementById('add-dropdown');
