@@ -1,3 +1,6 @@
+// Import the local toGeoJSON script from the app folder
+importScripts('./app/togeojson.min.js');
+
 // Initialize the Mapbox map
 mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your token
 
@@ -140,13 +143,26 @@ addPOIButton.style.borderRadius = '50%';
 addPOIButton.style.cursor = 'pointer';
 document.body.appendChild(addPOIButton);
 
-// Function to enable "POI placement mode"
+// Track POI placement mode state
+let isPOIActive = false;
+
+// Function to enable "POI placement mode" with toggling
 addPOIButton.addEventListener('click', function() {
-    document.body.style.cursor = 'url("https://img.icons8.com/ios-filled/50/FF0000/plus-math.png"), auto'; // Red cursor
-    map.once('click', function(e) {
+    isPOIActive = !isPOIActive;
+    
+    if (isPOIActive) {
+        addPOIButton.style.backgroundColor = '#FF5555'; // Lighter red to show active
+        document.body.style.cursor = 'url("https://img.icons8.com/ios-filled/50/FF0000/plus-math.png"), auto'; // Red cursor
+        map.once('click', function(e) {
+            document.body.style.cursor = ''; // Reset cursor
+            openPOIModal(e.lngLat.lng, e.lngLat.lat);
+            isPOIActive = false; // Deactivate after adding POI
+            addPOIButton.style.backgroundColor = '#FF0000'; // Reset button color
+        });
+    } else {
+        addPOIButton.style.backgroundColor = '#FF0000'; // Back to original color
         document.body.style.cursor = ''; // Reset cursor
-        openPOIModal(e.lngLat.lng, e.lngLat.lat);
-    });
+    }
 });
 
 // Function to open the POI modal
