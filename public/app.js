@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData();
             formData.append('photoFile', file);
 
-            fetch('/upload-photo', { // Update to match your backend endpoint
+            fetch('/api/upload-photo', { // Update to match your backend endpoint
                 method: 'POST',
                 body: formData
             })

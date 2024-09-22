@@ -38,8 +38,8 @@ const upload = multer({
     }
 });
 
-// Endpoint to handle photo upload to S3
-app.post('/upload-photo', upload.single('photoFile'), (req, res) => {
+// API route to handle photo upload to S3
+app.post('/api/upload-photo', upload.single('photoFile'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
@@ -47,7 +47,7 @@ app.post('/upload-photo', upload.single('photoFile'), (req, res) => {
     res.json({ message: 'Upload successful', url: imageUrl });
 });
 
-// Serve frontend files (index.html, public folder)
+// Serve static frontend files from the public folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Start the server
