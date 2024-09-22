@@ -38,6 +38,13 @@ function toggleGPXLayer(url, layerId) {
             .then(gpxData => {
                 const parser = new DOMParser();
                 const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
+
+                // Ensure toGeoJSON is loaded and accessible
+                if (typeof toGeoJSON === 'undefined') {
+                    console.error('toGeoJSON is not loaded');
+                    return;
+                }
+
                 const geojson = toGeoJSON.gpx(gpxDoc);
 
                 if (!layerExists(layerId)) {
@@ -75,6 +82,92 @@ function removeLayer(layerId) {
     }
 }
 
+// Store the markers for the POIs
+let poiMarkers = [];
+
+// Function to load all POIs
+function loadPOIMarkers() {
+    pois.forEach(poi => addPOIMarker(poi));
+}
+
+// Function to add a POI marker
+function addPOIMarker(poi) {
+    const markerElement = document.createElement('div');
+    markerElement.className = 'poi-marker';
+    markerElement.style.fontSize = '24px';
+    markerElement.innerHTML = poiIcons[poi.type] || poiIcons['tourist'];
+
+    const marker = new mapboxgl.Marker(markerElement)
+        .setLngLat(poi.coordinates)
+        .addTo(map);
+
+    const popup = new mapboxgl.Popup({ offset: 25 })
+        .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
+
+    marker.setPopup(popup);
+    poiMarkers.push(marker);
+}
+
+// Function to remove POI markers
+function removePOIMarkers() {
+    poiMarkers.forEach(marker => marker.remove());
+    poiMarkers = [];
+}
+
+// Example POI data
+let pois = [
+    {
+        coordinates: [144.9631, -37.814],
+        title: 'Federation Square',
+        description: 'A famous cultural precinct in Melbourne.',
+        type: 'tourist'
+    },
+    {
+        coordinates: [144.978, -37.819],
+        title: 'Flinders Street Station',
+        description: 'One of Melbourne\'s most iconic buildings.',
+        type: 'tourist'
+    }
+];
+
+// Store the markers for the photos
+let photoMarkers = [];
+
+// Function to load photo markers
+function loadPhotoMarkers() {
+    photos.forEach(photo => {
+        const marker = new mapboxgl.Marker()
+            .setLngLat(photo.coordinates)
+            .addTo(map);
+
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" width="200px">`);
+
+        marker.setPopup(popup);
+        photoMarkers.push(marker);
+    });
+}
+
+// Function to remove photo markers
+function removePhotoMarkers() {
+    photoMarkers.forEach(marker => marker.remove());
+    photoMarkers = [];
+}
+
+// Photos array
+const photos = [
+    {
+        coordinates: [144.9631, -37.814],
+        imageUrl: '/photos/photo1.jpeg',
+        title: 'Photo 1'
+    },
+    {
+        coordinates: [144.978, -37.819],
+        imageUrl: '/photos/photo2.jpeg',
+        title: 'Photo 2'
+    }
+];
+
 // Toggle Photos Layer
 function togglePhotoLayer() {
     if (layerVisibility.photos) {
@@ -86,12 +179,6 @@ function togglePhotoLayer() {
         loadPhotoMarkers();
         layerVisibility.photos = true;
     }
-}
-
-// Function to remove photo markers
-function removePhotoMarkers() {
-    photoMarkers.forEach(marker => marker.remove());
-    photoMarkers = [];
 }
 
 // Toggle POI Layer
