@@ -23,21 +23,17 @@ let layerVisibility = {
 // Function to toggle GPX layers
 function toggleGPXLayer(url, map, layerId) {
     if (layerVisibility[layerId]) {
-        // Layer is currently visible, remove it
         removeLayer(layerId);
         layerVisibility[layerId] = false;
     } else {
-        // Layer is not visible, add it
         fetch(url)
             .then(response => response.text())
             .then(gpxData => {
                 const parser = new DOMParser();
                 const gpxDoc = parser.parseFromString(gpxData, 'application/xml');
 
-                // Convert GPX to GeoJSON using toGeoJSON
                 const geojson = toGeoJSON.gpx(gpxDoc);
 
-                // Add the GeoJSON data as a new source and layer to the map
                 map.addSource(layerId, {
                     type: 'geojson',
                     data: geojson
@@ -52,12 +48,11 @@ function toggleGPXLayer(url, map, layerId) {
                         'line-cap': 'round'
                     },
                     paint: {
-                        'line-color': '#FF0000', // Customize the color as needed
+                        'line-color': '#FF0000', // Customize the color
                         'line-width': 4
                     }
                 });
 
-                // Update layer visibility state
                 layerVisibility[layerId] = true;
             });
     }
@@ -86,29 +81,22 @@ function addPOIMarker(poi) {
     const markerElement = document.createElement('div');
     markerElement.className = 'poi-marker';
     markerElement.style.fontSize = '24px';
-    markerElement.innerHTML = poiIcons[poi.type] || poiIcons['tourist']; // Default to tourist spot if no type
+    markerElement.innerHTML = poiIcons[poi.type] || poiIcons['tourist'];
 
-    // Create a marker for each POI
     const marker = new mapboxgl.Marker(markerElement)
         .setLngLat(poi.coordinates)
         .addTo(map);
 
-    // Create a popup for each marker with the POI details
     const popup = new mapboxgl.Popup({ offset: 25 })
         .setHTML(`<h3>${poi.title}</h3><p>${poi.description}</p>`);
 
-    // Link the popup to the marker
     marker.setPopup(popup);
-
-    // Store the marker so it can be removed later
     poiMarkers.push(marker);
 }
 
 // Function to load all POIs
 function loadPOIMarkers() {
-    pois.forEach(poi => {
-        addPOIMarker(poi);
-    });
+    pois.forEach(poi => addPOIMarker(poi));
 }
 
 // Function to remove POI markers
@@ -123,7 +111,7 @@ let pois = [
         coordinates: [144.9631, -37.814], // Melbourne
         title: 'Federation Square',
         description: 'A famous cultural precinct in the heart of Melbourne.',
-        type: 'tourist' // Default to tourist spot
+        type: 'tourist'
     },
     {
         coordinates: [144.978, -37.819], // Nearby location
@@ -150,11 +138,9 @@ document.body.appendChild(addPOIButton);
 
 // Function to enable "POI placement mode"
 addPOIButton.addEventListener('click', function() {
-    document.body.style.cursor = 'crosshair'; // Change cursor to crosshair
+    document.body.style.cursor = 'crosshair';
     map.once('click', function(e) {
-        document.body.style.cursor = ''; // Reset cursor after click
-
-        // Open modal window for POI info
+        document.body.style.cursor = '';
         openPOIModal(e.lngLat.lng, e.lngLat.lat);
     });
 });
@@ -180,13 +166,11 @@ function openPOIModal(lng, lat) {
     `;
     document.body.appendChild(modal);
 
-    // Handle saving the POI
     document.getElementById('save-poi').addEventListener('click', function() {
         const title = document.getElementById('poi-title').value;
         const description = document.getElementById('poi-description').value;
         const type = document.getElementById('poi-type').value;
 
-        // Create new POI object
         const newPOI = {
             coordinates: [lng, lat],
             title: title,
@@ -194,25 +178,67 @@ function openPOIModal(lng, lat) {
             type: type
         };
 
-        // Add the new POI to the list of POIs
         pois.push(newPOI);
-
-        // Add the new POI marker to the map
         addPOIMarker(newPOI);
-
-        // Close the modal
         document.body.removeChild(modal);
     });
+}
+
+// Store the markers for the photos so we can remove them later
+let photoMarkers = [];
+
+// Assuming the photos array contains your photo data
+const photos = [
+    {
+        coordinates: [144.9631, -37.814], // Example coordinates
+        imageUrl: '/photos/photo1.jpeg',
+        title: 'Photo 1'
+    },
+    {
+        coordinates: [144.978, -37.819], // Another example
+        imageUrl: '/photos/photo2.jpeg',
+        title: 'Photo 2'
+    }
+];
+
+// Function to load photo markers
+function loadPhotoMarkers() {
+    photos.forEach(photo => {
+        const marker = new mapboxgl.Marker()
+            .setLngLat(photo.coordinates)
+            .addTo(map);
+
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3>${photo.title}</h3><img src="${photo.imageUrl}" alt="${photo.title}" width="200px">`);
+
+        marker.setPopup(popup);
+        photoMarkers.push(marker);
+    });
+}
+
+// Function to remove photo markers
+function removePhotoMarkers() {
+    photoMarkers.forEach(marker => marker.remove());
+    photoMarkers = [];
+}
+
+// Function to toggle the photo layer
+function togglePhotoLayer() {
+    if (layerVisibility.photos) {
+        removePhotoMarkers();
+        layerVisibility.photos = false;
+    } else {
+        loadPhotoMarkers();
+        layerVisibility.photos = true;
+    }
 }
 
 // Function to toggle POI markers
 function togglePOILayer() {
     if (layerVisibility.pois) {
-        // POIs are visible, remove them
         removePOIMarkers();
         layerVisibility.pois = false;
     } else {
-        // POIs are not visible, add them
         loadPOIMarkers();
         layerVisibility.pois = true;
     }
@@ -231,8 +257,3 @@ document.getElementById('photos-tab').addEventListener('click', function() {
 document.getElementById('pois-tab').addEventListener('click', function() {
     togglePOILayer();
 });
-
-// Dummy togglePhotoLayer function for now (replace with actual logic)
-function togglePhotoLayer() {
-    console.log("Photo layer toggle not yet implemented");
-}
