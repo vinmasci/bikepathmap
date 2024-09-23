@@ -218,38 +218,38 @@ document.addEventListener("DOMContentLoaded", function () {
             xhr.send(formData);
         });
     }
-
-    // Function to save the caption when user clicks "Save Caption" button
-    async function saveCaption(photoId) {
-        const captionInput = document.getElementById(`caption-input-${photoId}`);
-        const caption = captionInput.value;
-
-        if (!caption) {
-            alert('Please enter a caption');
-            return;
-        }
-
-        try {
-            const response = await fetch(`/api/save-caption`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: photoId,
-                    caption: caption
-                })
-            });
-
-            if (response.ok) {
-                alert('Caption saved successfully');
-                loadPhotoMarkers(); // Refresh the markers with updated captions
-            } else {
-                alert('Failed to save caption');
-            }
-        } catch (error) {
-            console.error('Error saving caption:', error);
-            alert('Error saving caption');
-        }
-    }
 });
+
+// Move saveCaption function outside the DOMContentLoaded event listener to make it globally accessible
+async function saveCaption(photoId) {
+    const captionInput = document.getElementById(`caption-input-${photoId}`);
+    const caption = captionInput.value;
+
+    if (!caption) {
+        alert('Please enter a caption');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/save-caption`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: photoId,
+                caption: caption
+            })
+        });
+
+        if (response.ok) {
+            alert('Caption saved successfully');
+            loadPhotoMarkers(); // Refresh the markers with updated captions
+        } else {
+            alert('Failed to save caption');
+        }
+    } catch (error) {
+        console.error('Error saving caption:', error);
+        alert('Error saving caption');
+    }
+}
