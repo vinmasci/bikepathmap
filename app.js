@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const fs = require('fs');
+const exifParser = require('exif-parser');  // Ensure exif-parser is installed
 require('dotenv').config();  // Ensure .env is loaded correctly
 
 // AWS S3 Configuration
@@ -9,11 +10,42 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION  // Ensure region is correctly set, e.g. ap-southeast-2
 });
 
-// Example function to upload a file to S3 (without Express)
+// Helper function to convert EXIF GPS coordinates to decimal degrees
+function convertDMSToDD(degrees, minutes, seconds, direction) {
+    let dd = degrees + minutes / 60 + seconds / 3600;
+    if (direction === "S" || direction === "W") {
+        dd = dd * -1;
+    }
+    return dd;
+}
+
+// Example function to upload a file to S3 with EXIF parsing
 async function uploadToS3(filePath, originalName, mimeType) {
     try {
         // Read the file from local storage
         const fileContent = fs.readFileSync(filePath);
+
+        // Extract EXIF data (if available)
+        let latitude = null;
+        let longitude = null;
+        
+        try {
+            const parser = exifParser.create(fileContent);
+            const exifData = parser.parse();
+
+            if (exifData.tags.GPSLatitude && exifData.tags.GPSLongitude) {
+                // Convert GPS latitude and longitude to decimal degrees
+                const lat = exifData.tags.GPSLatitude;
+                const lon = exifData.tags.GPSLongitude;
+                const latRef = exifData.tags.GPSLatitudeRef || "N";
+                const lonRef = exifData.tags.GPSLongitudeRef || "E";
+
+                latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
+                longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
+            }
+        } catch (exifError) {
+            console.error('Error extracting EXIF data:', exifError);
+        }
 
         // S3 upload parameters
         const params = {
@@ -29,7 +61,14 @@ async function uploadToS3(filePath, originalName, mimeType) {
 
         // Clean up local file after successful upload
         fs.unlinkSync(filePath);
-        return { success: true, url: data.Location };
+
+        // Return success along with the S3 URL and any extracted EXIF data (GPS coordinates)
+        return { 
+            success: true, 
+            url: data.Location, 
+            latitude: latitude, 
+            longitude: longitude 
+        };
     } catch (error) {
         console.error('Error uploading to S3:', error);
         return { success: false, error: error.message };
@@ -39,12 +78,17 @@ async function uploadToS3(filePath, originalName, mimeType) {
 // Example function call (this would typically be triggered by a route or an event)
 const filePath = '/tmp/example-file.jpeg';  // Example file path
 const originalName = 'example-file.jpeg';  // Example file original name
-const mimeType = 'image/jpeg';  // Example mime type push
+const mimeType = 'image/jpeg';  // Example mime type
 
 uploadToS3(filePath, originalName, mimeType)
     .then(result => {
         if (result.success) {
             console.log('File successfully uploaded to S3:', result.url);
+            if (result.latitude && result.longitude) {
+                console.log('Coordinates:', result.latitude, result.longitude);
+            } else {
+                console.log('No GPS coordinates found in the EXIF data.');
+            }
         } else {
             console.log('Failed to upload file:', result.error);
         }
