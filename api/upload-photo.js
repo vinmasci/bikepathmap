@@ -27,7 +27,15 @@ const upload = multer({
     }
 }).single('photoFile');
 
-// This is the function to handle the photo upload request in a serverless environment
+// Helper function to convert EXIF GPS coordinates to decimal degrees
+function convertDMSToDD(degrees, minutes, seconds, direction) {
+    let dd = degrees + minutes / 60 + seconds / 3600;
+    if (direction === "S" || direction === "W") {
+        dd = dd * -1;
+    }
+    return dd;
+}
+
 module.exports = (req, res) => {
     upload(req, res, function (err) {
         if (err) {
@@ -57,9 +65,16 @@ module.exports = (req, res) => {
             try {
                 const parser = exifParser.create(fileContent);
                 const exifData = parser.parse();
+
                 if (exifData.tags.GPSLatitude && exifData.tags.GPSLongitude) {
-                    latitude = exifData.tags.GPSLatitude;
-                    longitude = exifData.tags.GPSLongitude;
+                    // Convert GPS latitude and longitude to decimal degrees
+                    const lat = exifData.tags.GPSLatitude;
+                    const lon = exifData.tags.GPSLongitude;
+                    const latRef = exifData.tags.GPSLatitudeRef || "N";
+                    const lonRef = exifData.tags.GPSLongitudeRef || "E";
+
+                    latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
+                    longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
                 }
             } catch (exifError) {
                 console.error('Error extracting EXIF data:', exifError);

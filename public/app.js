@@ -245,8 +245,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert('Photo uploaded successfully: ' + data.url);
                     closeModal('photo-modal');
 
-                    // Adding the uploaded photo as a marker on the map dynamically
-                    const photoCoordinates = [144.9631, -37.8136]; // Replace with actual coordinates if available
+        // Adding the uploaded photo as a marker on the map dynamically
+        // Use the extracted coordinates from the EXIF data
+        const photoCoordinates = [data.longitude, data.latitude];
 
                     const newPhotoMarker = new mapboxgl.Marker()
                         .setLngLat(photoCoordinates)
