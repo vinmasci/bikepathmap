@@ -26,19 +26,24 @@ document.addEventListener("DOMContentLoaded", function () {
                     const markerElement = document.createElement('div');
                     markerElement.className = 'custom-marker';
                     markerElement.innerHTML = `
-                        <div class="pin">
+                        <div style="font-size: 18px; text-align: center;">
                             <i class="fas fa-camera"></i>
                         </div>
                     `;
-                    markerElement.style.fontSize = '18px'; // Adjust icon size
-                    markerElement.style.textAlign = 'center';
 
                     const marker = new mapboxgl.Marker(markerElement)
                         .setLngLat([photo.longitude, photo.latitude])
                         .addTo(map);
 
                     const popup = new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
+                        .setHTML(`
+                            <h3>${photo.originalName}</h3>
+                            <img src="${photo.url}" style="width:200px;">
+                            <div>
+                                <input type="text" id="caption-input-${photo._id}" placeholder="Enter caption" value="${photo.caption || ''}">
+                                <button onclick="saveCaption('${photo._id}')">Save Caption</button>
+                            </div>
+                        `);
 
                     marker.setPopup(popup);
                     photoMarkers.push(marker);
@@ -203,5 +208,39 @@ document.addEventListener("DOMContentLoaded", function () {
             };
             xhr.send(formData);
         });
+    }
+
+    // Function to save the caption when user clicks "Save Caption" button
+    async function saveCaption(photoId) {
+        const captionInput = document.getElementById(`caption-input-${photoId}`);
+        const caption = captionInput.value;
+
+        if (!caption) {
+            alert('Please enter a caption');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/save-caption`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: photoId,
+                    caption: caption
+                })
+            });
+
+            if (response.ok) {
+                alert('Caption saved successfully');
+                loadPhotoMarkers(); // Refresh the markers with updated captions
+            } else {
+                alert('Failed to save caption');
+            }
+        } catch (error) {
+            console.error('Error saving caption:', error);
+            alert('Error saving caption');
+        }
     }
 });
