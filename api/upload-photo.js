@@ -1,8 +1,8 @@
-const { MongoClient } = require('mongodb');
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
 const exifParser = require('exif-parser');
+const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 // AWS S3 configuration
@@ -15,15 +15,15 @@ const s3 = new AWS.S3({
 // Multer configuration for file uploads
 const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).single('photoFile');
 
-// MongoDB connection
-const client = new MongoClient(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
-
+// MongoDB connection (with updated connection logic)
+let client;
 async function connectToMongo() {
-    if (!client.isConnected()) await client.connect();
-    return client.db('photoApp').collection('photos'); // Use your MongoDB collection
+    if (!client) {
+        client = new MongoClient(process.env.MONGODB_URI);
+        await client.connect();
+    }
+    console.log('MongoDB connected');
+    return client.db('photoApp').collection('photos');  // Use your MongoDB collection name
 }
 
 // Helper function to convert EXIF GPS coordinates to decimal degrees
@@ -36,10 +36,12 @@ function convertDMSToDD(degrees, minutes, seconds, direction) {
 module.exports = (req, res) => {
     upload(req, res, async function (err) {
         if (err) {
+            console.error('Error uploading file: ', err.message);
             return res.status(400).json({ error: err.message });
         }
 
         if (!req.file) {
+            console.error('No file uploaded');
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
@@ -67,21 +69,23 @@ module.exports = (req, res) => {
 
                     latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
                     longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
+                    console.log('EXIF Data: ', { latitude, longitude });
                 }
             } catch (exifError) {
-                console.error('Error extracting EXIF data:', exifError);
+                console.error('Error extracting EXIF data: ', exifError.message);
             }
 
             // Upload to S3
             s3.upload(params, async (err, data) => {
                 if (err) {
-                    console.error('Error uploading to S3:', err);
+                    console.error('Error uploading to S3: ', err.message);
                     return res.status(500).json({ error: 'Failed to upload to S3' });
                 }
+                console.log('File uploaded to S3: ', data.Location);
 
                 // Connect to MongoDB
                 const collection = await connectToMongo();
-                
+
                 // Insert the photo metadata into MongoDB
                 const result = await collection.insertOne({
                     url: data.Location,
@@ -90,6 +94,8 @@ module.exports = (req, res) => {
                     uploadedAt: new Date(),
                     originalName: req.file.originalname
                 });
+
+                console.log('File metadata saved to MongoDB: ', result.insertedId);
 
                 // Respond with the S3 file URL and GPS coordinates
                 res.status(200).json({
@@ -106,7 +112,7 @@ module.exports = (req, res) => {
                 });
             });
         } catch (err) {
-            console.error('Error processing upload:', err);
+            console.error('Error processing upload: ', err.message);
             return res.status(500).json({ error: 'Server error during upload' });
         }
     });
