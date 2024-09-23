@@ -12,8 +12,8 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION
 });
 
-// Multer configuration for file uploads
-const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).single('photoFile');
+// Multer configuration for handling multiple file uploads
+const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).array('photoFile', 10); // Accept multiple files
 
 // MongoDB connection
 let client;

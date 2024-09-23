@@ -82,6 +82,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // Function to close modals by modal ID
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
     // Image Preview, File Validation, and Drag-and-Drop functionality
     const photoFileInput = document.getElementById('photo-file');
     const previewContainer = document.getElementById('preview-container');
