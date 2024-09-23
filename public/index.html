@@ -69,7 +69,7 @@
             margin: 15% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 300px;
+            width: 400px;
             border-radius: 10px;
         }
         .close {
@@ -82,6 +82,39 @@
             color: black;
             text-decoration: none;
             cursor: pointer;
+        }
+
+        /* New styles for drag-and-drop area */
+        #drag-drop-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        #drag-drop-area.drag-over {
+            background-color: #f0f0f0;
+        }
+
+        #preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #preview-container img {
+            width: 100px;
+            margin: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Progress bar styles */
+        #upload-progress {
+            height: 5px;
+            background-color: green;
+            width: 0%;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -130,11 +163,29 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('photo-modal')">&times;</span>
         <h2>Add Photo</h2>
-        <input type="file" id="photo-file">
-        <button id="photo-upload-button">Upload</button> <!-- This button needs to have this ID -->
+
+        <!-- Drag-and-Drop Area -->
+        <div id="drag-drop-area">
+            Drag & Drop Photos Here or Click to Select
+            <input id="photo-file" type="file" multiple style="display: none;">
+        </div>
+
+        <!-- Preview container for displaying selected images -->
+        <div id="preview-container"></div>
+
+        <!-- Title and Description input fields -->
+        <label for="photo-title">Title:</label>
+        <input type="text" id="photo-title" placeholder="Enter photo title">
+        <label for="photo-description">Description:</label>
+        <textarea id="photo-description" placeholder="Enter photo description"></textarea>
+
+        <!-- Upload Button -->
+        <button id="photo-upload-button">Upload</button>
+
+        <!-- Upload progress bar -->
+        <div id="upload-progress"></div>
     </div>
 </div>
-
 
 <!-- Modal for adding a POI -->
 <div id="poi-modal" class="modal">
@@ -146,7 +197,6 @@
         <button onclick="savePOI()">Save POI</button>
     </div>
 </div>
-
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
 <script src="/js/toGeoJSON.js"></script>

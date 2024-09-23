@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';  // Use your actual Mapbox token
+    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let photoMarkers = [];
     let poiMarkers = [];
 
-    // Function to fetch and load photo markers from MongoDB
     async function loadPhotoMarkers() {
         try {
             const response = await fetch('/api/get-photos');
@@ -63,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add Tab functionality: toggle dropdown
     document.getElementById('add-tab').addEventListener('click', function () {
         const dropdown = document.getElementById('add-dropdown');
-        dropdown.classList.toggle('show'); // Toggles the display of dropdown
+        dropdown.classList.toggle('show');
     });
 
     // Modal functionality for photo upload
@@ -83,52 +82,95 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    const uploadPhotoButton = document.getElementById('photo-upload-button');
+    // Image Preview, File Validation, and Drag-and-Drop functionality
     const photoFileInput = document.getElementById('photo-file');
+    const previewContainer = document.getElementById('preview-container');
+    const dragDropArea = document.getElementById('drag-drop-area');
+    const uploadProgressBar = document.getElementById('upload-progress');
+    
+    let files = [];
 
-    if (uploadPhotoButton && photoFileInput) {
+    dragDropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dragDropArea.classList.add('drag-over');
+    });
+
+    dragDropArea.addEventListener('dragleave', () => {
+        dragDropArea.classList.remove('drag-over');
+    });
+
+    dragDropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragDropArea.classList.remove('drag-over');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    photoFileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    function handleFiles(selectedFiles) {
+        for (let file of selectedFiles) {
+            if (validateFile(file)) {
+                files.push(file);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '100px';
+                    img.style.margin = '5px';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+
+    function validateFile(file) {
+        const validTypes = ['image/jpeg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            alert('Only JPEG and PNG files are allowed.');
+            return false;
+        }
+        return true;
+    }
+
+    const uploadPhotoButton = document.getElementById('photo-upload-button');
+    const titleInput = document.getElementById('photo-title');
+    const descriptionInput = document.getElementById('photo-description');
+
+    if (uploadPhotoButton) {
         uploadPhotoButton.addEventListener('click', function() {
-            const file = photoFileInput.files[0];
-            if (!file) {
-                alert('Please select a photo to upload');
+            if (files.length === 0) {
+                alert('Please select photos to upload');
                 return;
             }
 
             const formData = new FormData();
-            formData.append('photoFile', file);
+            files.forEach(file => formData.append('photoFiles', file));
+            formData.append('title', titleInput.value);
+            formData.append('description', descriptionInput.value);
 
-            fetch('/api/upload-photo', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    alert('Photo uploaded successfully: ' + data.url);
-
-                    // Close the photo modal
-                    document.getElementById('photo-modal').style.display = 'none';
-
-                    // Add uploaded photo to the map dynamically
-                    const newPhotoMarker = new mapboxgl.Marker()
-                        .setLngLat([data.longitude, data.latitude])
-                        .addTo(map);
-
-                    const newPopup = new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(`<h3>${data.originalName}</h3><img src="${data.url}" style="width:200px;">`);
-
-                    newPhotoMarker.setPopup(newPopup);
-                    photoMarkers.push(newPhotoMarker);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/upload-photo');
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentage = (e.loaded / e.total) * 100;
+                    uploadProgressBar.style.width = `${percentage}%`;
                 }
-            })
-            .catch(error => {
-                console.error('Error uploading photo:', error);
             });
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    alert('Photo uploaded successfully');
+                    previewContainer.innerHTML = ''; // Clear preview
+                    files = []; // Reset files
+                    document.getElementById('photo-modal').style.display = 'none'; // Close modal
+                    uploadProgressBar.style.width = '0%'; // Reset progress bar
+                } else {
+                    alert('Error uploading photo');
+                }
+            };
+            xhr.send(formData);
         });
     }
-
-    // Add event listener for the "photos-tab" to toggle the photo markers on the map
-    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
 });
