@@ -16,7 +16,7 @@ const s3 = new AWS.S3({
 const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).single('photoFile');
 
 // MongoDB connection
-const client = new MongoClient(process.env.MONGO_URI, {
+const client = new MongoClient(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
