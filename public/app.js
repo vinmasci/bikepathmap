@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
     let photoMarkers = [];
 
+    // Function to load photo markers from the database
     async function loadPhotoMarkers() {
         try {
             const response = await fetch('/api/get-photos');
@@ -21,12 +22,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             photos.forEach(photo => {
                 if (photo.latitude && photo.longitude) {
-                    // Create a new div element for the custom marker with FontAwesome icon
+                    // Create a custom pin with the camera icon inside
                     const markerElement = document.createElement('div');
                     markerElement.className = 'custom-marker';
-                    markerElement.innerHTML = '<i class="fas fa-camera"></i>';
-                    markerElement.style.fontSize = '20px';  // Adjust the size
-                    markerElement.style.color = '#f00';     // Set the color to red
+                    markerElement.innerHTML = `
+                        <div class="pin">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    `;
+                    markerElement.style.fontSize = '18px'; // Adjust icon size
+                    markerElement.style.textAlign = 'center';
 
                     const marker = new mapboxgl.Marker(markerElement)
                         .setLngLat([photo.longitude, photo.latitude])
@@ -44,11 +49,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Remove all photo markers from the map
     function removePhotoMarkers() {
         photoMarkers.forEach(marker => marker.remove());
         photoMarkers = [];
     }
 
+    // Toggle photo layer on and off
     function togglePhotoLayer() {
         if (layerVisibility.photos) {
             removePhotoMarkers();
