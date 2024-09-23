@@ -25,11 +25,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     // Create a custom pin with the camera icon inside
                     const markerElement = document.createElement('div');
                     markerElement.className = 'custom-marker';
-                    markerElement.innerHTML = `
-                        <div style="position: relative; width: 40px; height: 40px; background: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/Red_pin.svg') no-repeat center center; background-size: contain;">
-                            <i class="fas fa-camera" style="font-size: 18px; position: absolute; top: 5px; left: 10px; color: white;"></i>
-                        </div>
-                    `;
+                    markerElement.style.width = '30px';
+                    markerElement.style.height = '40px';
+                    markerElement.style.backgroundImage = 'url(https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg)';
+                    markerElement.style.backgroundSize = 'cover';
+                    markerElement.style.display = 'flex';
+                    markerElement.style.alignItems = 'center';
+                    markerElement.style.justifyContent = 'center';
+
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-camera';
+                    icon.style.color = 'white';
+                    icon.style.fontSize = '14px';
+
+                    markerElement.appendChild(icon);
 
                     const marker = new mapboxgl.Marker(markerElement)
                         .setLngLat([photo.longitude, photo.latitude])
