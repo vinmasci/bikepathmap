@@ -21,7 +21,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             photos.forEach(photo => {
                 if (photo.latitude && photo.longitude) {
-                    const marker = new mapboxgl.Marker()
+                    // Create a new div element for the custom marker with FontAwesome icon
+                    const markerElement = document.createElement('div');
+                    markerElement.className = 'custom-marker';
+                    markerElement.innerHTML = '<i class="fas fa-camera"></i>';
+                    markerElement.style.fontSize = '20px';  // Adjust the size
+                    markerElement.style.color = '#f00';     // Set the color to red
+
+                    const marker = new mapboxgl.Marker(markerElement)
                         .setLngLat([photo.longitude, photo.latitude])
                         .addTo(map);
 
@@ -44,16 +51,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function togglePhotoLayer() {
         if (layerVisibility.photos) {
-            // Remove all photo markers if the layer is currently visible
             removePhotoMarkers();
             layerVisibility.photos = false;
         } else {
-            // Load and display the photo markers if the layer is currently not visible
             loadPhotoMarkers();
             layerVisibility.photos = true;
         }
 
-        // Update the active state of the tab for UI feedback
         updateTabHighlight('photos-tab', layerVisibility.photos);
     }
 
@@ -164,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const formData = new FormData();
-            files.forEach(file => formData.append('photoFiles', file));
+            files.forEach(file => formData.append('photoFiles', file));  // Use correct field name here
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/api/upload-photo');
@@ -181,6 +185,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     files = []; // Reset files
                     closeModal('photo-modal'); // Close modal
                     uploadProgressBar.style.width = '0%'; // Reset progress bar
+
+                    // Reload photo markers after a successful upload
+                    if (layerVisibility.photos) {
+                        loadPhotoMarkers();  // Load new markers immediately
+                    }
                 } else {
                     alert('Error uploading photos');
                 }
