@@ -61,6 +61,9 @@ module.exports = (req, res) => {
             try {
                 const parser = exifParser.create(fileContent);
                 const exifData = parser.parse();
+
+                console.log('EXIF Data:', exifData.tags); // Log all EXIF data for debug
+
                 if (exifData.tags.GPSLatitude && exifData.tags.GPSLongitude) {
                     const lat = exifData.tags.GPSLatitude;
                     const lon = exifData.tags.GPSLongitude;
@@ -69,7 +72,10 @@ module.exports = (req, res) => {
 
                     latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
                     longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
-                    console.log('EXIF Data: ', { latitude, longitude });
+
+                    console.log('Extracted GPS Data:', { latitude, longitude });
+                } else {
+                    console.log('No GPS data found in EXIF');
                 }
             } catch (exifError) {
                 console.error('Error extracting EXIF data: ', exifError.message);
@@ -81,11 +87,10 @@ module.exports = (req, res) => {
                     console.error('Error uploading to S3: ', err.message);
                     return res.status(500).json({ error: 'Failed to upload to S3' });
                 }
-                console.log('File uploaded to S3: ', data.Location);
 
                 // Connect to MongoDB
                 const collection = await connectToMongo();
-
+                
                 // Insert the photo metadata into MongoDB
                 const result = await collection.insertOne({
                     url: data.Location,
