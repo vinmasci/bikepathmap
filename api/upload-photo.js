@@ -12,8 +12,8 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION
 });
 
-// Multer configuration for handling multiple file uploads
-const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).array('photoFile', 10); // Accept multiple files
+// Multer configuration for file uploads
+const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).array('photoFiles', 10);  // Expecting up to 10 files
 
 // MongoDB connection
 let client;
@@ -33,78 +33,65 @@ module.exports = (req, res) => {
             return res.status(400).json({ error: err.message });
         }
 
-        if (!req.file) {
-            console.error('No file uploaded');
-            return res.status(400).json({ error: 'No file uploaded' });
+        if (!req.files || req.files.length === 0) {
+            console.error('No files uploaded');
+            return res.status(400).json({ error: 'No files uploaded' });
         }
 
         try {
-            const fileContent = fs.readFileSync(req.file.path);
+            for (const file of req.files) {
+                const fileContent = fs.readFileSync(file.path);
 
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: `${Date.now().toString()}-${req.file.originalname}`,
-                Body: fileContent,
-                ContentType: req.file.mimetype
-            };
+                const params = {
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: `${Date.now().toString()}-${file.originalname}`,
+                    Body: fileContent,
+                    ContentType: file.mimetype
+                };
 
-            let latitude = null;
-            let longitude = null;
+                let latitude = null;
+                let longitude = null;
 
-            try {
-                const parser = exifParser.create(fileContent);
-                const exifData = parser.parse();
+                try {
+                    const parser = exifParser.create(fileContent);
+                    const exifData = parser.parse();
 
-                console.log('EXIF Data:', exifData.tags); // Log all EXIF data for debug
-
-                if (exifData.tags.GPSLatitude && exifData.tags.GPSLongitude) {
-                    latitude = exifData.tags.GPSLatitude;
-                    longitude = exifData.tags.GPSLongitude;
-
-                    // Logging extracted coordinates for debugging
-                    console.log('Extracted GPS Data:', { latitude, longitude });
-                } else {
-                    console.log('No GPS data found in EXIF');
+                    if (exifData.tags.GPSLatitude && exifData.tags.GPSLongitude) {
+                        latitude = exifData.tags.GPSLatitude;
+                        longitude = exifData.tags.GPSLongitude;
+                        console.log('Extracted GPS Data:', { latitude, longitude });
+                    } else {
+                        console.log('No GPS data found in EXIF');
+                    }
+                } catch (exifError) {
+                    console.error('Error extracting EXIF data: ', exifError.message);
                 }
-            } catch (exifError) {
-                console.error('Error extracting EXIF data: ', exifError.message);
-            }
 
-            // Upload to S3
-            s3.upload(params, async (err, data) => {
-                if (err) {
-                    console.error('Error uploading to S3: ', err.message);
-                    return res.status(500).json({ error: 'Failed to upload to S3' });
-                }
+                // Upload to S3
+                const data = await s3.upload(params).promise();
+                console.log('Upload successful. File URL:', data.Location);
 
                 // Connect to MongoDB
                 const collection = await connectToMongo();
-                
+
                 // Insert the photo metadata into MongoDB
                 const result = await collection.insertOne({
                     url: data.Location,
                     latitude: latitude,
                     longitude: longitude,
                     uploadedAt: new Date(),
-                    originalName: req.file.originalname
+                    originalName: file.originalname
                 });
 
                 console.log('File metadata saved to MongoDB: ', result.insertedId);
 
-                // Respond with the S3 file URL and GPS coordinates
-                res.status(200).json({
-                    message: 'Upload successful',
-                    url: data.Location,
-                    latitude: latitude,
-                    longitude: longitude,
-                    dbId: result.insertedId
-                });
-
                 // Clean up local file after upload
-                fs.unlink(req.file.path, (unlinkErr) => {
+                fs.unlink(file.path, (unlinkErr) => {
                     if (unlinkErr) console.error('Failed to delete local file:', unlinkErr);
                 });
-            });
+            }
+
+            res.status(200).json({ message: 'All files uploaded successfully' });
         } catch (err) {
             console.error('Error processing upload: ', err.message);
             return res.status(500).json({ error: 'Server error during upload' });

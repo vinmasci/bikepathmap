@@ -164,20 +164,14 @@
         <span class="close" onclick="closeModal('photo-modal')">&times;</span>
         <h2>Add Photo</h2>
 
-        <!-- Drag-and-Drop Area -->
-        <div id="drag-drop-area">
-            Drag & Drop Photos Here or Click to Select
-            <input id="photo-file" type="file" multiple style="display: none;">
-        </div>
+<!-- Drag-and-Drop Area -->
+<div id="drag-drop-area" onclick="document.getElementById('photoFiles').click()">
+    Drag & Drop Photos Here or Click to Select
+    <input id="photoFiles" type="file" multiple style="display: none;">
+</div>
 
         <!-- Preview container for displaying selected images -->
         <div id="preview-container"></div>
-
-        <!-- Title and Description input fields -->
-        <label for="photo-title">Title:</label>
-        <input type="text" id="photo-title" placeholder="Enter photo title">
-        <label for="photo-description">Description:</label>
-        <textarea id="photo-description" placeholder="Enter photo description"></textarea>
 
         <!-- Upload Button -->
         <button id="photo-upload-button">Upload</button>

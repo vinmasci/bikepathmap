@@ -8,33 +8,17 @@ document.addEventListener("DOMContentLoaded", function () {
         zoom: 10
     });
 
-    const roadGPX = '/GPX/Road/Capital_City_Trail.gpx';
-    const gravelGPX = '/GPX/Gravel/Dandenong_Creek_Trail_.gpx';
-
-    let layerVisibility = {
-        road: false,
-        gravel: false,
-        photos: false,
-        pois: false
-    };
-
+    let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
     let photoMarkers = [];
-    let poiMarkers = [];
 
     async function loadPhotoMarkers() {
         try {
             const response = await fetch('/api/get-photos');
             const photos = await response.json();
-
             photos.forEach(photo => {
                 if (photo.latitude && photo.longitude) {
-                    const marker = new mapboxgl.Marker()
-                        .setLngLat([photo.longitude, photo.latitude])
-                        .addTo(map);
-
-                    const popup = new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
-
+                    const marker = new mapboxgl.Marker().setLngLat([photo.longitude, photo.latitude]).addTo(map);
+                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
                     marker.setPopup(popup);
                     photoMarkers.push(marker);
                 }
@@ -82,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Function to close modals by modal ID
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -91,11 +74,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Image Preview, File Validation, and Drag-and-Drop functionality
-    const photoFileInput = document.getElementById('photo-file');
+    const photoFileInput = document.getElementById('photoFiles');
     const previewContainer = document.getElementById('preview-container');
     const dragDropArea = document.getElementById('drag-drop-area');
     const uploadProgressBar = document.getElementById('upload-progress');
-    
+
     let files = [];
 
     dragDropArea.addEventListener('dragover', (e) => {
@@ -144,9 +127,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const uploadPhotoButton = document.getElementById('photo-upload-button');
-    const titleInput = document.getElementById('photo-title');
-    const descriptionInput = document.getElementById('photo-description');
-
     if (uploadPhotoButton) {
         uploadPhotoButton.addEventListener('click', function() {
             if (files.length === 0) {
@@ -155,9 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const formData = new FormData();
-            files.forEach(file => formData.append('photoFiles', file));
-            formData.append('title', titleInput.value);
-            formData.append('description', descriptionInput.value);
+            files.forEach(file => formData.append('photoFiles', file));  // Use correct field name here
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/api/upload-photo');
@@ -169,13 +147,13 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    alert('Photo uploaded successfully');
+                    alert('Photos uploaded successfully');
                     previewContainer.innerHTML = ''; // Clear preview
                     files = []; // Reset files
-                    document.getElementById('photo-modal').style.display = 'none'; // Close modal
+                    closeModal('photo-modal'); // Close modal
                     uploadProgressBar.style.width = '0%'; // Reset progress bar
                 } else {
-                    alert('Error uploading photo');
+                    alert('Error uploading photos');
                 }
             };
             xhr.send(formData);
