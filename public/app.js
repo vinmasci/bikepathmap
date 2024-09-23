@@ -48,35 +48,33 @@ document.addEventListener("DOMContentLoaded", function () {
         if (layerVisibility.photos) {
             removePhotoMarkers();
             layerVisibility.photos = false;
-            updateTabHighlight('photos-tab', false);
         } else {
             loadPhotoMarkers();
             layerVisibility.photos = true;
-            updateTabHighlight('photos-tab', true);
         }
     }
 
-    // Other functions and layers (GPX, POIs)
+    // Add Tab functionality: toggle dropdown
+    document.getElementById('add-tab').addEventListener('click', function () {
+        const dropdown = document.getElementById('add-dropdown');
+        dropdown.classList.toggle('show'); // Toggles the display of dropdown
+    });
 
-    function updateTabHighlight(tabId, isActive) {
-        const tab = document.getElementById(tabId);
-        if (isActive) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
+    // Modal functionality for photo upload
+    document.getElementById('add-photo').addEventListener('click', function() {
+        const photoModal = document.getElementById('photo-modal');
+        if (photoModal) {
+            photoModal.style.display = 'block';
         }
-    }
-
-    document.getElementById('road-tab').addEventListener('click', function () {
-        toggleGPXLayer(roadGPX, 'road');
     });
 
-    document.getElementById('gravel-tab').addEventListener('click', function () {
-        toggleGPXLayer(gravelGPX, 'gravel');
-    });
-
-    document.getElementById('photos-tab').addEventListener('click', function () {
-        togglePhotoLayer();
+    // Close modal functionality
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const modalId = button.parentElement.parentElement.id;
+            document.getElementById(modalId).style.display = 'none';
+        });
     });
 
     const uploadPhotoButton = document.getElementById('photo-upload-button');
@@ -103,17 +101,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert('Error: ' + data.error);
                 } else {
                     alert('Photo uploaded successfully: ' + data.url);
-                    closeModal('photo-modal');
 
-                    // Adding the uploaded photo as a marker on the map dynamically
-                    const photoCoordinates = [data.longitude, data.latitude];
+                    // Close the photo modal
+                    document.getElementById('photo-modal').style.display = 'none';
 
+                    // Add uploaded photo to the map dynamically
                     const newPhotoMarker = new mapboxgl.Marker()
-                        .setLngLat(photoCoordinates)
+                        .setLngLat([data.longitude, data.latitude])
                         .addTo(map);
 
                     const newPopup = new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(`<h3>New Photo</h3><img src="${data.url}" style="width:200px;">`);
+                        .setHTML(`<h3>${data.originalName}</h3><img src="${data.url}" style="width:200px;">`);
 
                     newPhotoMarker.setPopup(newPopup);
                     photoMarkers.push(newPhotoMarker);
