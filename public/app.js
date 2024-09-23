@@ -15,10 +15,19 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const response = await fetch('/api/get-photos');
             const photos = await response.json();
+
+            // Clear previous markers to avoid duplicates
+            removePhotoMarkers();
+
             photos.forEach(photo => {
                 if (photo.latitude && photo.longitude) {
-                    const marker = new mapboxgl.Marker().setLngLat([photo.longitude, photo.latitude]).addTo(map);
-                    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
+                    const marker = new mapboxgl.Marker()
+                        .setLngLat([photo.longitude, photo.latitude])
+                        .addTo(map);
+
+                    const popup = new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
+
                     marker.setPopup(popup);
                     photoMarkers.push(marker);
                 }
@@ -35,13 +44,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function togglePhotoLayer() {
         if (layerVisibility.photos) {
+            // Remove all photo markers if the layer is currently visible
             removePhotoMarkers();
             layerVisibility.photos = false;
         } else {
+            // Load and display the photo markers if the layer is currently not visible
             loadPhotoMarkers();
             layerVisibility.photos = true;
         }
+
+        // Update the active state of the tab for UI feedback
+        updateTabHighlight('photos-tab', layerVisibility.photos);
     }
+
+    // Utility to visually highlight the active tab
+    function updateTabHighlight(tabId, isActive) {
+        const tab = document.getElementById(tabId);
+        if (isActive) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    }
+
+    // Event listener for toggling the Photos layer
+    document.getElementById('photos-tab').addEventListener('click', function () {
+        togglePhotoLayer();
+    });
 
     // Add Tab functionality: toggle dropdown
     document.getElementById('add-tab').addEventListener('click', function () {
@@ -135,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const formData = new FormData();
-            files.forEach(file => formData.append('photoFiles', file));  // Use correct field name here
+            files.forEach(file => formData.append('photoFiles', file));
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/api/upload-photo');
