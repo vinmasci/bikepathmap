@@ -23,20 +23,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Function to fetch and load photo markers from MongoDB
     async function loadPhotoMarkers() {
-        const response = await fetch('/api/get-photos');
-        const photos = await response.json();
+        try {
+            const response = await fetch('/api/get-photos');
+            const photos = await response.json();
 
-        photos.forEach(photo => {
-            const marker = new mapboxgl.Marker()
-                .setLngLat([photo.longitude, photo.latitude])
-                .addTo(map);
+            photos.forEach(photo => {
+                if (photo.latitude && photo.longitude) {
+                    const marker = new mapboxgl.Marker()
+                        .setLngLat([photo.longitude, photo.latitude])
+                        .addTo(map);
 
-            const popup = new mapboxgl.Popup({ offset: 25 })
-                .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
+                    const popup = new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
 
-            marker.setPopup(popup);
-            photoMarkers.push(marker);
-        });
+                    marker.setPopup(popup);
+                    photoMarkers.push(marker);
+                }
+            });
+        } catch (error) {
+            console.error('Error loading photo markers:', error);
+        }
     }
 
     function removePhotoMarkers() {
@@ -122,4 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    // Add event listener for the "photos-tab" to toggle the photo markers on the map
+    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
 });
