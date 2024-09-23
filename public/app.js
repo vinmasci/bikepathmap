@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     const markerElement = document.createElement('div');
                     markerElement.className = 'custom-marker';
                     markerElement.innerHTML = `
-                        <div style="font-size: 18px; text-align: center;">
-                            <i class="fas fa-camera"></i>
+                        <div style="position: relative; width: 40px; height: 40px; background: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/Red_pin.svg') no-repeat center center; background-size: contain;">
+                            <i class="fas fa-camera" style="font-size: 18px; position: absolute; top: 5px; left: 10px; color: white;"></i>
                         </div>
                     `;
 
