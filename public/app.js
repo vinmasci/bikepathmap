@@ -11,87 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
     let photoMarkers = [];
 
-    // Function to load photo markers from the database
-    async function loadPhotoMarkers() {
-        try {
-            const response = await fetch('/api/get-photos');
-            const photos = await response.json();
-
-            // Clear previous markers to avoid duplicates
-            removePhotoMarkers();
-
-            photos.forEach(photo => {
-                if (photo.latitude && photo.longitude) {
-                    // Create a custom pin with the camera icon inside
-                    const markerElement = document.createElement('div');
-                    markerElement.className = 'custom-marker';
-                    markerElement.style.width = '30px';
-                    markerElement.style.height = '40px';
-                    markerElement.style.backgroundImage = 'url(https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg)';
-                    markerElement.style.backgroundSize = 'cover';
-                    markerElement.style.display = 'flex';
-                    markerElement.style.alignItems = 'center';
-                    markerElement.style.justifyContent = 'center';
-
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-camera';
-                    icon.style.color = 'white';
-                    icon.style.fontSize = '14px';
-
-                    markerElement.appendChild(icon);
-
-                    const marker = new mapboxgl.Marker(markerElement)
-                        .setLngLat([photo.longitude, photo.latitude])
-                        .addTo(map);
-
-                    const popup = new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(`
-                            <h3>${photo.originalName}</h3>
-                            <img src="${photo.url}" style="width:200px;">
-                            <div>
-                                <input type="text" id="caption-input-${photo._id}" placeholder="Enter caption" value="${photo.caption || ''}">
-                                <button onclick="saveCaption('${photo._id}')">Save Caption</button>
-                            </div>
-                        `);
-
-                    marker.setPopup(popup);
-                    photoMarkers.push(marker);
-                }
-            });
-        } catch (error) {
-            console.error('Error loading photo markers:', error);
-        }
-    }
-
-    // Remove all photo markers from the map
-    function removePhotoMarkers() {
-        photoMarkers.forEach(marker => marker.remove());
-        photoMarkers = [];
-    }
-
-    // Toggle photo layer on and off
-    function togglePhotoLayer() {
-        if (layerVisibility.photos) {
-            removePhotoMarkers();
-            layerVisibility.photos = false;
-        } else {
-            loadPhotoMarkers();
-            layerVisibility.photos = true;
-        }
-
-        updateTabHighlight('photos-tab', layerVisibility.photos);
-    }
-
-    // Utility to visually highlight the active tab
-    function updateTabHighlight(tabId, isActive) {
-        const tab = document.getElementById(tabId);
-        if (isActive) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-    }
-
     // Event listener for toggling the Photos layer
     document.getElementById('photos-tab').addEventListener('click', function () {
         togglePhotoLayer();
@@ -220,7 +139,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Move saveCaption function outside the DOMContentLoaded event listener to make it globally accessible
+// Move saveCaption and loadPhotoMarkers functions outside the DOMContentLoaded event listener to make them globally accessible
+
+// Function to save the caption when user clicks "Save Caption" button
 async function saveCaption(photoId) {
     const captionInput = document.getElementById(`caption-input-${photoId}`);
     const caption = captionInput.value;
@@ -244,6 +165,7 @@ async function saveCaption(photoId) {
 
         if (response.ok) {
             alert('Caption saved successfully');
+            closeModal('photo-modal'); // Close the modal after saving
             loadPhotoMarkers(); // Refresh the markers with updated captions
         } else {
             alert('Failed to save caption');
@@ -252,4 +174,62 @@ async function saveCaption(photoId) {
         console.error('Error saving caption:', error);
         alert('Error saving caption');
     }
+}
+
+// Function to load photo markers from the database
+async function loadPhotoMarkers() {
+    try {
+        const response = await fetch('/api/get-photos');
+        const photos = await response.json();
+
+        // Clear previous markers to avoid duplicates
+        removePhotoMarkers();
+
+        photos.forEach(photo => {
+            if (photo.latitude && photo.longitude) {
+                // Create a custom pin with the camera icon inside
+                const markerElement = document.createElement('div');
+                markerElement.className = 'custom-marker';
+                markerElement.style.width = '30px';
+                markerElement.style.height = '40px';
+                markerElement.style.backgroundImage = 'url(https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg)';
+                markerElement.style.backgroundSize = 'cover';
+                markerElement.style.display = 'flex';
+                markerElement.style.alignItems = 'center';
+                markerElement.style.justifyContent = 'center';
+
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-camera';
+                icon.style.color = 'white';
+                icon.style.fontSize = '14px';
+
+                markerElement.appendChild(icon);
+
+                const marker = new mapboxgl.Marker(markerElement)
+                    .setLngLat([photo.longitude, photo.latitude])
+                    .addTo(map);
+
+                const popup = new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(`
+                        <h3>${photo.originalName}</h3>
+                        <img src="${photo.url}" style="width:200px;">
+                        <div>
+                            <input type="text" id="caption-input-${photo._id}" placeholder="Enter caption" value="${photo.caption || ''}">
+                            <button onclick="saveCaption('${photo._id}')">Save Caption</button>
+                        </div>
+                    `);
+
+                marker.setPopup(popup);
+                photoMarkers.push(marker);
+            }
+        });
+    } catch (error) {
+        console.error('Error loading photo markers:', error);
+    }
+}
+
+// Remove all photo markers from the map
+function removePhotoMarkers() {
+    photoMarkers.forEach(marker => marker.remove());
+    photoMarkers = [];
 }
