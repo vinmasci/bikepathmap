@@ -15,7 +15,7 @@ const s3 = new AWS.S3({
 // Multer configuration for file uploads
 const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).single('photoFile');
 
-// MongoDB connection (with updated connection logic)
+// MongoDB connection
 let client;
 async function connectToMongo() {
     if (!client) {
@@ -24,13 +24,6 @@ async function connectToMongo() {
     }
     console.log('MongoDB connected');
     return client.db('photoApp').collection('photos');  // Use your MongoDB collection name
-}
-
-// Helper function to convert EXIF GPS coordinates to decimal degrees
-function convertDMSToDD(degrees, minutes, seconds, direction) {
-    let dd = degrees + minutes / 60 + seconds / 3600;
-    if (direction === "S" || direction === "W") dd = dd * -1;
-    return dd;
 }
 
 module.exports = (req, res) => {
@@ -65,14 +58,10 @@ module.exports = (req, res) => {
                 console.log('EXIF Data:', exifData.tags); // Log all EXIF data for debug
 
                 if (exifData.tags.GPSLatitude && exifData.tags.GPSLongitude) {
-                    const lat = exifData.tags.GPSLatitude;
-                    const lon = exifData.tags.GPSLongitude;
-                    const latRef = exifData.tags.GPSLatitudeRef || "N";
-                    const lonRef = exifData.tags.GPSLongitudeRef || "E";
+                    latitude = exifData.tags.GPSLatitude;
+                    longitude = exifData.tags.GPSLongitude;
 
-                    latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
-                    longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
-
+                    // Logging extracted coordinates for debugging
                     console.log('Extracted GPS Data:', { latitude, longitude });
                 } else {
                     console.log('No GPS data found in EXIF');
