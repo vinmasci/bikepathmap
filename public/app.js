@@ -414,17 +414,12 @@ function toggleRoadLayer() {
 
 // Toggle Dropdown and visually highlight the Add tab
 document.getElementById('add-tab').addEventListener('click', function (e) {
-    e.preventDefault();
-    
+    // e.preventDefault();  // Temporarily comment this out for testing
     const dropdown = document.getElementById('add-dropdown');
     if (dropdown) {
-        dropdown.classList.toggle('show');  // Toggle dropdown visibility
-        
-        console.log('Dropdown visibility toggled:', dropdown.classList.contains('show'));
+        dropdown.classList.toggle('show');
     }
-    
-    
-    // Visually highlight the Add tab (using the same utility function as others)
+
     updateTabHighlight('add-tab', dropdown.classList.contains('show'));
 });
 
