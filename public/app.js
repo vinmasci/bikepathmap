@@ -296,7 +296,7 @@ function uploadGPXFile(fileInputId) {
         const gpxDoc = gpxParser.parseFromString(gpxData, 'application/xml');
         const geojson = toGeoJSON.gpx(gpxDoc);
 
-        // Check if 'gpx-route' source already exists and remove it before adding new one
+        // Check if 'gpx-route' source already exists and remove it before adding a new one
         if (map.getSource('gpx-route')) {
             map.removeLayer('gpx-route-layer');
             map.removeSource('gpx-route');
@@ -325,15 +325,32 @@ function uploadGPXFile(fileInputId) {
 
         // Remove any existing 'click' event listener for gpx-route-layer to avoid stacking
         map.off('click', 'gpx-route-layer');
+        map.off('mouseenter', 'gpx-route-layer');
 
-        // Add a new 'click' event listener for the GPX route, showing the file name
+        // Add hover effect (mouseenter) to show popup on hover
+        map.on('mouseenter', 'gpx-route-layer', function (e) {
+            map.getCanvas().style.cursor = 'pointer';  // Change cursor to pointer on hover
+
+            new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(`
+                    <div class="gpx-popup">
+                        <button class="gpx-route-button">
+                            ${file.name}
+                        </button>
+                    </div>
+                `)
+                .addTo(map);
+        });
+
+        // Add click event to display popup persistently
         map.on('click', 'gpx-route-layer', function (e) {
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
                 .setHTML(`
                     <div class="gpx-popup">
                         <button class="gpx-route-button">
-                            ${file.name} →
+                            ${file.name}
                         </button>
                     </div>
                 `)
@@ -349,6 +366,7 @@ function uploadGPXFile(fileInputId) {
 
     reader.readAsText(file);
 }
+
 
 
 document.getElementById('road-tab').addEventListener('click', function () {

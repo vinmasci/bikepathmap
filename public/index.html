@@ -132,37 +132,40 @@
         color: #000000;  /* Adjust the color of the camera icon */
     }
 
-        /* GPX Pop-up Button */
-        .gpx-popup {
-        text-align: center;
-        padding: 10px;
-    }
+/* GPX Pop-up Button */
+/* Full-size button to cover the entire popup area */
+.gpx-popup {
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .gpx-route-button {
-        background-color: #1e90ff;  /* Primary blue background */
-        color: white;
-        border: 2px solid #1565c0;  /* Darker stroke (border) */
-        border-radius: 6px;
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
+.gpx-route-button {
+    background-color: #1e90ff;  /* Primary blue background */
+    color: white;
+    border: 2px solid #1565c0;  /* Darker stroke (border) */
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;  /* Full width */
+    height: 100%; /* Full height */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+}
 
-        .gpx-route-button:hover {
-        background-color: #1565c0;  /* Darker blue on hover */
-        border-color: #003f88;  /* Even darker stroke on hover */
-    }
-
-        .gpx-route-button::after {
-        content: '→';  /* Arrow icon */
-        margin-left: 10px;
-        font-weight: bold;
-    }
-
+.gpx-route-button:hover {
+    background-color: #1565c0;  /* Darker blue on hover */
+    border-color: #003f88;  /* Even darker stroke on hover */
+}
 
     </style>
 </head>
