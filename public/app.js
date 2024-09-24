@@ -45,15 +45,6 @@ map.on('load', function() {
         togglePhotoLayer();
     });
 
-// Add Tab functionality: toggle dropdown
-document.getElementById('add-tab').addEventListener('click', function (e) {
-    e.preventDefault();
-    const dropdown = document.getElementById('add-dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('show');
-    }
-});
-
 
     // Modal functionality for photo upload
     document.getElementById('add-photo').addEventListener('click', function() {
