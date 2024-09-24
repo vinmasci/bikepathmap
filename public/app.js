@@ -5,7 +5,7 @@ let layerVisibility = { road: false, gravel: false, photos: false, pois: false }
 document.addEventListener("DOMContentLoaded", function () {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
 
-    // Initialize the Mapbox map
+    // Initialize the Mapbox map globally
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
@@ -13,34 +13,32 @@ document.addEventListener("DOMContentLoaded", function () {
         zoom: 10
     });
 
-    // Wait for the map to fully load its style before adding layers
-    map.on('load', function () {
-        // Check if any GPX data exists in localStorage
-        const storedGPX = localStorage.getItem('gpxData');
-        if (storedGPX) {
-            const geojson = JSON.parse(storedGPX);
-            map.addSource('gpx-route', {
-                type: 'geojson',
-                data: geojson
-            });
+// Wait for the map to fully load its style before adding any layers or sources
+map.on('load', function() {
+    // Now it is safe to add sources and layers
+    const storedGPX = localStorage.getItem('gpxData');
+    if (storedGPX) {
+        const geojson = JSON.parse(storedGPX);
+        map.addSource('gpx-route', {
+            type: 'geojson',
+            data: geojson
+        });
 
-            map.addLayer({
-                id: 'gpx-route-layer',
-                type: 'line',
-                source: 'gpx-route',
-                layout: {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                paint: {
-                    'line-color': '#ff0000',
-                    'line-width': 4
-                }
-            });
-        }
-    });
+        map.addLayer({
+            id: 'gpx-route-layer',
+            type: 'line',
+            source: 'gpx-route',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#ff0000',
+                'line-width': 4
+            }
+        });
+    }
 });
-
 
     // Event listener for toggling the Photos layer
     document.getElementById('photos-tab').addEventListener('click', function () {
