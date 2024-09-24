@@ -394,24 +394,6 @@ document.getElementById('road-tab').addEventListener('click', function () {
     toggleRoadLayer();
 });
 
-function toggleRoadLayer() {
-    if (map.getLayer('gpx-route-layer')) {
-        if (layerVisibility.road) {
-            // Hide the layer instead of removing it
-            map.setLayoutProperty('gpx-route-layer', 'visibility', 'none');
-            layerVisibility.road = false;
-        } else {
-            // Show the layer again
-            map.setLayoutProperty('gpx-route-layer', 'visibility', 'visible');
-            layerVisibility.road = true;
-        }
-    } else {
-        alert("No GPX route is loaded yet.");
-    }
-
-    updateTabHighlight('road-tab', layerVisibility.road);
-}
-
 // Toggle Dropdown and visually highlight the Add tab
 document.getElementById('add-tab').addEventListener('click', function (e) {
     // e.preventDefault();  // Temporarily comment this out for testing
@@ -431,4 +413,22 @@ function updateTabHighlight(tabId, isActive) {
     } else {
         tab.classList.remove('active');
     }
+}
+
+function toggleRoadLayer() {
+    if (map.getLayer('gpx-route-layer')) {
+        if (layerVisibility.road) {
+            // Hide the layer instead of removing it
+            map.setLayoutProperty('gpx-route-layer', 'visibility', 'none');
+            layerVisibility.road = false;
+        } else {
+            // Show the layer again
+            map.setLayoutProperty('gpx-route-layer', 'visibility', 'visible');
+            layerVisibility.road = true;
+        }
+    } else {
+        alert("No GPX route is loaded yet.");
+    }
+
+    updateTabHighlight('road-tab', layerVisibility.road);
 }
