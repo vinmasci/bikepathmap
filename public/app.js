@@ -291,17 +291,24 @@ function uploadGPXFile(fileInputId) {
     reader.onload = function(event) {
         const gpxData = event.target.result;
 
-        // Parse the GPX data into GeoJSON format using toGeoJSON or another GPX parser
+        // Parse the GPX data into GeoJSON format using toGeoJSON
         const gpxParser = new DOMParser();
         const gpxDoc = gpxParser.parseFromString(gpxData, 'application/xml');
-        const geojson = toGeoJSON.gpx(gpxDoc); // You already have toGeoJSON included
+        const geojson = toGeoJSON.gpx(gpxDoc);
 
-        // Add the parsed GeoJSON data to the map as a new layer
+        // Check if 'gpx-route' source already exists
+        if (map.getSource('gpx-route')) {
+            map.removeLayer('gpx-route-layer');
+            map.removeSource('gpx-route');
+        }
+
+        // Add the parsed GeoJSON data to the map as a new source
         map.addSource('gpx-route', {
             type: 'geojson',
             data: geojson
         });
 
+        // Add the parsed GeoJSON data to the map as a new layer
         map.addLayer({
             id: 'gpx-route-layer',
             type: 'line',
@@ -317,6 +324,7 @@ function uploadGPXFile(fileInputId) {
         });
 
         alert('GPX route uploaded and displayed on the map!');
+        layerVisibility.road = true;  // Ensure the road layer is marked as visible
 
         // Optionally, close the modal after uploading
         closeModal('road-modal');
@@ -324,3 +332,27 @@ function uploadGPXFile(fileInputId) {
 
     reader.readAsText(file);
 }
+
+
+document.getElementById('road-tab').addEventListener('click', function () {
+    toggleRoadLayer();
+});
+
+function toggleRoadLayer() {
+    if (map.getLayer('gpx-route-layer')) {
+        if (layerVisibility.road) {
+            // Hide the layer instead of removing it
+            map.setLayoutProperty('gpx-route-layer', 'visibility', 'none');
+            layerVisibility.road = false;
+        } else {
+            // Show the layer again
+            map.setLayoutProperty('gpx-route-layer', 'visibility', 'visible');
+            layerVisibility.road = true;
+        }
+    } else {
+        alert("No GPX route is loaded yet.");
+    }
+
+    updateTabHighlight('road-tab', layerVisibility.road);
+}
+
