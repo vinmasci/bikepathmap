@@ -142,7 +142,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Move saveCaption and loadPhotoMarkers functions outside the DOMContentLoaded event listener to make them globally accessible
-
 // Function to save the caption when user clicks "Save Caption" button
 async function saveCaption(photoId) {
     const captionInput = document.getElementById(`caption-input-${photoId}`);
@@ -201,8 +200,8 @@ async function loadPhotoMarkers() {
             if (photo.latitude && photo.longitude) {
                 const markerElement = document.createElement('div');
                 markerElement.className = 'custom-marker';
-                markerElement.style.width = '40px';  // Adjust size if needed
-                markerElement.style.height = '40px'; // Make sure width and height are equal for a perfect circle
+                markerElement.style.width = '20px';  // Adjust size if needed
+                markerElement.style.height = '20px'; // Make sure width and height are equal for a perfect circle
         
                 // Use your saved camera icon and preserve aspect ratio
                 markerElement.style.backgroundImage = 'url(/cameraicon.png)';
@@ -269,4 +268,59 @@ function updateTabHighlight(tabId, isActive) {
     } else {
         tab.classList.remove('active');
     }
+}
+
+// Function to upload and render GPX files
+document.getElementById('add-road-gpx').addEventListener('click', function() {
+    const roadModal = document.getElementById('road-modal');
+    if (roadModal) {
+        roadModal.style.display = 'block';
+    }
+});
+
+function uploadGPXFile(fileInputId) {
+    const fileInput = document.getElementById(fileInputId);
+    const file = fileInput.files[0];
+
+    if (!file || !file.name.endsWith('.gpx')) {
+        alert('Please select a valid GPX file');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const gpxData = event.target.result;
+
+        // Parse the GPX data into GeoJSON format using toGeoJSON or another GPX parser
+        const gpxParser = new DOMParser();
+        const gpxDoc = gpxParser.parseFromString(gpxData, 'application/xml');
+        const geojson = toGeoJSON.gpx(gpxDoc); // You already have toGeoJSON included
+
+        // Add the parsed GeoJSON data to the map as a new layer
+        map.addSource('gpx-route', {
+            type: 'geojson',
+            data: geojson
+        });
+
+        map.addLayer({
+            id: 'gpx-route-layer',
+            type: 'line',
+            source: 'gpx-route',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#ff0000',  // Set the color of the GPX route
+                'line-width': 4
+            }
+        });
+
+        alert('GPX route uploaded and displayed on the map!');
+
+        // Optionally, close the modal after uploading
+        closeModal('road-modal');
+    };
+
+    reader.readAsText(file);
 }
