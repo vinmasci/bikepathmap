@@ -42,11 +42,15 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Add Tab functionality: toggle dropdown
-    document.getElementById('add-tab').addEventListener('click', function () {
-        const dropdown = document.getElementById('add-dropdown');
+// Add Tab functionality: toggle dropdown
+document.getElementById('add-tab').addEventListener('click', function (e) {
+    e.preventDefault();
+    const dropdown = document.getElementById('add-dropdown');
+    if (dropdown) {
         dropdown.classList.toggle('show');
-    });
+    }
+});
+
 
     // Modal functionality for photo upload
     document.getElementById('add-photo').addEventListener('click', function() {
@@ -306,28 +310,52 @@ function uploadGPXFile(fileInputId) {
     const fileInput = document.getElementById(fileInputId);
     const file = fileInput.files[0];
 
+    // Check if the file exists and is a GPX file
     if (!file || !file.name.endsWith('.gpx')) {
         alert('Please select a valid GPX file');
         return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const gpxData = event.target.result;
+    // Prepare FormData for file upload
+    const formData = new FormData();
+    formData.append('gpxFile', file);  // This should match the multer field name
 
-        // Parse the GPX data into GeoJSON format using toGeoJSON
+    // Use fetch to send the GPX file to your backend
+    fetch('/api/upload-gpx', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            
+            // If the upload is successful, load the GPX file from the file path saved in MongoDB
+            loadGPXFromMongoDB(data.fileData.filePath);
+        } else {
+            alert('Error uploading GPX file');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to upload GPX file');
+    });
+}
+
+function loadGPXFromMongoDB(filePath) {
+    fetch(filePath)
+    .then(response => response.text())
+    .then(gpxData => {
+        // Parse GPX data into GeoJSON format using toGeoJSON
         const gpxParser = new DOMParser();
         const gpxDoc = gpxParser.parseFromString(gpxData, 'application/xml');
         const geojson = toGeoJSON.gpx(gpxDoc);
 
-        // Check if 'gpx-route' source already exists and remove it before adding new one
+        // If a GPX route already exists, remove the old source and layer before adding the new one
         if (map.getSource('gpx-route')) {
             map.removeLayer('gpx-route-layer');
             map.removeSource('gpx-route');
         }
-
-        // Save GPX data to localStorage for persistence
-        localStorage.setItem('gpxData', JSON.stringify(geojson));
 
         // Add the parsed GeoJSON data to the map as a new source
         map.addSource('gpx-route', {
@@ -350,40 +378,13 @@ function uploadGPXFile(fileInputId) {
             }
         });
 
-        // Remove any existing 'mouseenter' and 'mouseleave' event listeners
-        map.off('mouseenter', 'gpx-route-layer');
-        map.off('mouseleave', 'gpx-route-layer');
-
-        // Add hover effect (mouseenter) to show button
-        map.on('mouseenter', 'gpx-route-layer', function (e) {
-            map.getCanvas().style.cursor = 'pointer';  // Change cursor to pointer on hover
-
-            // Create a button directly on the map without modal
-            const button = document.createElement('button');
-            button.className = 'gpx-route-button';
-            button.innerHTML = file.name;
-            button.style.position = 'absolute';  // Ensure it displays over the map
-            button.style.left = e.point.x + 'px';
-            button.style.top = e.point.y + 'px';
-
-            // Add the button to the map container
-            map.getContainer().appendChild(button);
-
-            // Remove the button when the user moves away
-            map.on('mouseleave', 'gpx-route-layer', function () {
-                map.getCanvas().style.cursor = '';  // Reset cursor
-                button.remove();  // Remove the button when leaving
-            });
-        });
-
-        alert('GPX route uploaded and displayed on the map!');
-        layerVisibility.road = true;  // Ensure the road layer is marked as visible
-
-        // Optionally, close the modal after uploading
-        closeModal('road-modal');
-    };
-
-    reader.readAsText(file);
+        alert('GPX route loaded and displayed on the map!');
+        layerVisibility.road = true;
+    })
+    .catch(error => {
+        console.error('Error loading GPX from MongoDB:', error);
+        alert('Failed to load GPX from the server');
+    });
 }
 
 document.getElementById('road-tab').addEventListener('click', function () {

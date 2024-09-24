@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
@@ -14,26 +15,33 @@ async function connectToMongo() {
 
 // Define the route for uploading GPX files
 module.exports = async (req, res) => {
-    const file = req.files.gpxFile; // Assuming you're using multer for file uploads
+    const file = req.file; // Assuming you're using multer for file uploads
 
     if (!file || !file.mimetype.includes('gpx')) {
         return res.status(400).json({ error: 'Invalid GPX file' });
     }
 
-    const gpxFilePath = `/uploads/${Date.now()}-${file.originalname}`;
-    fs.writeFileSync(gpxFilePath, file.buffer);
-
+    // Define the GPX file path where the file will be saved
+    const gpxFilePath = path.join(__dirname, '../uploads', `${Date.now()}-${file.originalname}`);
+    
     try {
-        const collection = await connectToMongo(); // Now inside an async function
+        // Save the GPX file to the server's filesystem
+        fs.writeFileSync(gpxFilePath, file.buffer);
 
-        // Insert the GPX metadata into MongoDB
-        await collection.insertOne({
+        const collection = await connectToMongo();
+
+        // Insert GPX metadata into MongoDB
+        const result = await collection.insertOne({
             filePath: gpxFilePath,
             uploadedAt: new Date(),
             fileName: file.originalname
         });
 
-        return res.status(200).json({ message: 'GPX file uploaded successfully!' });
+        // Respond with the file metadata
+        return res.status(200).json({ 
+            message: 'GPX file uploaded successfully!', 
+            fileData: result.ops[0] 
+        });
     } catch (error) {
         console.error('Error uploading GPX file:', error);
         return res.status(500).json({ error: 'Failed to upload GPX file' });
