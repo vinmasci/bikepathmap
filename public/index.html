@@ -35,7 +35,7 @@
             background-color: #f9f9f9;
             min-width: 160px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
+            z-index: 1000;
         }
         .dropdown-content button {
             color: black;
@@ -231,6 +231,8 @@
         <button onclick="savePOI()">Save POI</button>
     </div>
 </div>
+
+<div class="dropdown-content show" id="add-dropdown"></div>
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
 <script src="/js/toGeoJSON.js"></script>
