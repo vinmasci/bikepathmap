@@ -1,15 +1,17 @@
+let map;
+let photoMarkers = [];
+let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
+
 document.addEventListener("DOMContentLoaded", function () {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
 
-    const map = new mapboxgl.Map({
+    // Initialize the Mapbox map globally
+    map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [144.9631, -37.8136],
         zoom: 10
     });
-
-    let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
-    let photoMarkers = [];
 
     // Event listener for toggling the Photos layer
     document.getElementById('photos-tab').addEventListener('click', function () {
@@ -232,4 +234,27 @@ async function loadPhotoMarkers() {
 function removePhotoMarkers() {
     photoMarkers.forEach(marker => marker.remove());
     photoMarkers = [];
+}
+
+// Toggle photo layer on and off
+function togglePhotoLayer() {
+    if (layerVisibility.photos) {
+        removePhotoMarkers();
+        layerVisibility.photos = false;
+    } else {
+        loadPhotoMarkers();
+        layerVisibility.photos = true;
+    }
+
+    updateTabHighlight('photos-tab', layerVisibility.photos);
+}
+
+// Utility to visually highlight the active tab
+function updateTabHighlight(tabId, isActive) {
+    const tab = document.getElementById(tabId);
+    if (isActive) {
+        tab.classList.add('active');
+    } else {
+        tab.classList.remove('active');
+    }
 }
