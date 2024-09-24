@@ -201,17 +201,17 @@ async function loadPhotoMarkers() {
             if (photo.latitude && photo.longitude) {
                 const markerElement = document.createElement('div');
                 markerElement.className = 'custom-marker';
-                markerElement.style.width = '30px';  // Adjust width if needed
-                markerElement.style.height = '40px'; // Adjust height if needed
+                markerElement.style.width = '40px';  // Adjust size if needed
+                markerElement.style.height = '40px'; // Make sure width and height are equal for a perfect circle
         
-                // Use your saved camera icon as the marker background
-                markerElement.style.backgroundImage = 'url(/cameraicon.png)';  // Point to your icon in the public folder
-                markerElement.style.backgroundSize = 'cover';
+                // Use your saved camera icon and preserve aspect ratio
+                markerElement.style.backgroundImage = 'url(/cameraicon.png)';
+                markerElement.style.backgroundSize = 'contain';  // Use 'contain' to maintain the aspect ratio
                 markerElement.style.backgroundRepeat = 'no-repeat';
                 markerElement.style.backgroundPosition = 'center';
                 
                 // Optional: add some additional styling (border, shadow, etc.)
-                markerElement.style.borderRadius = '50%';
+                markerElement.style.borderRadius = '50%'; // Make it a circle
                 markerElement.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.5)';
         
                 // Create a new Mapbox marker with the custom element
@@ -234,6 +234,7 @@ async function loadPhotoMarkers() {
                 photoMarkers.push(marker);
             }
         });
+        
         
     } catch (error) {
         console.error('Error loading photo markers:', error);
