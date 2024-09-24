@@ -394,27 +394,6 @@ document.getElementById('road-tab').addEventListener('click', function () {
     toggleRoadLayer();
 });
 
-// Toggle Dropdown and visually highlight the Add tab
-document.getElementById('add-tab').addEventListener('click', function (e) {
-    // e.preventDefault();  // Temporarily comment this out for testing
-    const dropdown = document.getElementById('add-dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('show');
-    }
-
-    updateTabHighlight('add-tab', dropdown.classList.contains('show'));
-});
-
-// Utility to visually highlight the active tab
-function updateTabHighlight(tabId, isActive) {
-    const tab = document.getElementById(tabId);
-    if (isActive) {
-        tab.classList.add('active');
-    } else {
-        tab.classList.remove('active');
-    }
-}
-
 function toggleRoadLayer() {
     if (map.getLayer('gpx-route-layer')) {
         if (layerVisibility.road) {
@@ -432,3 +411,31 @@ function toggleRoadLayer() {
 
     updateTabHighlight('road-tab', layerVisibility.road);
 }
+
+// Initialize dropdown visibility state
+let addDropdownVisible = false;
+
+// Toggle Dropdown for Add Tab
+function toggleAddDropdown() {
+    const dropdown = document.getElementById('add-dropdown');
+    
+    if (dropdown) {
+        if (addDropdownVisible) {
+            // Hide the dropdown
+            dropdown.classList.remove('show');
+            addDropdownVisible = false;
+        } else {
+            // Show the dropdown
+            dropdown.classList.add('show');
+            addDropdownVisible = true;
+        }
+    }
+
+    // Update the tab highlight to indicate active/inactive state
+    updateTabHighlight('add-tab', addDropdownVisible);
+}
+
+// Add event listener for the Add tab
+document.getElementById('add-tab').addEventListener('click', function (e) {
+    toggleAddDropdown();
+});
