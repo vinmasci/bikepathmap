@@ -18,6 +18,30 @@ document.addEventListener("DOMContentLoaded", function () {
         togglePhotoLayer();
     });
 
+    // Check if any GPX data exists in localStorage
+    const storedGPX = localStorage.getItem('gpxData');
+    if (storedGPX) {
+        const geojson = JSON.parse(storedGPX);
+        map.addSource('gpx-route', {
+            type: 'geojson',
+            data: geojson
+        });
+
+        map.addLayer({
+            id: 'gpx-route-layer',
+            type: 'line',
+            source: 'gpx-route',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#ff0000',
+                'line-width': 4
+            }
+        });
+    }
+
     // Add Tab functionality: toggle dropdown
     document.getElementById('add-tab').addEventListener('click', function () {
         const dropdown = document.getElementById('add-dropdown');
@@ -296,11 +320,14 @@ function uploadGPXFile(fileInputId) {
         const gpxDoc = gpxParser.parseFromString(gpxData, 'application/xml');
         const geojson = toGeoJSON.gpx(gpxDoc);
 
-        // Check if 'gpx-route' source already exists and remove it before adding a new one
+        // Check if 'gpx-route' source already exists and remove it before adding new one
         if (map.getSource('gpx-route')) {
             map.removeLayer('gpx-route-layer');
             map.removeSource('gpx-route');
         }
+
+        // Save GPX data to localStorage for persistence
+        localStorage.setItem('gpxData', JSON.stringify(geojson));
 
         // Add the parsed GeoJSON data to the map as a new source
         map.addSource('gpx-route', {
@@ -323,38 +350,30 @@ function uploadGPXFile(fileInputId) {
             }
         });
 
-        // Remove any existing 'click' event listener for gpx-route-layer to avoid stacking
-        map.off('click', 'gpx-route-layer');
+        // Remove any existing 'mouseenter' and 'mouseleave' event listeners
         map.off('mouseenter', 'gpx-route-layer');
+        map.off('mouseleave', 'gpx-route-layer');
 
-        // Add hover effect (mouseenter) to show popup on hover
+        // Add hover effect (mouseenter) to show button
         map.on('mouseenter', 'gpx-route-layer', function (e) {
             map.getCanvas().style.cursor = 'pointer';  // Change cursor to pointer on hover
 
-            new mapboxgl.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML(`
-                    <div class="gpx-popup">
-                        <button class="gpx-route-button">
-                            ${file.name}
-                        </button>
-                    </div>
-                `)
-                .addTo(map);
-        });
+            // Create a button directly on the map without modal
+            const button = document.createElement('button');
+            button.className = 'gpx-route-button';
+            button.innerHTML = file.name;
+            button.style.position = 'absolute';  // Ensure it displays over the map
+            button.style.left = e.point.x + 'px';
+            button.style.top = e.point.y + 'px';
 
-        // Add click event to display popup persistently
-        map.on('click', 'gpx-route-layer', function (e) {
-            new mapboxgl.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML(`
-                    <div class="gpx-popup">
-                        <button class="gpx-route-button">
-                            ${file.name}
-                        </button>
-                    </div>
-                `)
-                .addTo(map);
+            // Add the button to the map container
+            map.getContainer().appendChild(button);
+
+            // Remove the button when the user moves away
+            map.on('mouseleave', 'gpx-route-layer', function () {
+                map.getCanvas().style.cursor = '';  // Reset cursor
+                button.remove();  // Remove the button when leaving
+            });
         });
 
         alert('GPX route uploaded and displayed on the map!');
@@ -366,8 +385,6 @@ function uploadGPXFile(fileInputId) {
 
     reader.readAsText(file);
 }
-
-
 
 document.getElementById('road-tab').addEventListener('click', function () {
     toggleRoadLayer();
