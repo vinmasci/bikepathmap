@@ -45,30 +45,6 @@ map.on('load', function() {
         togglePhotoLayer();
     });
 
-    // Check if any GPX data exists in localStorage
-    const storedGPX = localStorage.getItem('gpxData');
-    if (storedGPX) {
-        const geojson = JSON.parse(storedGPX);
-        map.addSource('gpx-route', {
-            type: 'geojson',
-            data: geojson
-        });
-
-        map.addLayer({
-            id: 'gpx-route-layer',
-            type: 'line',
-            source: 'gpx-route',
-            layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            paint: {
-                'line-color': '#ff0000',
-                'line-width': 4
-            }
-        });
-    }
-
 // Add Tab functionality: toggle dropdown
 document.getElementById('add-tab').addEventListener('click', function (e) {
     e.preventDefault();
