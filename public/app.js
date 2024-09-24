@@ -459,3 +459,13 @@ function updateTabHighlight(tabId, isActive) {
         tab.classList.remove('active');
     }
 }
+
+document.getElementById('add-tab').addEventListener('click', function (e) {
+    e.preventDefault();
+    console.log('Add button clicked');
+    const dropdown = document.getElementById('add-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+        console.log('Dropdown visibility toggled');
+    }
+});
