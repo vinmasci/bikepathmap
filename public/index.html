@@ -131,6 +131,39 @@
         font-size: 16px; /* Adjust the size of the camera icon */
         color: #000000;  /* Adjust the color of the camera icon */
     }
+
+        /* GPX Pop-up Button */
+        .gpx-popup {
+        text-align: center;
+        padding: 10px;
+    }
+
+        .gpx-route-button {
+        background-color: #1e90ff;  /* Primary blue background */
+        color: white;
+        border: 2px solid #1565c0;  /* Darker stroke (border) */
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .gpx-route-button:hover {
+        background-color: #1565c0;  /* Darker blue on hover */
+        border-color: #003f88;  /* Even darker stroke on hover */
+    }
+
+        .gpx-route-button::after {
+        content: '→';  /* Arrow icon */
+        margin-left: 10px;
+        font-weight: bold;
+    }
+
+
     </style>
 </head>
 <body>
