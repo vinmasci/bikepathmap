@@ -201,25 +201,24 @@ async function loadPhotoMarkers() {
             if (photo.latitude && photo.longitude) {
                 const markerElement = document.createElement('div');
                 markerElement.className = 'custom-marker';
-                markerElement.style.width = '30px';
-                markerElement.style.height = '40px';
-                markerElement.style.backgroundImage = 'url(https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg)';
+                markerElement.style.width = '30px';  // Adjust width if needed
+                markerElement.style.height = '40px'; // Adjust height if needed
+        
+                // Use your saved camera icon as the marker background
+                markerElement.style.backgroundImage = 'url(/cameraicon.png)';  // Point to your icon in the public folder
                 markerElement.style.backgroundSize = 'cover';
-                markerElement.style.display = 'flex';
-                markerElement.style.alignItems = 'center';
-                markerElement.style.justifyContent = 'center';
-
-                const icon = document.createElement('i');
-                icon.className = 'fas fa-camera';
-                icon.style.color = 'white';
-                icon.style.fontSize = '14px';
-
-                markerElement.appendChild(icon);
-
+                markerElement.style.backgroundRepeat = 'no-repeat';
+                markerElement.style.backgroundPosition = 'center';
+                
+                // Optional: add some additional styling (border, shadow, etc.)
+                markerElement.style.borderRadius = '50%';
+                markerElement.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.5)';
+        
+                // Create a new Mapbox marker with the custom element
                 const marker = new mapboxgl.Marker(markerElement)
                     .setLngLat([photo.longitude, photo.latitude])
                     .addTo(map);
-
+        
                 const popup = new mapboxgl.Popup({ offset: 25 })
                     .setHTML(`
                         <h3>${photo.originalName}</h3>
@@ -230,11 +229,12 @@ async function loadPhotoMarkers() {
                         <input type="text" id="caption-input-${photo._id}" placeholder="Enter caption" value="${photo.caption || ''}">
                         <button onclick="saveCaption('${photo._id}')">Save Caption</button>
                     `);
-
+        
                 marker.setPopup(popup);
                 photoMarkers.push(marker);
             }
         });
+        
     } catch (error) {
         console.error('Error loading photo markers:', error);
     }
