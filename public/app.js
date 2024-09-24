@@ -167,8 +167,18 @@ async function saveCaption(photoId) {
 
         if (response.ok) {
             alert('Caption saved successfully');
-            closeModal('photo-modal'); // Close the modal after saving
-            loadPhotoMarkers(); // Refresh the markers with updated captions
+
+            // Clear the input box
+            captionInput.value = '';
+
+            // Update the modal content immediately with the saved caption
+            const modalContent = document.querySelector(`#caption-modal-content-${photoId}`);
+            if (modalContent) {
+                modalContent.innerHTML = `<p>${caption}</p>`;
+            }
+
+            // Reload the photo markers to ensure the caption persists across page reloads
+            loadPhotoMarkers();
         } else {
             alert('Failed to save caption');
         }
@@ -189,7 +199,6 @@ async function loadPhotoMarkers() {
 
         photos.forEach(photo => {
             if (photo.latitude && photo.longitude) {
-                // Create a custom pin with the camera icon inside
                 const markerElement = document.createElement('div');
                 markerElement.className = 'custom-marker';
                 markerElement.style.width = '30px';
@@ -215,10 +224,11 @@ async function loadPhotoMarkers() {
                     .setHTML(`
                         <h3>${photo.originalName}</h3>
                         <img src="${photo.url}" style="width:200px;">
-                        <div>
-                            <input type="text" id="caption-input-${photo._id}" placeholder="Enter caption" value="${photo.caption || ''}">
-                            <button onclick="saveCaption('${photo._id}')">Save Caption</button>
+                        <div id="caption-modal-content-${photo._id}">
+                            <p>${photo.caption || ''}</p>
                         </div>
+                        <input type="text" id="caption-input-${photo._id}" placeholder="Enter caption" value="${photo.caption || ''}">
+                        <button onclick="saveCaption('${photo._id}')">Save Caption</button>
                     `);
 
                 marker.setPopup(popup);
@@ -229,6 +239,7 @@ async function loadPhotoMarkers() {
         console.error('Error loading photo markers:', error);
     }
 }
+
 
 // Remove all photo markers from the map
 function removePhotoMarkers() {

@@ -12,7 +12,7 @@ const s3 = new AWS.S3({
 });
 
 // MongoDB connection setup
-const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(process.env.MONGODB_URI); // No need for useNewUrlParser or useUnifiedTopology
 
 async function connectToMongo() {
     if (!client.isConnected()) {
