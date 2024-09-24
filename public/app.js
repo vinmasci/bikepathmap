@@ -13,6 +13,33 @@ document.addEventListener("DOMContentLoaded", function () {
         zoom: 10
     });
 
+// Wait for the map to fully load its style before adding any layers or sources
+map.on('load', function() {
+    // Now it is safe to add sources and layers
+    const storedGPX = localStorage.getItem('gpxData');
+    if (storedGPX) {
+        const geojson = JSON.parse(storedGPX);
+        map.addSource('gpx-route', {
+            type: 'geojson',
+            data: geojson
+        });
+
+        map.addLayer({
+            id: 'gpx-route-layer',
+            type: 'line',
+            source: 'gpx-route',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#ff0000',
+                'line-width': 4
+            }
+        });
+    }
+});
+
     // Event listener for toggling the Photos layer
     document.getElementById('photos-tab').addEventListener('click', function () {
         togglePhotoLayer();
