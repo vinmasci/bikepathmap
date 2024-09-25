@@ -29,15 +29,14 @@
             background-color: #555;
         }
         .dropdown-content {
-    display: none;
-    position: absolute;
-    bottom: 60px;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 9999; /* Higher than #map */
-}
-
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 9999; /* Higher than #map */
+        }
         .dropdown-content button {
             color: black;
             padding: 12px 16px;
@@ -85,7 +84,7 @@
             cursor: pointer;
         }
 
-        /* New styles for drag-and-drop area */
+        /* Drag-and-Drop Area styles */
         #drag-drop-area {
             border: 2px dashed #ccc;
             padding: 20px;
@@ -93,24 +92,19 @@
             cursor: pointer;
             margin-bottom: 10px;
         }
-
         #drag-drop-area.drag-over {
             background-color: #f0f0f0;
         }
-
         #preview-container {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
         }
-
         #preview-container img {
             width: 100px;
             margin: 5px;
             border: 1px solid #ccc;
         }
-
-        /* Progress bar styles */
         #upload-progress {
             height: 5px;
             background-color: green;
@@ -118,45 +112,40 @@
             margin-top: 10px;
         }
 
-        /* Customer marker pin */
+        /* Custom marker pin */
         .custom-marker .pin {
-        background-color: #fff;
-        border-radius: 30%;
-        padding: 6px;
-        border: 2px solid #000;
-        display: inline-block;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    }
+            background-color: #fff;
+            border-radius: 30%;
+            padding: 6px;
+            border: 2px solid #000;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
 
-    .custom-marker i {
-        font-size: 16px; /* Adjust the size of the camera icon */
-        color: #000000;  /* Adjust the color of the camera icon */
-    }
+        .custom-marker i {
+            font-size: 16px; /* Adjust the size of the camera icon */
+            color: #000000;  /* Adjust the color of the camera icon */
+        }
 
-/* GPX Pop-up Button */
-.gpx-route-button {
-    background-color: #1e90ff;  /* Primary blue background */
-    color: white;
-    border: 2px solid #1565c0;  /* Darker stroke (border) */
-    border-radius: 6px;
-    padding: 10px;  /* Reduce padding to make the button smaller */
-    font-size: 12px;  /* Smaller font size */
-    font-weight: 500;
-    cursor: pointer;
-    width: auto;  /* Adjust the width so it's not full width */
-    height: auto; /* Adjust height */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-}
-
-.gpx-route-button:hover {
-    background-color: #1565c0;  /* Darker blue on hover */
-    border-color: #003f88;  /* Even darker stroke on hover */
-    transition: background-color 0.3s ease;  /* Smooth transition */
-}
-
+        /* GPX Pop-up Button */
+        .gpx-route-button {
+            background-color: #1e90ff;
+            color: white;
+            border: 2px solid #1565c0;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gpx-route-button:hover {
+            background-color: #1565c0;
+            border-color: #003f88;
+            transition: background-color 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -185,7 +174,7 @@
         <span class="close" onclick="closeModal('road-modal')">&times;</span>
         <h2>Add GPX Road File</h2>
         <input type="file" id="road-file">
-        <button onclick="uploadGPXFile('road-file')">Upload</button>
+        <button id="upload-road-gpx-button">Upload</button>
     </div>
 </div>
 
@@ -195,7 +184,7 @@
         <span class="close" onclick="closeModal('gravel-modal')">&times;</span>
         <h2>Add GPX Gravel File</h2>
         <input type="file" id="gravel-file">
-        <button onclick="uploadGPXFile('gravel-file')">Upload</button>
+        <button id="upload-gravel-gpx-button">Upload</button>
     </div>
 </div>
 
@@ -205,11 +194,11 @@
         <span class="close" onclick="closeModal('photo-modal')">&times;</span>
         <h2>Add Photo</h2>
 
-<!-- Drag-and-Drop Area -->
-<div id="drag-drop-area" onclick="document.getElementById('photoFiles').click()">
-    Drag & Drop Photos Here or Click to Select
-    <input id="photoFiles" type="file" multiple style="display: none;">
-</div>
+        <!-- Drag-and-Drop Area -->
+        <div id="drag-drop-area" onclick="document.getElementById('photoFiles').click()">
+            Drag & Drop Photos Here or Click to Select
+            <input id="photoFiles" type="file" multiple style="display: none;">
+        </div>
 
         <!-- Preview container for displaying selected images -->
         <div id="preview-container"></div>
@@ -229,15 +218,17 @@
         <h2>Add POI</h2>
         <input type="text" id="poi-title" placeholder="Title">
         <textarea id="poi-description" placeholder="Description"></textarea>
-        <button onclick="savePOI()">Save POI</button>
+        <button id="save-poi-button">Save POI</button>
     </div>
 </div>
 
-<div class="dropdown-content show" id="add-dropdown"></div>
-
+<!-- Include external JS files -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
-<script src="/js/toGeoJSON.js"></script>
-<script src="/app.js"></script>
+<script src="/js/map.js"></script>
+<script src="/js/modal.js"></script>
+<script src="/js/upload.js"></script>
+<script src="/js/photo.js"></script>
+<script src="/js/main.js"></script>
 
 </body>
 </html>
