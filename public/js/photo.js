@@ -7,7 +7,9 @@ async function loadPhotoMarkers() {
 
         removePhotoMarkers(); // Clear any previous markers
 
-        photos.forEach(photo => {
+        let stackOffset = 0; // To create a stacking effect
+
+        photos.forEach((photo, index) => {
             if (photo.latitude && photo.longitude) {
                 // Create a custom div element for the marker
                 const markerElement = document.createElement('div');
@@ -22,8 +24,15 @@ async function loadPhotoMarkers() {
                 markerElement.style.border = '2px solid white';  // Add a white border
                 markerElement.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.5)';  // Add shadow for better visibility
 
+                // Adjust the marker's position slightly for stacking effect
+                const offset = 10 * (index % 3);  // Modify as needed for stacking effect
+                markerElement.style.transform = `translate(${offset}px, ${-offset}px)`;
+
                 // Create the marker and add it to the map
-                const marker = new mapboxgl.Marker(markerElement)
+                const marker = new mapboxgl.Marker({
+                    element: markerElement,
+                    anchor: 'bottom' // Prevents scaling on zoom-out
+                })
                     .setLngLat([photo.longitude, photo.latitude])
                     .addTo(map);
 
@@ -33,9 +42,17 @@ async function loadPhotoMarkers() {
 
                 marker.setPopup(popup);  // Bind the popup to the marker
                 photoMarkers.push(marker);  // Add marker to the array for future cleanup
+
+                stackOffset += 10;  // Increment offset for the stacking effect
             }
         });
     } catch (error) {
         console.error('Error loading photo markers:', error);
     }
+}
+
+// Remove all photo markers from the map
+function removePhotoMarkers() {
+    photoMarkers.forEach(marker => marker.remove());
+    photoMarkers = [];
 }
