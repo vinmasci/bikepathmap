@@ -1,4 +1,4 @@
-// Function to upload a GPX file
+// Function to upload a GPX file and render it as a line on the map
 function uploadGPXFile(fileInputId) {
     const fileInput = document.getElementById(fileInputId);
     const file = fileInput.files[0];
@@ -17,9 +17,8 @@ function uploadGPXFile(fileInputId) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.message) {
-            alert(data.message);
-            addGPXLayer(data.fileData.filePath); // Ensure `addGPXLayer` is globally available
+        if (data.geoJson) {
+            addGPXLayer(data.geoJson);  // Render the GeoJSON on the map
         } else {
             alert('Error uploading GPX file');
         }
@@ -27,6 +26,28 @@ function uploadGPXFile(fileInputId) {
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to upload GPX file');
+    });
+}
+
+// Function to add the GPX layer to the map using GeoJSON data
+function addGPXLayer(geoJsonData) {
+    map.addSource('gpx-route', {
+        type: 'geojson',
+        data: geoJsonData
+    });
+
+    map.addLayer({
+        id: 'gpx-route-layer',
+        type: 'line',
+        source: 'gpx-route',
+        layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        paint: {
+            'line-color': '#ff0000',
+            'line-width': 4
+        }
     });
 }
 
