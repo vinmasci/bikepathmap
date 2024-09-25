@@ -40,6 +40,23 @@ map.on('load', function() {
     }
 });
 
+    // Close Modal function globally so it's accessible from anywhere
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+        // Event listener for closing modals
+        const closeButtons = document.querySelectorAll('.close');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const modalId = button.parentElement.parentElement.id;
+                closeModal(modalId);  // Reuse the global closeModal function
+            });
+        });
+
     // Event listener for toggling the Photos layer
     document.getElementById('photos-tab').addEventListener('click', function () {
         togglePhotoLayer();
@@ -54,21 +71,7 @@ map.on('load', function() {
         }
     });
 
-    // Close modal functionality
-    const closeButtons = document.querySelectorAll('.close');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const modalId = button.parentElement.parentElement.id;
-            document.getElementById(modalId).style.display = 'none';
         });
-    });
-
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
 
     // Image Preview, File Validation, and Drag-and-Drop functionality
     const photoFileInput = document.getElementById('photoFiles');
@@ -161,7 +164,6 @@ map.on('load', function() {
             xhr.send(formData);
         });
     }
-});
 
 // Move saveCaption and loadPhotoMarkers functions outside the DOMContentLoaded event listener to make them globally accessible
 // Function to save the caption when user clicks "Save Caption" button
@@ -336,14 +338,46 @@ function uploadGPXFile(fileInputId) {
     });
 }
 
+// Function to parse track points from GPX and convert to GeoJSON LineString
+function parseTrackPoints(gpxDoc) {
+    const trackPoints = [];
+
+    // Look for all <trkpt> elements
+    const trackPointElements = gpxDoc.getElementsByTagName('trkpt');
+
+    for (let i = 0; i < trackPointElements.length; i++) {
+        const trkpt = trackPointElements[i];
+        const lat = parseFloat(trkpt.getAttribute('lat'));
+        const lon = parseFloat(trkpt.getAttribute('lon'));
+
+        if (!isNaN(lat) && !isNaN(lon)) {
+            trackPoints.push([lon, lat]); // Ensure it's [longitude, latitude]
+        }
+    }
+
+    return {
+        type: 'Feature',
+        geometry: {
+            type: 'LineString',
+            coordinates: trackPoints
+        },
+        properties: {}
+    };
+}
+
 function loadGPXFromMongoDB(filePath) {
     fetch(filePath)
     .then(response => response.text())
     .then(gpxData => {
-        // Parse GPX data into GeoJSON format using toGeoJSON
+        // Parse the GPX file into a DOM object
         const gpxParser = new DOMParser();
         const gpxDoc = gpxParser.parseFromString(gpxData, 'application/xml');
-        const geojson = toGeoJSON.gpx(gpxDoc);
+
+        // Manually parse track points and convert them to GeoJSON format
+        const geojson = parseTrackPoints(gpxDoc);
+
+        // Log the result for debugging
+        console.log('Parsed Track Points as GeoJSON:', geojson);
 
         // If a GPX route already exists, remove the old source and layer before adding the new one
         if (map.getSource('gpx-route')) {
@@ -380,6 +414,7 @@ function loadGPXFromMongoDB(filePath) {
         alert('Failed to load GPX from the server');
     });
 }
+
 
 document.getElementById('road-tab').addEventListener('click', function () {
     toggleRoadLayer();
