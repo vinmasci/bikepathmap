@@ -13,32 +13,30 @@ document.addEventListener("DOMContentLoaded", function () {
         zoom: 10
     });
 
-// Wait for the map to fully load its style before adding any layers or sources
-map.on('load', function() {
-    // Now it is safe to add sources and layers
-    const storedGPX = localStorage.getItem('gpxData');
-    if (storedGPX) {
-        const geojson = JSON.parse(storedGPX);
-        map.addSource('gpx-route', {
-            type: 'geojson',
-            data: geojson
-        });
-
-        map.addLayer({
-            id: 'gpx-route-layer',
-            type: 'line',
-            source: 'gpx-route',
-            layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            paint: {
-                'line-color': '#ff0000',
-                'line-width': 4
-            }
-        });
-    }
-});
+    // Wait for the map to fully load its style before adding any layers or sources
+    map.on('load', function() {
+        const storedGPX = localStorage.getItem('gpxData');
+        if (storedGPX) {
+            const geojson = JSON.parse(storedGPX);
+            map.addSource('gpx-route', {
+                type: 'geojson',
+                data: geojson
+            });
+            map.addLayer({
+                id: 'gpx-route-layer',
+                type: 'line',
+                source: 'gpx-route',
+                layout: {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                paint: {
+                    'line-color': '#ff0000',
+                    'line-width': 4
+                }
+            });
+        }
+    });
 
     // Close Modal function globally so it's accessible from anywhere
     function closeModal(modalId) {
@@ -48,20 +46,19 @@ map.on('load', function() {
         }
     }
 
-        // Event listener for closing modals
-        const closeButtons = document.querySelectorAll('.close');
-        closeButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const modalId = button.parentElement.parentElement.id;
-                closeModal(modalId);  // Reuse the global closeModal function
-            });
+    // Event listener for closing modals
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const modalId = button.parentElement.parentElement.id;
+            closeModal(modalId);
         });
+    });
 
     // Event listener for toggling the Photos layer
     document.getElementById('photos-tab').addEventListener('click', function () {
         togglePhotoLayer();
     });
-
 
     // Modal functionality for photo upload
     document.getElementById('add-photo').addEventListener('click', function() {
@@ -70,8 +67,6 @@ map.on('load', function() {
             photoModal.style.display = 'block';
         }
     });
-
-        });
 
     // Image Preview, File Validation, and Drag-and-Drop functionality
     const photoFileInput = document.getElementById('photoFiles');
@@ -135,7 +130,7 @@ map.on('load', function() {
             }
 
             const formData = new FormData();
-            files.forEach(file => formData.append('photoFiles', file));  // Use correct field name here
+            files.forEach(file => formData.append('photoFiles', file));
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/api/upload-photo');
@@ -165,126 +160,143 @@ map.on('load', function() {
         });
     }
 
-// Move saveCaption and loadPhotoMarkers functions outside the DOMContentLoaded event listener to make them globally accessible
-// Function to save the caption when user clicks "Save Caption" button
-async function saveCaption(photoId) {
-    const captionInput = document.getElementById(`caption-input-${photoId}`);
-    const caption = captionInput.value;
-
-    if (!caption) {
-        alert('Please enter a caption');
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/save-caption`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: photoId,
-                caption: caption
-            })
-        });
-
-        if (response.ok) {
-            alert('Caption saved successfully');
-
-            // Clear the input box
-            captionInput.value = '';
-
-            // Update the modal content immediately with the saved caption
-            const modalContent = document.querySelector(`#caption-modal-content-${photoId}`);
-            if (modalContent) {
-                modalContent.innerHTML = `<p>${caption}</p>`;
-            }
-
-            // Reload the photo markers to ensure the caption persists across page reloads
-            loadPhotoMarkers();
-        } else {
-            alert('Failed to save caption');
+    // Function to upload GPX files and render them
+    document.getElementById('add-road-gpx').addEventListener('click', function() {
+        const roadModal = document.getElementById('road-modal');
+        if (roadModal) {
+            roadModal.style.display = 'block';
         }
-    } catch (error) {
-        console.error('Error saving caption:', error);
-        alert('Error saving caption');
-    }
-}
+    });
 
-// Function to load photo markers from the database
-async function loadPhotoMarkers() {
-    try {
-        const response = await fetch('/api/get-photos');
-        const photos = await response.json();
+    function uploadGPXFile(fileInputId) {
+        const fileInput = document.getElementById(fileInputId);
+        const file = fileInput.files[0];
 
-        // Clear previous markers to avoid duplicates
-        removePhotoMarkers();
+        if (!file || !file.name.endsWith('.gpx')) {
+            alert('Please select a valid GPX file');
+            return;
+        }
 
-        photos.forEach(photo => {
-            if (photo.latitude && photo.longitude) {
-                const markerElement = document.createElement('div');
-                markerElement.className = 'custom-marker';
-                markerElement.style.width = '20px';  // Adjust size if needed
-                markerElement.style.height = '20px'; // Make sure width and height are equal for a perfect circle
-        
-                // Use your saved camera icon and preserve aspect ratio
-                markerElement.style.backgroundImage = 'url(/cameraicon.png)';
-                markerElement.style.backgroundSize = 'contain';  // Use 'contain' to maintain the aspect ratio
-                markerElement.style.backgroundRepeat = 'no-repeat';
-                markerElement.style.backgroundPosition = 'center';
-                
-                // Optional: add some additional styling (border, shadow, etc.)
-                markerElement.style.borderRadius = '50%'; // Make it a circle
-                markerElement.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.5)';
-        
-                // Create a new Mapbox marker with the custom element
-                const marker = new mapboxgl.Marker(markerElement)
-                    .setLngLat([photo.longitude, photo.latitude])
-                    .addTo(map);
-        
-                const popup = new mapboxgl.Popup({ offset: 25 })
-                    .setHTML(`
-                        <h3>${photo.originalName}</h3>
-                        <img src="${photo.url}" style="width:200px;">
-                        <div id="caption-modal-content-${photo._id}">
-                            <p>${photo.caption || ''}</p>
-                        </div>
-                        <input type="text" id="caption-input-${photo._id}" placeholder="Enter caption" value="${photo.caption || ''}">
-                        <button onclick="saveCaption('${photo._id}')">Save Caption</button>
-                    `);
-        
-                marker.setPopup(popup);
-                photoMarkers.push(marker);
+        const formData = new FormData();
+        formData.append('gpxFile', file);
+
+        fetch('/api/upload-gpx', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                loadGPXFromMongoDB(data.fileData.filePath);
+            } else {
+                alert('Error uploading GPX file');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to upload GPX file');
         });
-        
-        
-    } catch (error) {
-        console.error('Error loading photo markers:', error);
-    }
-}
-
-
-// Remove all photo markers from the map
-function removePhotoMarkers() {
-    photoMarkers.forEach(marker => marker.remove());
-    photoMarkers = [];
-}
-
-// Toggle photo layer on and off
-function togglePhotoLayer() {
-    if (layerVisibility.photos) {
-        removePhotoMarkers();
-        layerVisibility.photos = false;
-    } else {
-        loadPhotoMarkers();
-        layerVisibility.photos = true;
     }
 
-    updateTabHighlight('photos-tab', layerVisibility.photos);
-}
+    function loadGPXFromMongoDB(filePath) {
+        fetch(filePath)
+        .then(response => response.text())
+        .then(gpxData => {
+            const gpxParser = new DOMParser();
+            const gpxDoc = gpxParser.parseFromString(gpxData, 'application/xml');
+            const geojson = parseTrackPoints(gpxDoc);
 
-// Utility to visually highlight the active tab
+            if (map.getSource('gpx-route')) {
+                map.removeLayer('gpx-route-layer');
+                map.removeSource('gpx-route');
+            }
+
+            map.addSource('gpx-route', {
+                type: 'geojson',
+                data: geojson
+            });
+
+            map.addLayer({
+                id: 'gpx-route-layer',
+                type: 'line',
+                source: 'gpx-route',
+                layout: {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                paint: {
+                    'line-color': '#ff0000',
+                    'line-width': 4
+                }
+            });
+
+            alert('GPX route loaded and displayed on the map!');
+            layerVisibility.road = true;
+        })
+        .catch(error => {
+            console.error('Error loading GPX from MongoDB:', error);
+        });
+    }
+
+    // Function to parse track points from GPX and convert to GeoJSON LineString
+    function parseTrackPoints(gpxDoc) {
+        const trackPoints = [];
+        const trackPointElements = gpxDoc.getElementsByTagName('trkpt');
+
+        for (let i = 0; i < trackPointElements.length; i++) {
+            const trkpt = trackPointElements[i];
+            const lat = parseFloat(trkpt.getAttribute('lat'));
+            const lon = parseFloat(trkpt.getAttribute('lon'));
+
+            if (!isNaN(lat) && !isNaN(lon)) {
+                trackPoints.push([lon, lat]);
+            }
+        }
+
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: trackPoints
+            },
+            properties: {}
+        };
+    }
+
+    document.getElementById('road-tab').addEventListener('click', function () {
+        toggleRoadLayer();
+    });
+
+    function toggleRoadLayer() {
+        if (map.getLayer('gpx-route-layer')) {
+            if (layerVisibility.road) {
+                map.setLayoutProperty('gpx-route-layer', 'visibility', 'none');
+                layerVisibility.road = false;
+            } else {
+                map.setLayoutProperty('gpx-route-layer', 'visibility', 'visible');
+                layerVisibility.road = true;
+            }
+        } else {
+            alert("No GPX route is loaded yet.");
+        }
+
+        updateTabHighlight('road-tab', layerVisibility.road);
+    }
+
+    // Function for dropdown toggle
+    let addDropdownVisible = false;
+    document.getElementById('add-tab').addEventListener('click', function () {
+        const dropdown = document.getElementById('add-dropdown');
+        if (dropdown) {
+            addDropdownVisible = !addDropdownVisible;
+            dropdown.classList.toggle('show', addDropdownVisible);
+        }
+        updateTabHighlight('add-tab', addDropdownVisible);
+    });
+});
+
+// Helper function to highlight tabs
 function updateTabHighlight(tabId, isActive) {
     const tab = document.getElementById(tabId);
     if (isActive) {
@@ -294,174 +306,8 @@ function updateTabHighlight(tabId, isActive) {
     }
 }
 
-// Function to upload and render GPX files
-document.getElementById('add-road-gpx').addEventListener('click', function() {
-    const roadModal = document.getElementById('road-modal');
-    if (roadModal) {
-        roadModal.style.display = 'block';
-    }
-});
-
-function uploadGPXFile(fileInputId) {
-    const fileInput = document.getElementById(fileInputId);
-    const file = fileInput.files[0];
-
-    // Check if the file exists and is a GPX file
-    if (!file || !file.name.endsWith('.gpx')) {
-        alert('Please select a valid GPX file');
-        return;
-    }
-
-    // Prepare FormData for file upload
-    const formData = new FormData();
-    formData.append('gpxFile', file);  // This should match the multer field name
-
-    // Use fetch to send the GPX file to your backend
-    fetch('/api/upload-gpx', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message);
-            
-            // If the upload is successful, load the GPX file from the file path saved in MongoDB
-            loadGPXFromMongoDB(data.fileData.filePath);
-        } else {
-            alert('Error uploading GPX file');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to upload GPX file');
-    });
+// Helper function to remove photo markers from the map
+function removePhotoMarkers() {
+    photoMarkers.forEach(marker => marker.remove());
+    photoMarkers = [];
 }
-
-// Function to parse track points from GPX and convert to GeoJSON LineString
-function parseTrackPoints(gpxDoc) {
-    const trackPoints = [];
-
-    // Look for all <trkpt> elements
-    const trackPointElements = gpxDoc.getElementsByTagName('trkpt');
-
-    for (let i = 0; i < trackPointElements.length; i++) {
-        const trkpt = trackPointElements[i];
-        const lat = parseFloat(trkpt.getAttribute('lat'));
-        const lon = parseFloat(trkpt.getAttribute('lon'));
-
-        if (!isNaN(lat) && !isNaN(lon)) {
-            trackPoints.push([lon, lat]); // Ensure it's [longitude, latitude]
-        }
-    }
-
-    return {
-        type: 'Feature',
-        geometry: {
-            type: 'LineString',
-            coordinates: trackPoints
-        },
-        properties: {}
-    };
-}
-
-function loadGPXFromMongoDB(filePath) {
-    fetch(filePath)
-    .then(response => response.text())
-    .then(gpxData => {
-        // Parse the GPX file into a DOM object
-        const gpxParser = new DOMParser();
-        const gpxDoc = gpxParser.parseFromString(gpxData, 'application/xml');
-
-        // Manually parse track points and convert them to GeoJSON format
-        const geojson = parseTrackPoints(gpxDoc);
-
-        // Log the result for debugging
-        console.log('Parsed Track Points as GeoJSON:', geojson);
-
-        // If a GPX route already exists, remove the old source and layer before adding the new one
-        if (map.getSource('gpx-route')) {
-            map.removeLayer('gpx-route-layer');
-            map.removeSource('gpx-route');
-        }
-
-        // Add the parsed GeoJSON data to the map as a new source
-        map.addSource('gpx-route', {
-            type: 'geojson',
-            data: geojson
-        });
-
-        // Add the parsed GeoJSON data to the map as a new layer
-        map.addLayer({
-            id: 'gpx-route-layer',
-            type: 'line',
-            source: 'gpx-route',
-            layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            paint: {
-                'line-color': '#ff0000',  // Set the color of the GPX route
-                'line-width': 4
-            }
-        });
-
-        alert('GPX route loaded and displayed on the map!');
-        layerVisibility.road = true;
-    })
-    .catch(error => {
-        console.error('Error loading GPX from MongoDB:', error);
-        alert('Failed to load GPX from the server');
-    });
-}
-
-
-document.getElementById('road-tab').addEventListener('click', function () {
-    toggleRoadLayer();
-});
-
-function toggleRoadLayer() {
-    if (map.getLayer('gpx-route-layer')) {
-        if (layerVisibility.road) {
-            // Hide the layer instead of removing it
-            map.setLayoutProperty('gpx-route-layer', 'visibility', 'none');
-            layerVisibility.road = false;
-        } else {
-            // Show the layer again
-            map.setLayoutProperty('gpx-route-layer', 'visibility', 'visible');
-            layerVisibility.road = true;
-        }
-    } else {
-        alert("No GPX route is loaded yet.");
-    }
-
-    updateTabHighlight('road-tab', layerVisibility.road);
-}
-
-// Initialize dropdown visibility state
-let addDropdownVisible = false;
-
-// Toggle Dropdown for Add Tab
-function toggleAddDropdown() {
-    const dropdown = document.getElementById('add-dropdown');
-    
-    if (dropdown) {
-        if (addDropdownVisible) {
-            // Hide the dropdown
-            dropdown.classList.remove('show');
-            addDropdownVisible = false;
-        } else {
-            // Show the dropdown
-            dropdown.classList.add('show');
-            addDropdownVisible = true;
-        }
-    }
-
-    // Update the tab highlight to indicate active/inactive state
-    updateTabHighlight('add-tab', addDropdownVisible);
-}
-
-// Add event listener for the Add tab
-document.getElementById('add-tab').addEventListener('click', function (e) {
-    toggleAddDropdown();
-});
