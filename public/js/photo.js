@@ -1,8 +1,6 @@
-// /public/js/photo.js
+let photoMarkers = [];
 
-export let photoMarkers = [];
-
-export async function loadPhotoMarkers(map) {
+async function loadPhotoMarkers() {
     try {
         const response = await fetch('/api/get-photos');
         const photos = await response.json();
@@ -17,7 +15,7 @@ export async function loadPhotoMarkers(map) {
 
                 const marker = new mapboxgl.Marker(markerElement)
                     .setLngLat([photo.longitude, photo.latitude])
-                    .addTo(map);
+                    .addTo(map);  // map needs to be globally available
 
                 const popup = new mapboxgl.Popup({ offset: 25 })
                     .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);

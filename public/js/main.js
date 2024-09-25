@@ -5,7 +5,7 @@ import { initModals, openModal, closeModal } from './modal.js';
 import { uploadGPXFile } from './upload.js';
 
 document.addEventListener("DOMContentLoaded", function () {
-    const map = initMap(); // Initialize the map
+    initMap(); // Initialize the map
 
     // Initialize modals
     initModals();

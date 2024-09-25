@@ -1,12 +1,9 @@
 // /public/js/map.js
 
-import { parseTrackPoints } from './geojson.js';
-import { loadPhotoMarkers } from './photo.js';
+let map;
+let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
 
-export let map;
-export let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
-
-export function initMap() {
+function initMap() {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
     map = new mapboxgl.Map({
         container: 'map',
@@ -24,7 +21,7 @@ export function initMap() {
     });
 }
 
-export function addGPXLayer(geojson) {
+function addGPXLayer(geojson) {
     map.addSource('gpx-route', { type: 'geojson', data: geojson });
 
     map.addLayer({
@@ -36,7 +33,7 @@ export function addGPXLayer(geojson) {
     });
 }
 
-export function toggleRoadLayer() {
+function toggleRoadLayer() {
     if (map.getLayer('gpx-route-layer')) {
         layerVisibility.road = !layerVisibility.road;
         map.setLayoutProperty('gpx-route-layer', 'visibility', layerVisibility.road ? 'visible' : 'none');

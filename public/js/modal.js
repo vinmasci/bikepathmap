@@ -1,21 +1,20 @@
 // /public/js/modal.js
 
-export function closeModal(modalId) {
+function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'none';
     }
 }
 
-export function openModal(modalId) {
+function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'block';
     }
 }
 
-// Attach close button event listeners
-export function initModals() {
+function initModals() {
     const closeButtons = document.querySelectorAll('.close');
     closeButtons.forEach(button => {
         button.addEventListener('click', function () {
