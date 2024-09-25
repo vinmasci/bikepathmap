@@ -23,3 +23,22 @@ function initModals() {
         });
     });
 }
+
+// Function to toggle the "Add" tab dropdown
+let addDropdownVisible = false;
+
+function toggleAddDropdown() {
+    const dropdown = document.getElementById('add-dropdown');
+
+    if (dropdown) {
+        if (addDropdownVisible) {
+            dropdown.classList.remove('show'); // Hide the dropdown
+            addDropdownVisible = false;
+        } else {
+            dropdown.classList.add('show'); // Show the dropdown
+            addDropdownVisible = true;
+        }
+    }
+
+    updateTabHighlight('add-tab', addDropdownVisible); // Update tab highlight for the add tab
+}
