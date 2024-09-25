@@ -1,6 +1,3 @@
-// /public/js/upload.js
-import { addGPXLayer } from './map.js';
-
 function uploadGPXFile(fileInputId) {
     const fileInput = document.getElementById(fileInputId);
     const file = fileInput.files[0];
@@ -21,7 +18,7 @@ function uploadGPXFile(fileInputId) {
     .then(data => {
         if (data.message) {
             alert(data.message);
-            addGPXLayer(data.fileData.filePath); // Ensure addGPXLayer is available globally
+            addGPXLayer(data.fileData.filePath); // `addGPXLayer` is assumed to be available globally
         } else {
             alert('Error uploading GPX file');
         }
