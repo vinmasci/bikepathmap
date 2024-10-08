@@ -233,8 +233,13 @@ function resetRoute() {
         drawnPoints = [];
         if (firstPointMarker) {
             firstPointMarker.remove(); // Remove the first point marker
+            firstPointMarker = null; // Reset the first marker reference
         }
     }
+    // Optionally clear any markers or UI elements related to the drawn route
+    // Reset drawing mode if necessary
+    disableDrawingMode(); 
+    alert('Route has been reset.');
 }
 
 // Function to undo the last drawn point
@@ -242,6 +247,19 @@ function undoLastPoint() {
     if (drawnPoints.length > 1) {
         drawnPoints.pop(); // Remove the last point
         snapToRoads(drawnPoints); // Redraw the route without the last point
+    } else if (drawnPoints.length === 1) {
+        // If only the first point remains, remove the marker and reset the drawing
+        if (firstPointMarker) {
+            firstPointMarker.remove();
+            firstPointMarker = null;
+        }
+        drawnPoints = [];
+        if (currentLine) {
+            map.removeLayer('drawn-route');
+            map.removeSource('drawn-route');
+            currentLine = null;
+        }
+        alert('All points have been undone.');
     }
 }
 
