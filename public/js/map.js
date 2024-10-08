@@ -13,7 +13,6 @@ function initMap() {
         zoom: 10
     });
 
-    // Load existing GPX data if available
     map.on('load', function () {
         const storedGPX = localStorage.getItem('gpxData');
         if (storedGPX) {
@@ -36,7 +35,6 @@ function addGPXLayer(geojson) {
         map.getSource('gpx-route').setData(geojson);
     } else {
         map.addSource('gpx-route', { type: 'geojson', data: geojson });
-
         map.addLayer({
             id: 'gpx-route-layer',
             type: 'line',
@@ -47,7 +45,7 @@ function addGPXLayer(geojson) {
     }
 }
 
-// Function to toggle road layer visibility
+// Toggle road layer
 function toggleRoadLayer() {
     layerVisibility.road = !layerVisibility.road;
     const visibility = layerVisibility.road ? 'visible' : 'none';
@@ -55,12 +53,26 @@ function toggleRoadLayer() {
     updateTabHighlight('road-tab', layerVisibility.road);
 }
 
+// Toggle drawing mode
+function toggleDrawingMode() {
+    drawingEnabled = !drawingEnabled;
+    if (drawingEnabled) {
+        enableDrawingMode();
+        document.getElementById('control-panel').style.display = 'block'; // Show control panel
+        updateTabHighlight('draw-route-tab', true);
+    } else {
+        disableDrawingMode();
+        document.getElementById('control-panel').style.display = 'none'; // Hide control panel
+        updateTabHighlight('draw-route-tab', false);
+    }
+}
+
 // Toggle photo layer
 function togglePhotoLayer() {
     layerVisibility.photos = !layerVisibility.photos;
     updateTabHighlight('photos-tab', layerVisibility.photos);
     if (layerVisibility.photos) {
-        loadPhotoMarkers(); // Show photos if visibility is true
+        loadPhotoMarkers(); // Show photos
     } else {
         removePhotoMarkers(); // Hide photos
     }
@@ -71,7 +83,7 @@ function togglePOILayer() {
     layerVisibility.pois = !layerVisibility.pois;
     updateTabHighlight('pois-tab', layerVisibility.pois);
     if (layerVisibility.pois) {
-        loadPOIMarkers(); // Show POIs if visibility is true
+        loadPOIMarkers(); // Show POIs
     } else {
         removePOIMarkers(); // Hide POIs
     }
@@ -93,29 +105,28 @@ function updateTabHighlight(tabId, isActive) {
     }
 }
 
-// Function to enable drawing mode
+// Enable drawing mode
 function enableDrawingMode() {
     map.on('click', drawPoint);
 }
 
-// Function to disable drawing mode and save the route
+// Disable drawing mode and save the route
 function disableDrawingMode() {
     map.off('click', drawPoint);
     saveDrawnRoute();  // Save the drawn route
 }
 
-// Function to draw a point on the map
+// Draw a point on the map
 function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
     drawnPoints.push(coords);
 
     if (drawnPoints.length > 1) {
-        // Call the API to snap points to the road
-        snapToRoads(drawnPoints);
+        snapToRoads(drawnPoints); // Snap to roads
     }
 }
 
-// Function to snap drawn points to the road using Mapbox API
+// Snap drawn points to the road using Mapbox API
 async function snapToRoads(points) {
     try {
         const response = await fetch('/api/snap-to-road', {
@@ -128,7 +139,6 @@ async function snapToRoads(points) {
 
         if (data && data.matchings) {
             const snappedPoints = data.matchings[0].geometry.coordinates;
-
             if (currentLine) {
                 map.removeLayer('drawn-route');
                 map.removeSource('drawn-route');
@@ -158,7 +168,7 @@ async function snapToRoads(points) {
     }
 }
 
-// Function to save the drawn route to MongoDB
+// Save the drawn route to MongoDB
 function saveDrawnRoute() {
     if (drawnPoints.length > 1) {
         const geojsonData = {
@@ -194,7 +204,7 @@ function saveDrawnRoute() {
     }
 }
 
-// Function to reset the route
+// Reset the route
 function resetRoute() {
     if (currentLine) {
         map.removeLayer('drawn-route');
@@ -204,7 +214,7 @@ function resetRoute() {
     }
 }
 
-// Function to undo the last drawn point
+// Undo the last drawn point
 function undoLastPoint() {
     if (drawnPoints.length > 1) {
         drawnPoints.pop(); // Remove the last point
@@ -212,39 +222,13 @@ function undoLastPoint() {
     }
 }
 
-// Load photo markers function (you need to implement how to fetch and display the photo markers)
-async function loadPhotoMarkers() {
-    // Add logic to load and display photo markers on the map
-    console.log("Loading photo markers...");
-}
-
-// Remove photo markers function
-function removePhotoMarkers() {
-    // Add logic to remove photo markers from the map
-    console.log("Removing photo markers...");
-}
-
-// Load POI markers function
-async function loadPOIMarkers() {
-    // Add logic to load and display POI markers on the map
-    console.log("Loading POI markers...");
-}
-
-// Remove POI markers function
-function removePOIMarkers() {
-    // Add logic to remove POI markers from the map
-    console.log("Removing POI markers...");
-}
+// Load and remove markers for photos/POIs (placeholder functions)
+async function loadPhotoMarkers() { console.log("Loading photo markers..."); }
+function removePhotoMarkers() { console.log("Removing photo markers..."); }
+async function loadPOIMarkers() { console.log("Loading POI markers..."); }
+function removePOIMarkers() { console.log("Removing POI markers..."); }
 
 // Add event listeners for control panel buttons
-document.getElementById('undo-btn').addEventListener('click', function() {
-    undoLastPoint(); // Undo the last point
-});
-
-document.getElementById('reset-btn').addEventListener('click', function() {
-    resetRoute();  // Reset the route
-});
-
-document.getElementById('save-btn').addEventListener('click', function() {
-    saveDrawnRoute();  // Save the route
-});
+document.getElementById('undo-btn').addEventListener('click', undoLastPoint);
+document.getElementById('reset-btn').addEventListener('click', resetRoute);
+document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);
