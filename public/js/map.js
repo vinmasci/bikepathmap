@@ -47,7 +47,7 @@ function addGPXLayer(geojson) {
     }
 }
 
-// Function to toggle road layer visibility
+// Toggle road layer
 function toggleRoadLayer() {
     layerVisibility.road = !layerVisibility.road;
     const visibility = layerVisibility.road ? 'visible' : 'none';
@@ -55,12 +55,29 @@ function toggleRoadLayer() {
     updateTabHighlight('road-tab', layerVisibility.road);
 }
 
+// Toggle drawing mode
+function toggleDrawingMode() {
+    drawingEnabled = !drawingEnabled;
+
+    if (drawingEnabled) {
+        enableDrawingMode();
+        document.getElementById('control-panel').style.display = 'block'; // Show control panel
+        updateTabHighlight('draw-route-tab', true);
+        document.getElementById('map').style.cursor = 'crosshair'; // Set crosshair cursor
+    } else {
+        disableDrawingMode();
+        document.getElementById('control-panel').style.display = 'none'; // Hide control panel
+        updateTabHighlight('draw-route-tab', false);
+        document.getElementById('map').style.cursor = ''; // Reset cursor
+    }
+}
+
 // Toggle photo layer
 function togglePhotoLayer() {
     layerVisibility.photos = !layerVisibility.photos;
     updateTabHighlight('photos-tab', layerVisibility.photos);
     if (layerVisibility.photos) {
-        loadPhotoMarkers(); // Show photos if visibility is true
+        loadPhotoMarkers(); // Show photos
     } else {
         removePhotoMarkers(); // Hide photos
     }
@@ -71,7 +88,7 @@ function togglePOILayer() {
     layerVisibility.pois = !layerVisibility.pois;
     updateTabHighlight('pois-tab', layerVisibility.pois);
     if (layerVisibility.pois) {
-        loadPOIMarkers(); // Show POIs if visibility is true
+        loadPOIMarkers(); // Show POIs
     } else {
         removePOIMarkers(); // Hide POIs
     }
@@ -243,24 +260,4 @@ function removePhotoMarkers() {
 // Load POI markers function
 async function loadPOIMarkers() {
     // Add logic to load and display POI markers on the map
-    console.log("Loading POI markers...");
-}
-
-// Remove POI markers function
-function removePOIMarkers() {
-    // Add logic to remove POI markers from the map
-    console.log("Removing POI markers...");
-}
-
-// Add event listeners for control panel buttons
-document.getElementById('undo-btn').addEventListener('click', function() {
-    undoLastPoint(); // Undo the last point
-});
-
-document.getElementById('reset-btn').addEventListener('click', function() {
-    resetRoute();  // Reset the route
-});
-
-document.getElementById('save-btn').addEventListener('click', function() {
-    saveDrawnRoute();  // Save the route
-});
+    console.log("Loading POI markers...");}
