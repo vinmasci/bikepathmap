@@ -2,6 +2,7 @@ let map;
 let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
 let drawnPoints = [];
 let currentLine = null;
+let drawingEnabled = false; // Flag for drawing mode
 
 function initMap() {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
@@ -12,6 +13,7 @@ function initMap() {
         zoom: 10
     });
 
+    // Load existing GPX data if available
     map.on('load', function () {
         const storedGPX = localStorage.getItem('gpxData');
         if (storedGPX) {
@@ -19,19 +21,52 @@ function initMap() {
             addGPXLayer(geojson);
         }
     });
+
+    // Add event listeners for the tabs
+    document.getElementById('road-tab').addEventListener('click', toggleRoadLayer);
+    document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode);
+    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
+    document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
+    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
 }
 
 // Function to add GPX Layer
 function addGPXLayer(geojson) {
-    map.addSource('gpx-route', { type: 'geojson', data: geojson });
+    if (map.getSource('gpx-route')) {
+        map.getSource('gpx-route').setData(geojson);
+    } else {
+        map.addSource('gpx-route', { type: 'geojson', data: geojson });
 
-    map.addLayer({
-        id: 'gpx-route-layer',
-        type: 'line',
-        source: 'gpx-route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#ff0000', 'line-width': 4 }
-    });
+        map.addLayer({
+            id: 'gpx-route-layer',
+            type: 'line',
+            source: 'gpx-route',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#ff0000', 'line-width': 4 }
+        });
+    }
+}
+
+// Function to toggle road layer visibility
+function toggleRoadLayer() {
+    layerVisibility.road = !layerVisibility.road;
+    const visibility = layerVisibility.road ? 'visible' : 'none';
+    map.setLayoutProperty('gpx-route-layer', 'visibility', visibility);
+    updateTabHighlight('road-tab', layerVisibility.road);
+}
+
+// Function to toggle drawing mode
+function toggleDrawingMode() {
+    drawingEnabled = !drawingEnabled;
+    if (drawingEnabled) {
+        enableDrawingMode();
+        document.getElementById('control-panel').style.display = 'block'; // Show control panel
+        updateTabHighlight('draw-route-tab', true);
+    } else {
+        disableDrawingMode();
+        document.getElementById('control-panel').style.display = 'none'; // Hide control panel
+        updateTabHighlight('draw-route-tab', false);
+    }
 }
 
 // Function to enable drawing mode
@@ -145,19 +180,47 @@ function resetRoute() {
     }
 }
 
-// Add event listeners for control panel buttons
-document.getElementById('update-btn').addEventListener('click', function() {
-    // Redraw the route with the current points
+// Toggle photo layer
+function togglePhotoLayer() {
+    layerVisibility.photos = !layerVisibility.photos;
+    updateTabHighlight('photos-tab', layerVisibility.photos);
+    // Implement functionality to show/hide photo markers
+}
+
+// Toggle POI layer
+function togglePOILayer() {
+    layerVisibility.pois = !layerVisibility.pois;
+    updateTabHighlight('pois-tab', layerVisibility.pois);
+    // Implement functionality to show/hide POI markers
+}
+
+// Toggle Add dropdown
+function toggleAddDropdown() {
+    const dropdown = document.getElementById('add-dropdown');
+    dropdown.classList.toggle('show');
+}
+
+// Update tab highlight
+function updateTabHighlight(tabId, isActive) {
+    const tab = document.getElementById(tabId);
+    if (isActive) {
+        tab.classList.add('active');
+    } else {
+        tab.classList.remove('active');
+    }
+}
+
+// Event listeners for the control panel buttons
+document.getElementById('update-btn').addEventListener('click', function () {
     if (drawnPoints.length > 1) {
-        snapToRoads(drawnPoints);
+        snapToRoads(drawnPoints); // Redraw the route
     }
 });
 
-document.getElementById('reset-btn').addEventListener('click', function() {
-    resetRoute();  // Reset the route
+document.getElementById('reset-btn').addEventListener('click', function () {
+    resetRoute(); // Reset the route
 });
 
-document.getElementById('save-btn').addEventListener('click', function() {
-    saveDrawnRoute();  // Save the route
+document.getElementById('save-btn').addEventListener('click', function () {
+    saveDrawnRoute(); // Save the route
 });
-

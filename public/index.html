@@ -9,7 +9,7 @@
 
     <style>
         body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 50px; width: 100%; z-index: 0;}
+        #map { position: absolute; top: 0; bottom: 50px; width: 100%; z-index: 0; }
         .tabs {
             position: fixed; 
             bottom: 0; 
@@ -28,6 +28,8 @@
         .tab.active {
             background-color: #555;
         }
+
+        /* Dropdown Content */
         .dropdown-content {
             display: none;
             position: absolute;
@@ -35,81 +37,27 @@
             background-color: #f9f9f9;
             min-width: 160px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 9999; /* Higher than #map */
+            z-index: 9999;
         }
         .dropdown-content button {
             color: black;
             padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            width: 100%;
             background: white;
             border: none;
             text-align: left;
         }
-        .dropdown-content button:hover {
-            background-color: #ddd;
-        }
         .show { display: block; }
-        
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 400px;
-            border-radius: 10px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover, .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
 
-        /* Drag-and-Drop Area styles */
-        #drag-drop-area {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-        #drag-drop-area.drag-over {
-            background-color: #f0f0f0;
-        }
-        #preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        #preview-container img {
-            width: 100px;
-            margin: 5px;
-            border: 1px solid #ccc;
-        }
-        #upload-progress {
-            height: 5px;
-            background-color: green;
-            width: 0%;
-            margin-top: 10px;
+        /* Draw route buttons - hidden initially */
+        #control-panel {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         /* Custom marker pin */
@@ -125,13 +73,13 @@
         /* Custom photo marker */
         .custom-photo-marker {
             background-color: white;
-            border-radius: 50%; /* Make it circular */
+            border-radius: 50%; 
             width: 40px;
             height: 40px;
             background-size: cover;
             border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Shadow for better visibility */
-            cursor: pointer; /* Change cursor on hover */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            cursor: pointer; 
         }
 
         /* GPX Pop-up Button */
@@ -195,8 +143,8 @@
     </div>
 </div>
 
-<!-- Draw route buttons -->
-<div id="control-panel" style="position: absolute; bottom: 10px; left: 10px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+<!-- Draw route buttons (hidden initially) -->
+<div id="control-panel">
     <button id="update-btn">Update</button>
     <button id="reset-btn">Reset</button>
     <button id="save-btn">Save</button>
