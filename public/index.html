@@ -6,10 +6,11 @@
     <title>Mapbox Project</title>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
     <style>
         body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 50px; width: 100%; z-index: 0; }
+        #map { position: absolute; top: 0; bottom: 100px; width: 100%; z-index: 0; }
         .tabs {
             position: fixed; 
             bottom: 0; 
@@ -48,16 +49,22 @@
         }
         .show { display: block; }
 
-        /* Draw route buttons - hidden initially */
+        /* Console (control panel) */
         #control-panel {
-            display: none;
             position: absolute;
-            bottom: 10px;
+            bottom: 70px;
             left: 10px;
             background-color: white;
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+        
+        /* Bootstrap button spacing */
+        .btn-group .btn {
+            margin-right: 5px;
         }
 
         /* Custom marker pin */
@@ -81,31 +88,18 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
             cursor: pointer; 
         }
-
-        /* GPX Pop-up Button */
-        .gpx-route-button {
-            background-color: #1e90ff;
-            color: white;
-            border: 2px solid #1565c0;
-            border-radius: 6px;
-            padding: 10px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .gpx-route-button:hover {
-            background-color: #1565c0;
-            border-color: #003f88;
-            transition: background-color 0.3s ease;
-        }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
+
+<!-- Console/Control panel (moved above the tab menu) -->
+<div id="control-panel" class="btn-group">
+    <button id="undo-btn" class="btn btn-secondary">Undo</button>
+    <button id="reset-btn" class="btn btn-warning">Reset</button>
+    <button id="save-btn" class="btn btn-success">Save</button>
+</div>
 
 <div class="tabs">
     <div class="tab" id="road-tab">Road Routes</div>
@@ -117,75 +111,16 @@
 
 <!-- Dropdown for Add Tab -->
 <div class="dropdown-content" id="add-dropdown">
-    <button id="add-road-gpx">Add GPX Road file</button>
-    <button id="add-gravel-gpx">Add GPX Gravel file</button>
-    <button id="add-photo">Add Photo</button>
-    <button id="add-poi">Add POI</button>
-</div>
-
-<!-- Modal for adding GPX Road file -->
-<div id="road-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('road-modal')">&times;</span>
-        <h2>Add GPX Road File</h2>
-        <input type="file" id="road-file">
-        <button id="upload-road-gpx-button">Upload</button>
-    </div>
-</div>
-
-<!-- Modal for adding GPX Gravel file -->
-<div id="gravel-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('gravel-modal')">&times;</span>
-        <h2>Add GPX Gravel File</h2>
-        <input type="file" id="gravel-file">
-        <button id="upload-gravel-gpx-button">Upload</button>
-    </div>
-</div>
-
-<!-- Draw route buttons (hidden initially) -->
-<div id="control-panel">
-    <button id="undo-btn">Update</button>
-    <button id="reset-btn">Reset</button>
-    <button id="save-btn">Save</button>
-</div>
-
-<!-- Modal for adding a photo -->
-<div id="photo-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('photo-modal')">&times;</span>
-        <h2>Add Photo</h2>
-
-        <!-- Drag-and-Drop Area -->
-        <div id="drag-drop-area" onclick="document.getElementById('photoFiles').click()">
-            Drag & Drop Photos Here or Click to Select
-            <input id="photoFiles" type="file" multiple style="display: none;">
-        </div>
-
-        <!-- Preview container for displaying selected images -->
-        <div id="preview-container"></div>
-
-        <!-- Upload Button -->
-        <button id="photo-upload-button">Upload</button>
-
-        <!-- Upload progress bar -->
-        <div id="upload-progress"></div>
-    </div>
-</div>
-
-<!-- Modal for adding a POI -->
-<div id="poi-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('poi-modal')">&times;</span>
-        <h2>Add POI</h2>
-        <input type="text" id="poi-title" placeholder="Title">
-        <textarea id="poi-description" placeholder="Description"></textarea>
-        <button id="save-poi-button">Save POI</button>
-    </div>
+    <button id="add-road-gpx" class="btn btn-outline-primary">Add GPX Road file</button>
+    <button id="add-gravel-gpx" class="btn btn-outline-primary">Add GPX Gravel file</button>
+    <button id="add-photo" class="btn btn-outline-primary">Add Photo</button>
+    <button id="add-poi" class="btn btn-outline-primary">Add POI</button>
 </div>
 
 <!-- Include external JS files -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="/js/map.js"></script>
 <script src="/js/modal.js"></script>
 <script src="/js/upload.js"></script>
