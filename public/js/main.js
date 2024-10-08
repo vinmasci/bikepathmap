@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
         uploadPhoto(); // Call the photo upload function
     });
 
-    // Draw route functionality for "Draw Route" tab
+    // Draw route functionality for "Draw Route" tab!
     let drawingEnabled = false;
     document.getElementById('draw-route-tab').addEventListener('click', function() {
         drawingEnabled = !drawingEnabled;
