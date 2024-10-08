@@ -115,22 +115,23 @@ function drawPoint(e) {
     drawnPoints.push(coords);
 
     if (drawnPoints.length > 1) {
-        // Call the Map Matching API to snap the points to the nearest roads
+        // Call the /api/snap-to-road.js API endpoint to snap the points to the nearest roads
         snapToRoads(drawnPoints);
     }
 }
 
-// Function to snap drawn points to the road using Map Matching API
+// Function to proxy request to the /api/snap-to-road endpoint
 async function snapToRoads(points) {
-    const mapboxToken = 'YOUR_MAPBOX_ACCESS_TOKEN';  // Replace with your Mapbox token
-    const coordinatesString = points.map(coord => coord.join(',')).join(';');
-
     try {
-        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/driving/${coordinatesString}?access_token=${mapboxToken}&geometries=geojson`);
+        const response = await fetch('/api/snap-to-road', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ points })
+        });
+
         const data = await response.json();
 
-        // Check if the response is valid
-        if (data && data.code === "Ok") {
+        if (data && data.matchings) {
             const snappedPoints = data.matchings[0].geometry.coordinates;
 
             if (currentLine) {
@@ -142,7 +143,7 @@ async function snapToRoads(points) {
                 'type': 'Feature',
                 'geometry': {
                     'type': 'LineString',
-                    'coordinates': snappedPoints  // Use snapped points from Map Matching API
+                    'coordinates': snappedPoints  // Use snapped points from the /api/snap-to-road endpoint
                 }
             };
 
@@ -155,10 +156,10 @@ async function snapToRoads(points) {
                 'paint': { 'line-color': '#ff0000', 'line-width': 4 }
             });
         } else {
-            console.error('Map Matching API error:', data.message);
+            console.error('Snap to road error:', data.message);
         }
     } catch (error) {
-        console.error('Error calling Map Matching API:', error);
+        console.error('Error calling /api/snap-to-road:', error);
     }
 }
 
