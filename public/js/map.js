@@ -55,17 +55,41 @@ function toggleRoadLayer() {
     updateTabHighlight('road-tab', layerVisibility.road);
 }
 
-// Function to toggle drawing mode
-function toggleDrawingMode() {
-    drawingEnabled = !drawingEnabled;
-    if (drawingEnabled) {
-        enableDrawingMode();
-        document.getElementById('control-panel').style.display = 'block'; // Show control panel
-        updateTabHighlight('draw-route-tab', true);
+// Toggle photo layer
+function togglePhotoLayer() {
+    layerVisibility.photos = !layerVisibility.photos;
+    updateTabHighlight('photos-tab', layerVisibility.photos);
+    if (layerVisibility.photos) {
+        loadPhotoMarkers(); // Show photos if visibility is true
     } else {
-        disableDrawingMode();
-        document.getElementById('control-panel').style.display = 'none'; // Hide control panel
-        updateTabHighlight('draw-route-tab', false);
+        removePhotoMarkers(); // Hide photos
+    }
+}
+
+// Toggle POI layer
+function togglePOILayer() {
+    layerVisibility.pois = !layerVisibility.pois;
+    updateTabHighlight('pois-tab', layerVisibility.pois);
+    if (layerVisibility.pois) {
+        loadPOIMarkers(); // Show POIs if visibility is true
+    } else {
+        removePOIMarkers(); // Hide POIs
+    }
+}
+
+// Toggle Add dropdown
+function toggleAddDropdown() {
+    const dropdown = document.getElementById('add-dropdown');
+    dropdown.classList.toggle('show');
+}
+
+// Update tab highlight
+function updateTabHighlight(tabId, isActive) {
+    const tab = document.getElementById(tabId);
+    if (isActive) {
+        tab.classList.add('active');
+    } else {
+        tab.classList.remove('active');
     }
 }
 
@@ -180,47 +204,47 @@ function resetRoute() {
     }
 }
 
-// Toggle photo layer
-function togglePhotoLayer() {
-    layerVisibility.photos = !layerVisibility.photos;
-    updateTabHighlight('photos-tab', layerVisibility.photos);
-    // Implement functionality to show/hide photo markers
-}
-
-// Toggle POI layer
-function togglePOILayer() {
-    layerVisibility.pois = !layerVisibility.pois;
-    updateTabHighlight('pois-tab', layerVisibility.pois);
-    // Implement functionality to show/hide POI markers
-}
-
-// Toggle Add dropdown
-function toggleAddDropdown() {
-    const dropdown = document.getElementById('add-dropdown');
-    dropdown.classList.toggle('show');
-}
-
-// Update tab highlight
-function updateTabHighlight(tabId, isActive) {
-    const tab = document.getElementById(tabId);
-    if (isActive) {
-        tab.classList.add('active');
-    } else {
-        tab.classList.remove('active');
-    }
-}
-
-// Event listeners for the control panel buttons
-document.getElementById('update-btn').addEventListener('click', function () {
+// Function to undo the last drawn point
+function undoLastPoint() {
     if (drawnPoints.length > 1) {
-        snapToRoads(drawnPoints); // Redraw the route
+        drawnPoints.pop(); // Remove the last point
+        snapToRoads(drawnPoints); // Redraw the route without the last point
     }
+}
+
+// Load photo markers function (you need to implement how to fetch and display the photo markers)
+async function loadPhotoMarkers() {
+    // Add logic to load and display photo markers on the map
+    console.log("Loading photo markers...");
+}
+
+// Remove photo markers function
+function removePhotoMarkers() {
+    // Add logic to remove photo markers from the map
+    console.log("Removing photo markers...");
+}
+
+// Load POI markers function
+async function loadPOIMarkers() {
+    // Add logic to load and display POI markers on the map
+    console.log("Loading POI markers...");
+}
+
+// Remove POI markers function
+function removePOIMarkers() {
+    // Add logic to remove POI markers from the map
+    console.log("Removing POI markers...");
+}
+
+// Add event listeners for control panel buttons
+document.getElementById('undo-btn').addEventListener('click', function() {
+    undoLastPoint(); // Undo the last point
 });
 
-document.getElementById('reset-btn').addEventListener('click', function () {
-    resetRoute(); // Reset the route
+document.getElementById('reset-btn').addEventListener('click', function() {
+    resetRoute();  // Reset the route
 });
 
-document.getElementById('save-btn').addEventListener('click', function () {
-    saveDrawnRoute(); // Save the route
+document.getElementById('save-btn').addEventListener('click', function() {
+    saveDrawnRoute();  // Save the route
 });
