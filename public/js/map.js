@@ -21,6 +21,7 @@ function initMap() {
     });
 }
 
+// Function to add GPX Layer
 function addGPXLayer(geojson) {
     map.addSource('gpx-route', { type: 'geojson', data: geojson });
 
@@ -33,94 +34,29 @@ function addGPXLayer(geojson) {
     });
 }
 
-function toggleRoadLayer() {
-    if (map.getLayer('gpx-route-layer')) {
-        layerVisibility.road = !layerVisibility.road;
-        map.setLayoutProperty('gpx-route-layer', 'visibility', layerVisibility.road ? 'visible' : 'none');
-        updateTabHighlight('road-tab', layerVisibility.road); // Update tab highlight for road tab
-    } else {
-        alert("No GPX route is loaded yet.");
-    }
-}
-
-function togglePhotoLayer() {
-    if (layerVisibility.photos) {
-        removePhotoMarkers(); // Remove photo markers if the layer is visible
-        layerVisibility.photos = false;
-    } else {
-        loadPhotoMarkers(); // Load photo markers if the layer is invisible
-        layerVisibility.photos = true;
-    }
-
-    updateTabHighlight('photos-tab', layerVisibility.photos); // Update tab highlight for photos tab
-}
-
-function updateTabHighlight(tabId, isActive) {
-    const tab = document.getElementById(tabId);
-    if (isActive) {
-        tab.classList.add('active');
-    } else {
-        tab.classList.remove('active');
-    }
-}
-
-// Remove all photo markers from the map
-function removePhotoMarkers() {
-    photoMarkers.forEach(marker => marker.remove());
-    photoMarkers = [];
-}
-
-// Function to load photo markers from the database
-async function loadPhotoMarkers() {
-    try {
-        const response = await fetch('/api/get-photos');
-        const photos = await response.json();
-
-        removePhotoMarkers(); // Clear any previous markers
-
-        photos.forEach(photo => {
-            if (photo.latitude && photo.longitude) {
-                const markerElement = document.createElement('div');
-                markerElement.className = 'custom-marker';
-                markerElement.innerHTML = '<i class="fas fa-camera"></i>'; // Camera icon
-
-                const marker = new mapboxgl.Marker(markerElement)
-                    .setLngLat([photo.longitude, photo.latitude])
-                    .addTo(map);
-
-                const popup = new mapboxgl.Popup({ offset: 25 })
-                    .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
-
-                marker.setPopup(popup);
-                photoMarkers.push(marker);
-            }
-        });
-    } catch (error) {
-        console.error('Error loading photo markers:', error);
-    }
-}
-
-// New: Drawing route functionality with road snapping
+// Function to enable drawing mode
 function enableDrawingMode() {
     map.on('click', drawPoint);
 }
 
+// Function to disable drawing mode and save the route
 function disableDrawingMode() {
     map.off('click', drawPoint);
-    saveDrawnRoute(); // Save the drawn route when disabling
+    saveDrawnRoute();  // Save the drawn route
 }
 
+// Function to draw a point on the map
 function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
     drawnPoints.push(coords);
 
     if (drawnPoints.length > 1) {
-        // Call the /api/snap-to-road.js API endpoint to snap the points to the nearest roads
+        // Call the API to snap points to the road
         snapToRoads(drawnPoints);
     }
 }
 
-// Function to proxy request to the /api/snap-to-road endpoint
+// Function to snap drawn points to the road using Mapbox API
 async function snapToRoads(points) {
     try {
         const response = await fetch('/api/snap-to-road', {
@@ -143,7 +79,7 @@ async function snapToRoads(points) {
                 'type': 'Feature',
                 'geometry': {
                     'type': 'LineString',
-                    'coordinates': snappedPoints  // Use snapped points from the /api/snap-to-road endpoint
+                    'coordinates': snappedPoints
                 }
             };
 
@@ -198,3 +134,30 @@ function saveDrawnRoute() {
         alert('No route to save.');
     }
 }
+
+// Function to reset the route
+function resetRoute() {
+    if (currentLine) {
+        map.removeLayer('drawn-route');
+        map.removeSource('drawn-route');
+        currentLine = null;
+        drawnPoints = [];
+    }
+}
+
+// Add event listeners for control panel buttons
+document.getElementById('update-btn').addEventListener('click', function() {
+    // Redraw the route with the current points
+    if (drawnPoints.length > 1) {
+        snapToRoads(drawnPoints);
+    }
+});
+
+document.getElementById('reset-btn').addEventListener('click', function() {
+    resetRoute();  // Reset the route
+});
+
+document.getElementById('save-btn').addEventListener('click', function() {
+    saveDrawnRoute();  // Save the route
+});
+
