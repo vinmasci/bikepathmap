@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const { DOMParser } = require('@xmldom/xmldom'); // A safer XML DOM Parser
+const toGeoJSON = require('@mapbox/togeojson');  // Use @mapbox/togeojson to convert GPX to GeoJSON
 const { MongoClient } = require('mongodb');
-const gpxParser = require('gpx-parser');  // Add gpx-parser for parsing GPX
 require('dotenv').config();
 
 // MongoDB connection setup
@@ -14,23 +15,13 @@ async function connectToMongo() {
     return client.db('roadApp').collection('gpxRoutes');
 }
 
-// Function to parse GPX file and return GeoJSON
+// Function to convert GPX to GeoJSON
 function parseGPXToGeoJSON(gpxFilePath) {
-    const gpx = new gpxParser();
     const gpxData = fs.readFileSync(gpxFilePath, 'utf-8');
-    gpx.parse(gpxData);
+    const gpxDoc = new DOMParser().parseFromString(gpxData); // Parse the GPX XML
 
-    const geoJson = {
-        type: 'FeatureCollection',
-        features: gpx.tracks.map(track => ({
-            type: 'Feature',
-            geometry: {
-                type: 'LineString',
-                coordinates: track.points.map(point => [point.lon, point.lat]) // Extract all points
-            },
-            properties: {}
-        }))
-    };
+    // Convert GPX to GeoJSON
+    const geoJson = toGeoJSON.gpx(gpxDoc);
 
     return geoJson;
 }
@@ -62,8 +53,8 @@ module.exports = async (req, res) => {
         });
 
         // Respond with the parsed GeoJSON data
-        return res.status(200).json({ 
-            message: 'GPX file uploaded successfully!', 
+        return res.status(200).json({
+            message: 'GPX file uploaded successfully!',
             geoJson: geoJson  // Return the GeoJSON object
         });
     } catch (error) {
