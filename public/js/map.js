@@ -3,6 +3,7 @@ let layerVisibility = { road: false, gravel: false, photos: false, pois: false }
 let drawnPoints = [];
 let currentLine = null;
 let drawingEnabled = false; // Flag for drawing mode
+let firstPointMarker = null; // Store the first point marker
 
 function initMap() {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
@@ -36,7 +37,6 @@ function addGPXLayer(geojson) {
         map.getSource('gpx-route').setData(geojson);
     } else {
         map.addSource('gpx-route', { type: 'geojson', data: geojson });
-
         map.addLayer({
             id: 'gpx-route-layer',
             type: 'line',
@@ -96,12 +96,14 @@ function updateTabHighlight(tabId, isActive) {
 // Function to enable drawing mode
 function enableDrawingMode() {
     map.on('click', drawPoint);
+    document.getElementById('map').style.cursor = 'crosshair'; // Set cursor to crosshair
 }
 
 // Function to disable drawing mode and save the route
 function disableDrawingMode() {
     map.off('click', drawPoint);
     saveDrawnRoute();  // Save the drawn route
+    document.getElementById('map').style.cursor = ''; // Reset cursor
 }
 
 // Function to draw a point on the map
@@ -109,9 +111,20 @@ function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
     drawnPoints.push(coords);
 
+    if (drawnPoints.length === 1) {
+        // Place the first marker as a highlighted marker
+        firstPointMarker = new mapboxgl.Marker({ color: '#FF0000' }) // Red marker for the first point
+            .setLngLat(coords)
+            .addTo(map);
+    } else {
+        // Place regular markers for the subsequent points
+        new mapboxgl.Marker({ color: '#00FF00' }) // Green markers for the rest
+            .setLngLat(coords)
+            .addTo(map);
+    }
+
     if (drawnPoints.length > 1) {
-        // Call the API to snap points to the road
-        snapToRoads(drawnPoints);
+        snapToRoads(drawnPoints); // Snap to roads
     }
 }
 
@@ -201,6 +214,9 @@ function resetRoute() {
         map.removeSource('drawn-route');
         currentLine = null;
         drawnPoints = [];
+        if (firstPointMarker) {
+            firstPointMarker.remove(); // Remove the first point marker
+        }
     }
 }
 
