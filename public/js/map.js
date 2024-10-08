@@ -1,7 +1,7 @@
-// /public/js/map.js
-
 let map;
 let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
+let drawnPoints = [];
+let currentLine = null;
 
 function initMap() {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
@@ -12,7 +12,7 @@ function initMap() {
         zoom: 10
     });
 
-    map.on('load', function() {
+    map.on('load', function () {
         const storedGPX = localStorage.getItem('gpxData');
         if (storedGPX) {
             const geojson = JSON.parse(storedGPX);
@@ -99,3 +99,122 @@ async function loadPhotoMarkers() {
         console.error('Error loading photo markers:', error);
     }
 }
+
+// New: Drawing route functionality
+function enableDrawingMode() {
+    map.on('click', drawPoint);
+}
+
+function disableDrawingMode() {
+    map.off('click', drawPoint);
+    saveDrawnRoute(); // Save the drawn route when disabling
+}
+
+function drawPoint(e) {
+    const coords = [e.lngLat.lng, e.lngLat.lat];
+    drawnPoints.push(coords);
+
+    if (drawnPoints.length > 1) {
+        if (currentLine) {
+            map.removeLayer('drawn-route');
+            map.removeSource('drawn-route');
+        }
+
+        currentLine = {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'LineString',
+                'coordinates': drawnPoints
+            }
+        };
+
+        map.addSource('drawn-route', { 'type': 'geojson', 'data': currentLine });
+        map.addLayer({
+            'id': 'drawn-route',
+            'type': 'line',
+            'source': 'drawn-route',
+            'layout': { 'line-join': 'round', 'line-cap': 'round' },
+            'paint': { 'line-color': '#ff0000', 'line-width': 4 }
+        });
+    }
+}
+
+// Function to save the drawn route to MongoDB
+function saveDrawnRoute() {
+    if (drawnPoints.length > 1) {
+        const geojsonData = {
+            'type': 'FeatureCollection',
+            'features': [
+                {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'LineString',
+                        'coordinates': drawnPoints
+                    },
+                    'properties': {}
+                }
+            ]
+        };
+
+        fetch('/api/save-drawn-route', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(geojsonData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Route saved successfully!');
+            } else {
+                alert('Error saving route.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+        alert('No route to save.');
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Initialize the map
+    initMap();
+
+    // Initialize modals
+    initModals();
+
+    // Tab and modal interaction
+    document.getElementById('road-tab').addEventListener('click', toggleRoadLayer);
+    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
+    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
+
+    // Open modals for adding GPX files and photos
+    document.getElementById('add-road-gpx').addEventListener('click', function() {
+        openModal('road-modal');
+    });
+    document.getElementById('add-photo').addEventListener('click', function() {
+        openModal('photo-modal'); // This will open the photo modal
+    });
+
+    // Upload GPX file when 'Upload' button is clicked
+    document.getElementById('upload-road-gpx-button').addEventListener('click', function() {
+        uploadGPXFile('road-file');
+    });
+
+    // Upload photos when 'Upload' button is clicked in photo modal
+    document.getElementById('photo-upload-button').addEventListener('click', function() {
+        uploadPhoto(); // Call the photo upload function
+    });
+
+    // Draw route tab logic
+    let drawingEnabled = false;
+    document.getElementById('draw-route-tab').addEventListener('click', function () {
+        drawingEnabled = !drawingEnabled;
+        if (drawingEnabled) {
+            enableDrawingMode();
+            updateTabHighlight('draw-route-tab', true);
+        } else {
+            disableDrawingMode();
+            updateTabHighlight('draw-route-tab', false);
+        }
+    });
+});

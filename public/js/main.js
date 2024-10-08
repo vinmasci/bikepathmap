@@ -23,8 +23,21 @@ document.addEventListener("DOMContentLoaded", function () {
         uploadGPXFile('road-file');
     });
 
-    // Upload photos when 'Upload' button is clicked in photo modal
+    // Upload photos when 'Upload' button is clicked in the photo modal
     document.getElementById('photo-upload-button').addEventListener('click', function() {
         uploadPhoto(); // Call the photo upload function
+    });
+
+    // Draw route functionality for "Draw Route" tab
+    let drawingEnabled = false;
+    document.getElementById('draw-route-tab').addEventListener('click', function() {
+        drawingEnabled = !drawingEnabled;
+        if (drawingEnabled) {
+            enableDrawingMode();  // Enable drawing mode from map.js
+            updateTabHighlight('draw-route-tab', true);  // Highlight the active tab
+        } else {
+            disableDrawingMode(); // Disable drawing mode and save the route
+            updateTabHighlight('draw-route-tab', false); // Remove highlight
+        }
     });
 });
