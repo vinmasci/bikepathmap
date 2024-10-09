@@ -53,23 +53,24 @@ function toggleSegmentsLayer() {
 // ============================
 async function loadSegments() {
     try {
-        const response = await fetch('/api/get-drawn-routes'); // Adjust this endpoint as necessary
+        const response = await fetch('/api/get-drawn-routes');
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
 
         const data = await response.json();
         if (data && data.routes) {
-            data.routes.forEach(route => {
-                const coordinates = route.geojson.features[0].geometry.coordinates;
+            // Remove existing layers and sources before loading new ones
+            removeSegments();
 
+            data.routes.forEach(route => {
                 // Add source for each route
                 map.addSource(`route-${route.routeId}`, {
                     type: 'geojson',
                     data: route.geojson
                 });
 
-                // Add layer for the stroke (this should be below the main route layer)
+                // Add layer for the stroke
                 map.addLayer({
                     'id': `route-${route.routeId}-layer-stroke`,
                     'type': 'line',
@@ -84,7 +85,7 @@ async function loadSegments() {
                     }
                 });
 
-                // Add layer for the route (this should be above the stroke layer)
+                // Add layer for the route
                 map.addLayer({
                     'id': `route-${route.routeId}-layer`,
                     'type': 'line',
