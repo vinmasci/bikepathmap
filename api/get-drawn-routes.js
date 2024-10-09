@@ -1,16 +1,15 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
 async function connectToMongo() {
-    // Always connect, or check your connection logic here if needed
     await client.connect();
     return client.db('roadApp').collection('drawnRoutes');
 }
 
 module.exports = async (req, res) => {
-    const segmentId = req.params.id; // Get the segment ID from the request
+    const segmentId = req.query.id; // Get the segment ID from the query parameters
 
     try {
         const collection = await connectToMongo();
