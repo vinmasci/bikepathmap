@@ -190,7 +190,7 @@ async function loadSegments() {
 
 async function deleteSegment(segmentId) {
     try {
-        const response = await fetch(`/api/delete-drawn-route/${segmentId}`, {
+        const response = await fetch(`/api/delete-drawn-route?id=${segmentId}`, { // Use query parameter instead of path variable
             method: 'DELETE'
         });
 
@@ -209,6 +209,7 @@ async function deleteSegment(segmentId) {
         alert('An error occurred while deleting the segment.');
     }
 }
+
 
 // ============================
 // SECTION: DELETE BUTTON
