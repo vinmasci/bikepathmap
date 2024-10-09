@@ -45,14 +45,15 @@ function toggleDrawingMode() {
         enableDrawingMode();
         document.getElementById('control-panel').style.display = 'block'; // Show control panel
         updateTabHighlight('draw-route-tab', true);
-        document.getElementById('map').style.cursor = 'crosshair'; // Set crosshair cursor when drawing is enabled
+        map.getCanvas().style.cursor = 'crosshair'; // Use Mapbox's native method to change cursor
     } else {
         disableDrawingMode(false); // Disable drawing mode without saving
         document.getElementById('control-panel').style.display = 'none'; // Hide control panel
         updateTabHighlight('draw-route-tab', false);
-        document.getElementById('map').style.cursor = ''; // Reset cursor to default when drawing is disabled
+        map.getCanvas().style.cursor = ''; // Reset cursor to default when drawing is disabled
     }
 }
+
 
 
 function togglePhotoLayer() {
