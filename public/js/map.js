@@ -3,9 +3,8 @@ let layerVisibility = { road: false, gravel: false, photos: false, pois: false }
 let drawnPoints = [];
 let currentLine = null;
 let drawingEnabled = false; // Flag for drawing mode
-let firstPointMarker = null; // Store the first point marker // Restored line
+let firstPointMarker = null; // Store the first point marker
 let markers = []; // Store all point markers, including the first point
-
 
 // ===========================
 // SECTION: Map Initialization
@@ -222,7 +221,6 @@ async function snapToRoads(points) {
     }
 }
 
-
 // ==========================
 // SECTION: Save Drawn Route
 // ==========================
@@ -285,9 +283,6 @@ function resetRoute() {
     disableDrawingMode(false);
     enableDrawingMode();  // Re-enable drawing mode after reset
 
-    // No longer hiding the control panel to keep it visible after reset
-    // document.getElementById('control-panel').style.display = 'none'; // This line is removed
-
     alert('Route has been reset.');
 }
 
@@ -307,17 +302,16 @@ function undoLastPoint() {
         }
     } else if (drawnPoints.length === 1) {
         const firstMarker = markers.pop();
-        if (firstMarker) firstMarker.remove(); // Corrected this line
+        if (firstMarker) firstMarker.remove(); // Fixed the missing parentheses here
         drawnPoints = [];
         if (currentLine) {
             map.removeLayer('drawn-route');
-            map.removeSource('drawn-route'); // Corrected this line
+            map.removeSource('drawn-route'); // Fixed the missing period here
             currentLine = null;
         }
         alert('All points have been undone.');
     }
 }
-
 
 // ============================
 // SECTION: Photo Marker Logic
