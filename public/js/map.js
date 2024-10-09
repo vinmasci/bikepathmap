@@ -145,12 +145,13 @@ async function loadSegments() {
             data.routes.forEach(route => {
                 const coordinates = route.geojson.features[0].geometry.coordinates;
 
-                // Add source and layer for each route
+                // Add source for each route
                 map.addSource(`route-${route.routeId}`, {
                     type: 'geojson',
                     data: route.geojson
                 });
 
+                // Add layer for each route with cyan color and black stroke
                 map.addLayer({
                     'id': `route-${route.routeId}-layer`,
                     'type': 'line',
@@ -160,20 +161,24 @@ async function loadSegments() {
                         'line-cap': 'round'
                     },
                     'paint': {
-                        'line-color': '#FF0000', // Change to desired color
-                        'line-width': 4
+                        'line-color': 'cyan', // Cyan color for the line
+                        'line-width': 4,
+                        'line-opacity': 1
                     }
                 });
 
-                // Add click event listener for the segment
-                map.on('click', `route-${route.routeId}-layer`, function (e) {
-                    // Get the coordinates of the segment
-                    const features = map.queryRenderedFeatures(e.point, {
-                        layers: [`route-${route.routeId}-layer`]
-                    });
-                    if (features.length) {
-                        const segmentInfo = features[0]; // Assuming we want the first feature
-                        openSegmentModal(route.routeId); // Pass the segment ID to open the modal
+                // Add a black stroke by adding a second layer below
+                map.addLayer({
+                    'id': `route-${route.routeId}-layer-stroke`,
+                    'type': 'line',
+                    'source': `route-${route.routeId}`,
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': 'black', // Black color for the stroke
+                        'line-width': 1 // Stroke width of 1px
                     }
                 });
             });
@@ -182,6 +187,7 @@ async function loadSegments() {
         console.error('Error loading segments:', error);
     }
 }
+
 
 
 // ============================
