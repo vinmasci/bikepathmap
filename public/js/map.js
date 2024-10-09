@@ -110,15 +110,17 @@ function enableDrawingMode() {
 function disableDrawingMode(shouldSave = true) {
     map.off('click', drawPoint);
     if (shouldSave && drawnPoints.length > 1) {
+        console.log("Saving drawn route...");  // Debugging log
         saveDrawnRoute();  // Save the drawn route only if this flag is true and there are points
     }
     map.getCanvas().style.cursor = ''; // Reset cursor to default when drawing mode is disabled
 }
 
 
+
 function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
-    console.log("Adding point:", coords);  // Debugging log
+    console.log("Adding point:", coords);  // Log each point added
     drawnPoints.push(coords);
 
     const markerElement = document.createElement('div');
@@ -138,6 +140,7 @@ function drawPoint(e) {
         snapToRoads(drawnPoints); // Snap to roads after the second point
     }
 }
+
 
 
 // ================================
@@ -195,35 +198,32 @@ async function snapToRoads(points) {
 // ==========================
 // This section handles saving the drawn route to the backend (MongoDB) once the
 // drawing mode is disabled and points are snapped to the road.
-function drawPoint(e) {
-    const coords = [e.lngLat.lng, e.lngLat.lat];
-    console.log("Adding point:", coords);  // Debugging log
-    drawnPoints.push(coords);
-
-    const markerElement = document.createElement('div');
-    markerElement.style.width = '16px';  
-    markerElement.style.height = '16px';
-    markerElement.style.backgroundColor = '#FFA500'; 
-    markerElement.style.borderRadius = '50%'; 
-    markerElement.style.border = '2px solid white';
-
-    const marker = new mapboxgl.Marker({ element: markerElement })
-        .setLngLat(coords)
-        .addTo(map);
-
-    markers.push(marker);
+function saveDrawnRoute() {
+    console.log("saveDrawnRoute called"); // Check if function is triggered
 
     if (drawnPoints.length > 1) {
-        snapToRoads(drawnPoints); // Snap to roads after the second point
-    }
-}
+        // Construct GeoJSON data from drawn points
+        const geojsonData = {
+            'type': 'FeatureCollection',
+            'features': [
+                {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'LineString',
+                        'coordinates': drawnPoints // The drawn route's coordinates
+                    },
+                    'properties': {}
+                }
+            ]
+        };
 
+        console.log("GeoJSON Data:", geojsonData); // Log GeoJSON data
 
         // Send the GeoJSON data to the backend API to save the route in MongoDB
         fetch('/api/save-drawn-route', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ geojson: geojsonData })
+            body: JSON.stringify({ geojson: geojsonData }) // Send the GeoJSON in the request body
         })
         .then(response => {
             console.log("Fetch response status:", response.status);  // Log fetch status
@@ -238,9 +238,13 @@ function drawPoint(e) {
             }
         })
         .catch(error => {
-            console.error('Error during fetch request:', error);
+            console.error('Error during fetch request:', error);  // Log any errors
         });
-        
+    } else {
+        alert('No route to save.');  // If no points were drawn
+    }
+}
+
 
 
 // ===========================
