@@ -3,9 +3,15 @@ let layerVisibility = { road: false, gravel: false, photos: false, pois: false }
 let drawnPoints = [];
 let currentLine = null;
 let drawingEnabled = false; // Flag for drawing mode
-let firstPointMarker = null; // Store the first point marker
+let firstPointMarker = null; // Store the first point marker // Restored line
 let markers = []; // Store all point markers, including the first point
 
+
+// ===========================
+// SECTION: Map Initialization
+// ===========================
+// This section initializes the map using Mapbox. It sets the initial map view
+// and loads existing GPX data from local storage if available.
 function initMap() {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
     map = new mapboxgl.Map({
@@ -24,7 +30,7 @@ function initMap() {
         }
     });
 
-    // Add event listeners for the tabs
+    // Add event listeners for the tabs (toggles for layers)
     document.getElementById('road-tab').addEventListener('click', toggleRoadLayer);
     document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode);
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
@@ -32,7 +38,11 @@ function initMap() {
     document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
 }
 
-// Function to add GPX Layer
+// ========================================
+// SECTION: Adding GPX Layer (Roads/Gravel)
+// ========================================
+// This section handles adding a GPX layer to the map. It checks if a GPX route
+// layer already exists and adds it if not, applying specific styling (orange line).
 function addGPXLayer(geojson) {
     if (map.getSource('gpx-route')) {
         map.getSource('gpx-route').setData(geojson);
@@ -51,7 +61,11 @@ function addGPXLayer(geojson) {
     }
 }
 
-// Toggle road layer
+// ============================
+// SECTION: Toggle Functionality
+// ============================
+// This section handles toggling the visibility of different map layers such as
+// road routes, photo markers, and POIs.
 function toggleRoadLayer() {
     layerVisibility.road = !layerVisibility.road;
     const visibility = layerVisibility.road ? 'visible' : 'none';
@@ -59,10 +73,8 @@ function toggleRoadLayer() {
     updateTabHighlight('road-tab', layerVisibility.road);
 }
 
-// Toggle drawing mode
 function toggleDrawingMode() {
     drawingEnabled = !drawingEnabled;
-
     if (drawingEnabled) {
         enableDrawingMode();
         document.getElementById('control-panel').style.display = 'block'; // Show control panel
@@ -76,7 +88,6 @@ function toggleDrawingMode() {
     }
 }
 
-// Toggle photo layer
 function togglePhotoLayer() {
     layerVisibility.photos = !layerVisibility.photos;
     updateTabHighlight('photos-tab', layerVisibility.photos);
@@ -87,7 +98,6 @@ function togglePhotoLayer() {
     }
 }
 
-// Toggle POI layer
 function togglePOILayer() {
     layerVisibility.pois = !layerVisibility.pois;
     updateTabHighlight('pois-tab', layerVisibility.pois);
@@ -98,13 +108,19 @@ function togglePOILayer() {
     }
 }
 
-// Toggle Add dropdown
+// =========================
+// SECTION: Dropdown Toggles
+// =========================
+// This section handles toggling the "Add" dropdown menu.
 function toggleAddDropdown() {
     const dropdown = document.getElementById('add-dropdown');
     dropdown.classList.toggle('show');
 }
 
-// Update tab highlight
+// =========================
+// SECTION: Tab Highlighting
+// =========================
+// This section manages highlighting tabs when a layer is toggled on/off.
 function updateTabHighlight(tabId, isActive) {
     const tab = document.getElementById(tabId);
     if (isActive) {
@@ -114,13 +130,16 @@ function updateTabHighlight(tabId, isActive) {
     }
 }
 
-// Function to enable drawing mode
+// ========================
+// SECTION: Drawing Function
+// ========================
+// This section handles enabling/disabling the drawing mode, creating points,
+// and snapping drawn points to roads using the Mapbox API.
 function enableDrawingMode() {
     map.on('click', drawPoint);
     document.getElementById('map').style.cursor = 'crosshair'; // Set cursor to crosshair
 }
 
-// Function to disable drawing mode with an optional save parameter
 function disableDrawingMode(shouldSave = true) {
     map.off('click', drawPoint);
     if (shouldSave) {
@@ -129,18 +148,17 @@ function disableDrawingMode(shouldSave = true) {
     document.getElementById('map').style.cursor = ''; // Reset cursor
 }
 
-// Function to draw a point on the map
 function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
     drawnPoints.push(coords);
 
-    // Create a custom marker element
+    // Create a custom marker element (orange circle with white stroke)
     const markerElement = document.createElement('div');
-    markerElement.style.width = '20px';  // Diameter of the marker
-    markerElement.style.height = '20px';
-    markerElement.style.backgroundColor = '#FFA500'; // Orange color
-    markerElement.style.borderRadius = '50%'; // Circle shape
-    markerElement.style.border = '2px solid white'; // White stroke of 2px
+    markerElement.style.width = '16px';  
+    markerElement.style.height = '16px';
+    markerElement.style.backgroundColor = '#FFA500'; 
+    markerElement.style.borderRadius = '50%'; 
+    markerElement.style.border = '2px solid white'; 
 
     // Add the marker to the map
     const marker = new mapboxgl.Marker({ element: markerElement })
@@ -154,7 +172,11 @@ function drawPoint(e) {
     }
 }
 
-// Function to snap drawn points to the road using the API
+// ================================
+// SECTION: Road Snapping Function
+// ================================
+// This section sends the drawn points to the Mapbox API to snap them to roads,
+// creating a new line with the snapped coordinates.
 async function snapToRoads(points) {
     try {
         const response = await fetch('/api/snap-to-road', {
@@ -188,7 +210,7 @@ async function snapToRoads(points) {
                 'source': 'drawn-route',
                 'layout': { 'line-join': 'round', 'line-cap': 'round' },
                 'paint': { 
-                    'line-color': '#FFA500', // Orange color for the line
+                    'line-color': '#FFA500', 
                     'line-width': 4 
                 }
             });
@@ -200,7 +222,11 @@ async function snapToRoads(points) {
     }
 }
 
-// Function to save the drawn route to MongoDB
+// ==========================
+// SECTION: Save Drawn Route
+// ==========================
+// This section handles saving the drawn route to the backend (MongoDB) once the
+// drawing mode is disabled and points are snapped to the road.
 function saveDrawnRoute() {
     if (drawnPoints.length > 1) {
         const geojsonData = {
@@ -236,42 +262,39 @@ function saveDrawnRoute() {
     }
 }
 
-// Function to reset the route and markers without saving
+// ===========================
+// SECTION: Reset and Undo
+// ===========================
+// This section handles resetting the route (clearing markers and drawn points)
+// and undoing the last drawn point.
 function resetRoute() {
     if (currentLine) {
         map.removeLayer('drawn-route');
         map.removeSource('drawn-route');
-        currentLine = null;  // Reset the current line
+        currentLine = null; 
     }
 
     // Remove all markers from the map
     markers.forEach(marker => marker.remove());
-    markers = [];  // Clear the markers array
+    markers = []; 
 
-    drawnPoints = [];  // Clear all drawn points
+    drawnPoints = []; 
 
-    // Disable drawing mode without triggering any save functionality
-    disableDrawingMode(false);  // Pass false to avoid saving the route
+    disableDrawingMode(false); 
 
-    document.getElementById('control-panel').style.display = 'none'; // Hide control panel if needed
+    document.getElementById('control-panel').style.display = 'none'; 
 
     alert('Route has been reset.');
 }
 
-// Function to undo the last drawn point and marker
 function undoLastPoint() {
     if (drawnPoints.length > 1) {
-        drawnPoints.pop();  // Remove the last point
-
-        // Remove the last marker from the map
+        drawnPoints.pop(); 
         const lastMarker = markers.pop();
         if (lastMarker) lastMarker.remove();
-
-        // Redraw the route without the last point
         if (drawnPoints.length > 1) {
-            snapToRoads(drawnPoints);  // Resnap the remaining points to the road
+            snapToRoads(drawnPoints); 
         } else {
-            // If only one point remains, remove the current line
             if (currentLine) {
                 map.removeLayer('drawn-route');
                 map.removeSource('drawn-route');
@@ -279,36 +302,38 @@ function undoLastPoint() {
             }
         }
     } else if (drawnPoints.length === 1) {
-        // If only one point remains, remove the marker and reset the drawing
         const firstMarker = markers.pop();
         if (firstMarker) firstMarker.remove();
-
-        drawnPoints = [];  // Clear all points
-
+        drawnPoints = [];
         if (currentLine) {
             map.removeLayer('drawn-route');
             map.removeSource('drawn-route');
             currentLine = null;
         }
-
         alert('All points have been undone.');
     }
 }
 
-// Load photo markers function
+// ============================
+// SECTION: Photo Marker Logic
+// ============================
+// This section handles loading and removing photo markers from the map.
 async function loadPhotoMarkers() {
-    // Add logic to load and display photo markers on the map
     console.log("Loading photo markers...");
 }
 
-// Remove photo markers function
 function removePhotoMarkers() {
-    // Add logic to remove photo markers from the map
     console.log("Removing photo markers...");
 }
 
-// Load POI markers function
+// ==========================
+// SECTION: POI Marker Logic
+// ==========================
+// This section handles loading and removing Points of Interest (POI) markers.
 async function loadPOIMarkers() {
-    // Add logic to load and display POI markers on the map
     console.log("Loading POI markers...");
+}
+
+function removePOIMarkers() {
+    console.log("Removing POI markers...");
 }
