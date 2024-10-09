@@ -305,17 +305,16 @@ function undoLastPoint() {
         }
     } else if (drawnPoints.length === 1) {
         const firstMarker = markers.pop();
-        if (firstMarker) firstMarker remove();
+        if (firstMarker) firstMarker.remove(); // Corrected this line
         drawnPoints = [];
         if (currentLine) {
             map.removeLayer('drawn-route');
-            map removeSource('drawn-route');
+            map.removeSource('drawn-route'); // Corrected this line
             currentLine = null;
         }
         alert('All points have been undone.');
     }
 }
-
 
 // ============================
 // SECTION: Photo Marker Logic
