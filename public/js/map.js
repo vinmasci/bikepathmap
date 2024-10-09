@@ -43,7 +43,10 @@ function addGPXLayer(geojson) {
             type: 'line',
             source: 'gpx-route',
             layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#ff0000', 'line-width': 4 }
+            paint: { 
+                'line-color': '#FFA500', // Orange color for the line
+                'line-width': 4 
+            }
         });
     }
 }
@@ -131,12 +134,18 @@ function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
     drawnPoints.push(coords);
 
-    // Add markers for each point and store them in the markers array
-    const marker = new mapboxgl.Marker({
-        color: drawnPoints.length === 1 ? '#FF0000' : '#00FF00' // Red for the first point, green for others
-    })
-    .setLngLat(coords)
-    .addTo(map);
+    // Create a custom marker element
+    const markerElement = document.createElement('div');
+    markerElement.style.width = '10px';  // Diameter of the marker
+    markerElement.style.height = '10px';
+    markerElement.style.backgroundColor = '#FFA500'; // Orange color
+    markerElement.style.borderRadius = '50%'; // Circle shape
+    markerElement.style.border = '2px solid white'; // White stroke of 2px
+
+    // Add the marker to the map
+    const marker = new mapboxgl.Marker({ element: markerElement })
+        .setLngLat(coords)
+        .addTo(map);
 
     markers.push(marker); // Store the marker
 
@@ -178,7 +187,10 @@ async function snapToRoads(points) {
                 'type': 'line',
                 'source': 'drawn-route',
                 'layout': { 'line-join': 'round', 'line-cap': 'round' },
-                'paint': { 'line-color': '#ff0000', 'line-width': 4 }
+                'paint': { 
+                    'line-color': '#FFA500', // Orange color for the line
+                    'line-width': 4 
+                }
             });
         } else {
             console.error('Snap to road error:', data.message);
