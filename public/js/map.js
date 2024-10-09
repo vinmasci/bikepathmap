@@ -237,7 +237,6 @@ function resetRoute() {
         }
     }
     // Optionally clear any markers or UI elements related to the drawn route
-    // Reset drawing mode if necessary
     disableDrawingMode(); 
     alert('Route has been reset.');
 }
@@ -263,7 +262,7 @@ function undoLastPoint() {
     }
 }
 
-// Load photo markers function (you need to implement how to fetch and display the photo markers)
+// Load photo markers function
 async function loadPhotoMarkers() {
     // Add logic to load and display photo markers on the map
     console.log("Loading photo markers...");
@@ -278,4 +277,5 @@ function removePhotoMarkers() {
 // Load POI markers function
 async function loadPOIMarkers() {
     // Add logic to load and display POI markers on the map
-    console.log("Loading POI markers...");}
+    console.log("Loading POI markers...");
+}
