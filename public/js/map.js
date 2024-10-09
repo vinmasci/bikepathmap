@@ -51,8 +51,6 @@ function toggleSegmentsLayer() {
 // ============================
 // SECTION: Load Segments from MongoDB
 // ============================
-// This section retrieves previously saved routes (segments) from MongoDB and
-// displays them on the map when the Segments tab is activated.
 async function loadSegmentsFromDB() {
     try {
         const response = await fetch('/api/get-saved-routes');
@@ -99,8 +97,6 @@ async function loadSegmentsFromDB() {
 // =========================
 // SECTION: Drawing Function
 // =========================
-// This section handles enabling/disabling the drawing mode, creating points,
-// and snapping drawn points to roads using the Mapbox API.
 function enableDrawingMode() {
     map.on('click', drawPoint);
     map.getCanvas().style.cursor = 'crosshair'; // Set cursor to crosshair
@@ -161,20 +157,20 @@ async function snapToRoads(points) {
             }
 
             currentLine = {
-                type: 'Feature',
-                geometry: {
-                    type: 'LineString',
-                    coordinates: snappedPoints
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': snappedPoints
                 }
             };
 
-            map.addSource('drawn-route', { type: 'geojson', data: currentLine });
+            map.addSource('drawn-route', { 'type': 'geojson', 'data': currentLine });
             map.addLayer({
-                id: 'drawn-route',
-                type: 'line',
-                source: 'drawn-route',
-                layout: { 'line-join': 'round', 'line-cap': 'round' },
-                paint: {
+                'id': 'drawn-route',
+                'type': 'line',
+                'source': 'drawn-route',
+                'layout': { 'line-join': 'round', 'line-cap': 'round' },
+                'paint': {
                     'line-color': '#FFA500',
                     'line-width': 4
                 }
@@ -230,8 +226,6 @@ function saveDrawnRoute() {
 // ===========================
 // SECTION: Reset and Undo
 // ===========================
-// This section handles resetting the route (clearing markers and drawn points)
-// and undoing the last drawn point.
 function resetRoute() {
     if (currentLine) {
         map.removeLayer('drawn-route');
@@ -279,7 +273,6 @@ function undoLastPoint() {
 // ============================
 // SECTION: Photo Marker Logic
 // ============================
-// This section handles loading and removing photo markers from the map.
 async function loadPhotoMarkers() {
     console.log("Loading photo markers...");
 }
@@ -288,7 +281,7 @@ function removePhotoMarkers() {
     console.log("Removing photo markers...");
 }
 
-let poiMarkers = [];
+let poiMarkers = []; // Array to store POI markers
 
 // ==========================
 // SECTION: POI Marker Logic
