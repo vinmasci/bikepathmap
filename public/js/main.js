@@ -5,6 +5,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize modals
     initModals();
 
+    // Add event listeners for the reset and undo buttons
+    document.getElementById('reset-btn').addEventListener('click', resetRoute);  // Reset button triggers resetRoute
+    document.getElementById('undo-btn').addEventListener('click', undoLastPoint); // Undo button triggers undoLastPoint
+
     // Tab and modal interaction
     document.getElementById('road-tab').addEventListener('click', toggleRoadLayer);
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
@@ -15,17 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
         openModal('road-modal');
     });
     document.getElementById('add-photo').addEventListener('click', function() {
-        openModal('photo-modal'); // This will open the photo modal
-    });
-
-    // Upload GPX file when 'Upload' button is clicked
-    document.getElementById('upload-road-gpx-button').addEventListener('click', function() {
-        uploadGPXFile('road-file');
-    });
-
-    // Upload photos when 'Upload' button is clicked in the photo modal
-    document.getElementById('photo-upload-button').addEventListener('click', function() {
-        uploadPhoto(); // Call the photo upload function
+        openModal('photo-modal');
     });
 
     // Draw route functionality for "Draw Route" tab!

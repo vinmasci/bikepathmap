@@ -143,7 +143,7 @@ function drawPoint(e) {
     }
 }
 
-// Function to snap drawn points to the road using Mapbox API
+// Function to snap drawn points to the road using the API
 async function snapToRoads(points) {
     try {
         const response = await fetch('/api/snap-to-road', {
@@ -275,52 +275,6 @@ function undoLastPoint() {
         alert('All points have been undone.');
     }
 }
-
-// Function to snap drawn points to the road using Mapbox API
-async function snapToRoads(points) {
-    try {
-        const response = await fetch('/api/snap-to-road', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ points })
-        });
-
-        const data = await response.json();
-
-        if (data && data.matchings) {
-            const snappedPoints = data.matchings[0].geometry.coordinates;
-
-            // Remove the existing route layer if it exists
-            if (currentLine) {
-                map.removeLayer('drawn-route');
-                map.removeSource('drawn-route');
-            }
-
-            currentLine = {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'LineString',
-                    'coordinates': snappedPoints
-                }
-            };
-
-            // Add the new snapped route to the map
-            map.addSource('drawn-route', { 'type': 'geojson', 'data': currentLine });
-            map.addLayer({
-                'id': 'drawn-route',
-                'type': 'line',
-                'source': 'drawn-route',
-                'layout': { 'line-join': 'round', 'line-cap': 'round' },
-                'paint': { 'line-color': '#ff0000', 'line-width': 4 }
-            });
-        } else {
-            console.error('Snap to road error:', data.message);
-        }
-    } catch (error) {
-        console.error('Error calling /api/snap-to-road:', error);
-    }
-}
-
 
 // Load photo markers function
 async function loadPhotoMarkers() {
