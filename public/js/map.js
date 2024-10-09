@@ -118,27 +118,27 @@ function disableDrawingMode(shouldSave = true) {
 
 function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
+    console.log("Adding point:", coords);  // Debugging log
     drawnPoints.push(coords);
 
-    // Create a custom marker element (orange circle with white stroke)
     const markerElement = document.createElement('div');
     markerElement.style.width = '16px';  
     markerElement.style.height = '16px';
     markerElement.style.backgroundColor = '#FFA500'; 
     markerElement.style.borderRadius = '50%'; 
-    markerElement.style.border = '2px solid white'; 
+    markerElement.style.border = '2px solid white';
 
-    // Add the marker to the map
     const marker = new mapboxgl.Marker({ element: markerElement })
         .setLngLat(coords)
         .addTo(map);
 
-    markers.push(marker); // Store the marker
+    markers.push(marker);
 
     if (drawnPoints.length > 1) {
         snapToRoads(drawnPoints); // Snap to roads after the second point
     }
 }
+
 
 // ================================
 // SECTION: Road and Bike Path Snapping Function
@@ -195,42 +195,52 @@ async function snapToRoads(points) {
 // ==========================
 // This section handles saving the drawn route to the backend (MongoDB) once the
 // drawing mode is disabled and points are snapped to the road.
-function saveDrawnRoute() {
+function drawPoint(e) {
+    const coords = [e.lngLat.lng, e.lngLat.lat];
+    console.log("Adding point:", coords);  // Debugging log
+    drawnPoints.push(coords);
+
+    const markerElement = document.createElement('div');
+    markerElement.style.width = '16px';  
+    markerElement.style.height = '16px';
+    markerElement.style.backgroundColor = '#FFA500'; 
+    markerElement.style.borderRadius = '50%'; 
+    markerElement.style.border = '2px solid white';
+
+    const marker = new mapboxgl.Marker({ element: markerElement })
+        .setLngLat(coords)
+        .addTo(map);
+
+    markers.push(marker);
+
     if (drawnPoints.length > 1) {
-        // Construct GeoJSON data from drawn points
-        const geojsonData = {
-            'type': 'FeatureCollection',
-            'features': [
-                {
-                    'type': 'Feature',
-                    'geometry': {
-                        'type': 'LineString',
-                        'coordinates': drawnPoints // The drawn route's coordinates
-                    },
-                    'properties': {}
-                }
-            ]
-        };
+        snapToRoads(drawnPoints); // Snap to roads after the second point
+    }
+}
+
 
         // Send the GeoJSON data to the backend API to save the route in MongoDB
         fetch('/api/save-drawn-route', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ geojson: geojsonData }) // Send the GeoJSON in the request body
+            body: JSON.stringify({ geojson: geojsonData })
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log("Fetch response status:", response.status);  // Log fetch status
+            return response.json();
+        })
         .then(data => {
+            console.log("Fetch data:", data);  // Log actual response data
             if (data.success) {
                 alert('Route saved successfully!');
             } else {
                 alert('Error saving route.');
             }
         })
-        .catch(error => console.error('Error:', error));
-    } else {
-        alert('No route to save.');
-    }
-}
+        .catch(error => {
+            console.error('Error during fetch request:', error);
+        });
+        
 
 
 // ===========================
