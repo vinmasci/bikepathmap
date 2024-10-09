@@ -178,7 +178,7 @@ async function loadSegments() {
                     },
                     'paint': {
                         'line-color': 'black', // Black color for the stroke
-                        'line-width': 1 // Stroke width of 1px
+                        'line-width': 1 // Stroke width of 1px.
                     }
                 });
             });
@@ -187,7 +187,6 @@ async function loadSegments() {
         console.error('Error loading segments:', error);
     }
 }
-
 
 
 // ============================
