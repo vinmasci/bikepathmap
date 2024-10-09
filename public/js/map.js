@@ -196,12 +196,11 @@ async function snapToRoads(points) {
 // ==========================
 // SECTION: Save Drawn Route
 // ==========================
-// This section handles saving the drawn route to the backend (MongoDB) once the
-// drawing mode is disabled and points are snapped to the road.
+// This section handles saving the drawn route to the backend (MongoDB)
 function saveDrawnRoute() {
-    console.log("saveDrawnRoute called"); // Check if function is triggered
-
     if (drawnPoints.length > 1) {
+        console.log("Saving drawn route...", drawnPoints);  // Debugging log to see points
+
         // Construct GeoJSON data from drawn points
         const geojsonData = {
             'type': 'FeatureCollection',
@@ -217,7 +216,8 @@ function saveDrawnRoute() {
             ]
         };
 
-        console.log("GeoJSON Data:", geojsonData); // Log GeoJSON data
+        // Debugging log to check GeoJSON format
+        console.log("GeoJSON data to save:", geojsonData);
 
         // Send the GeoJSON data to the backend API to save the route in MongoDB
         fetch('/api/save-drawn-route', {
@@ -238,12 +238,15 @@ function saveDrawnRoute() {
             }
         })
         .catch(error => {
-            console.error('Error during fetch request:', error);  // Log any errors
+            console.error('Error during fetch request:', error);  // Log fetch errors
         });
+
     } else {
-        alert('No route to save.');  // If no points were drawn
+        console.log("No points to save.");  // Log if there are not enough points to save
+        alert('No route to save.');
     }
 }
+
 
 
 
