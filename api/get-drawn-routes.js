@@ -4,10 +4,8 @@ require('dotenv').config();
 const client = new MongoClient(process.env.MONGODB_URI);
 
 async function connectToMongo() {
-    // Connect if not already connected
-    if (!client.isConnected()) {
-        await client.connect();
-    }
+    // Always connect, or check your connection logic here if needed
+    await client.connect();
     return client.db('roadApp').collection('drawnRoutes');
 }
 
