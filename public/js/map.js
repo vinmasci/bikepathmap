@@ -173,17 +173,17 @@ function drawPoint(e) {
 }
 
 // ================================
-// SECTION: Road Snapping Function
+// SECTION: Road and Bike Path Snapping Function
 // ================================
-// This section sends the drawn points to the Mapbox API to snap them to roads,
-// creating a new line with the snapped coordinates.
+// This section sends the drawn points to the Mapbox API using the cycling profile
+// to snap them to roads and bike paths, creating a new line with the snapped coordinates.
 async function snapToRoads(points) {
     try {
-        const response = await fetch('/api/snap-to-road', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ points })
-        });
+        // Convert points array to a string of coordinates
+        const coordinatesString = points.map(coord => coord.join(',')).join(';');
+
+        // Send the request to Mapbox's Map Matching API with the 'cycling' profile
+        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true`);
 
         const data = await response.json();
 
@@ -210,17 +210,18 @@ async function snapToRoads(points) {
                 'source': 'drawn-route',
                 'layout': { 'line-join': 'round', 'line-cap': 'round' },
                 'paint': { 
-                    'line-color': '#FFA500', 
+                    'line-color': '#FFA500', // Orange color for the line
                     'line-width': 4 
                 }
             });
         } else {
-            console.error('Snap to road error:', data.message);
+            console.error('Snap to road and bike path error:', data.message);
         }
     } catch (error) {
-        console.error('Error calling /api/snap-to-road:', error);
+        console.error('Error calling Mapbox cycling API:', error);
     }
 }
+
 
 // ==========================
 // SECTION: Save Drawn Route
