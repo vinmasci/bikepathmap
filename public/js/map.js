@@ -87,6 +87,7 @@ function toggleDrawingMode() {
     }
 }
 
+
 function togglePhotoLayer() {
     layerVisibility.photos = !layerVisibility.photos;
     updateTabHighlight('photos-tab', layerVisibility.photos);
@@ -141,8 +142,8 @@ function enableDrawingMode() {
 
 function disableDrawingMode(shouldSave = true) {
     map.off('click', drawPoint);
-    if (shouldSave) {
-        saveDrawnRoute();  // Save the drawn route only if this flag is true
+    if (shouldSave && drawnPoints.length > 1) {
+        saveDrawnRoute();  // Save the drawn route only if this flag is true and there are points
     }
     document.getElementById('map').style.cursor = ''; // Reset cursor
 }
