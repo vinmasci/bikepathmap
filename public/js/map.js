@@ -151,23 +151,7 @@ async function loadSegments() {
                     data: route.geojson
                 });
 
-                // Add layer for each route with cyan color and black stroke
-                map.addLayer({
-                    'id': `route-${route.routeId}-layer`,
-                    'type': 'line',
-                    'source': `route-${route.routeId}`,
-                    'layout': {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    'paint': {
-                        'line-color': 'cyan', // Cyan color for the line
-                        'line-width': 4,
-                        'line-opacity': 1
-                    }
-                });
-
-                // Add a black stroke by adding a second layer below
+                // Add layer for the stroke
                 map.addLayer({
                     'id': `route-${route.routeId}-layer-stroke`,
                     'type': 'line',
@@ -178,7 +162,22 @@ async function loadSegments() {
                     },
                     'paint': {
                         'line-color': 'black', // Black color for the stroke
-                        'line-width': 1 // Stroke width of 1px.
+                        'line-width': 5 // Stroke width to create an offset effect
+                    }
+                });
+
+                // Add layer for the route
+                map.addLayer({
+                    'id': `route-${route.routeId}-layer`,
+                    'type': 'line',
+                    'source': `route-${route.routeId}`,
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': 'cyan', // Cyan color for the line
+                        'line-width': 3 // Width of the route line
                     }
                 });
             });
@@ -187,6 +186,7 @@ async function loadSegments() {
         console.error('Error loading segments:', error);
     }
 }
+
 
 
 // ============================
