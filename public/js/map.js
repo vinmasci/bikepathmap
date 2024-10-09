@@ -3,6 +3,7 @@ let layerVisibility = { road: false, gravel: false, photos: false, pois: false }
 let drawnPoints = [];
 let currentLine = null;
 let drawingEnabled = false; // Flag for drawing mode
+let firstPointMarker = null; // Store the first point marker
 let markers = []; // Store all point markers, including the first point
 
 function initMap() {
@@ -69,6 +70,44 @@ function toggleDrawingMode() {
         document.getElementById('control-panel').style.display = 'none'; // Hide control panel
         updateTabHighlight('draw-route-tab', false);
         document.getElementById('map').style.cursor = ''; // Reset cursor
+    }
+}
+
+// Toggle photo layer
+function togglePhotoLayer() {
+    layerVisibility.photos = !layerVisibility.photos;
+    updateTabHighlight('photos-tab', layerVisibility.photos);
+    if (layerVisibility.photos) {
+        loadPhotoMarkers(); // Show photos
+    } else {
+        removePhotoMarkers(); // Hide photos
+    }
+}
+
+// Toggle POI layer
+function togglePOILayer() {
+    layerVisibility.pois = !layerVisibility.pois;
+    updateTabHighlight('pois-tab', layerVisibility.pois);
+    if (layerVisibility.pois) {
+        loadPOIMarkers(); // Show POIs
+    } else {
+        removePOIMarkers(); // Hide POIs
+    }
+}
+
+// Toggle Add dropdown
+function toggleAddDropdown() {
+    const dropdown = document.getElementById('add-dropdown');
+    dropdown.classList.toggle('show');
+}
+
+// Update tab highlight
+function updateTabHighlight(tabId, isActive) {
+    const tab = document.getElementById(tabId);
+    if (isActive) {
+        tab.classList.add('active');
+    } else {
+        tab.classList.remove('active');
     }
 }
 
@@ -222,4 +261,22 @@ function undoLastPoint() {
 
         alert('All points have been undone.');
     }
+}
+
+// Load photo markers function
+async function loadPhotoMarkers() {
+    // Add logic to load and display photo markers on the map
+    console.log("Loading photo markers...");
+}
+
+// Remove photo markers function
+function removePhotoMarkers() {
+    // Add logic to remove photo markers from the map
+    console.log("Removing photo markers...");
+}
+
+// Load POI markers function
+async function loadPOIMarkers() {
+    // Add logic to load and display POI markers on the map
+    console.log("Loading POI markers...");
 }
