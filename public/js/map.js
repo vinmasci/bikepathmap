@@ -119,17 +119,6 @@ async function loadSegments() {
 
 
 // ============================
-// SECTION: Remove Segments
-// ============================
-function removeSegments() {
-    const existingLayers = map.getStyle().layers.filter(layer => layer.id.startsWith('route-'));
-    existingLayers.forEach(layer => {
-        map.removeLayer(layer.id);
-        map.removeSource(layer.id.replace('-layer', ''));
-    });
-}
-
-// ============================
 // SECTION: Open Route Modal
 // ============================
 
