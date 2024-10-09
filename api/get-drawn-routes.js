@@ -4,6 +4,7 @@ require('dotenv').config();
 const client = new MongoClient(process.env.MONGODB_URI);
 
 async function connectToMongo() {
+    // Connect if not already connected
     if (!client.isConnected()) {
         await client.connect();
     }
@@ -23,6 +24,6 @@ module.exports = async (req, res) => {
         res.status(200).json({ routes: formattedRoutes });
     } catch (error) {
         console.error('Error retrieving routes:', error);
-        res.status(500).json({ error: 'Failed to retrieve routes' });
+        res.status(500).json({ error: 'Failed to retrieve routes', details: error.message });
     }
 };
