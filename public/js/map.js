@@ -184,6 +184,49 @@ async function loadSegments() {
 }
 
 // ============================
+// SECTION: DELETE SEGMENT
+// ============================
+
+async function deleteSegment(segmentId) {
+    try {
+        const response = await fetch(`/api/delete-drawn-route/${segmentId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Segment deleted:', data);
+            alert('Segment deleted successfully!');
+            closeModal(); // Close the modal after deletion
+            removeSegments(); // Update the map to remove the deleted segment
+        } else {
+            console.error('Failed to delete segment:', response.statusText);
+            alert('Failed to delete segment.');
+        }
+    } catch (error) {
+        console.error('Error deleting segment:', error);
+        alert('An error occurred while deleting the segment.');
+    }
+}
+
+// ============================
+// SECTION: DELETE BUTTON
+// =======================
+
+function openSegmentModal(segmentId) {
+    // Display segment details
+    const segmentDetails = document.getElementById('segment-details');
+    segmentDetails.textContent = `Segment ID: ${segmentId}`; // Or any other relevant details
+
+    // Show the modal
+    document.getElementById('segment-modal').style.display = 'block';
+
+    // Set up the delete button to delete this segment
+    const deleteButton = document.getElementById('delete-segment');
+    deleteButton.onclick = () => deleteSegment(segmentId); // Pass the segment ID to delete
+}
+
+// ============================
 // SECTION: TOOGLE DRAWING MODE
 // ============================
 

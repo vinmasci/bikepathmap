@@ -10,18 +10,19 @@ async function connectToMongo() {
 }
 
 module.exports = async (req, res) => {
+    const segmentId = req.params.id; // Get the segment ID from the request
+
     try {
         const collection = await connectToMongo();
-        const routes = await collection.find({}).toArray(); // Fetch all routes
+        const result = await collection.deleteOne({ _id: new ObjectId(segmentId) });
 
-        const formattedRoutes = routes.map(route => ({
-            routeId: route._id.toString(),
-            geojson: route.geojson
-        }));
-
-        res.status(200).json({ routes: formattedRoutes });
+        if (result.deletedCount === 1) {
+            res.status(200).json({ success: true, message: 'Segment deleted successfully!' });
+        } else {
+            res.status(404).json({ success: false, message: 'Segment not found.' });
+        }
     } catch (error) {
-        console.error('Error retrieving routes:', error);
-        res.status(500).json({ error: 'Failed to retrieve routes', details: error.message });
+        console.error('Error deleting segment:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete segment.' });
     }
 };
