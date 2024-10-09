@@ -201,7 +201,7 @@ function drawPoint(e) {
     markerElement.style.height = '16px';
     markerElement.style.backgroundColor = '#FFA500'; 
     markerElement.style.borderRadius = '50%'; 
-    markerElement.style.border = '2px solid white';
+    markerElement.style.border = '1px solid white';
 
     const marker = new mapboxgl.Marker({ element: markerElement })
         .setLngLat(coords)
@@ -219,8 +219,6 @@ function drawPoint(e) {
 // ================================
 // SECTION: Road and Bike Path Snapping Function
 // ================================
-// This section sends the drawn points to the Mapbox API using the cycling profile
-// to snap them to roads and bike paths, creating a new line with the snapped coordinates.
 async function snapToRoads(points) {
     try {
         // Convert points array to a string of coordinates
@@ -232,7 +230,8 @@ async function snapToRoads(points) {
         const data = await response.json();
 
         if (data && data.matchings) {
-            const snappedPoints = data.matchings[0].geometry.coordinates;
+            // Store the snapped points
+            snappedPoints = data.matchings[0].geometry.coordinates; // Save snapped points
 
             if (currentLine) {
                 map.removeLayer('drawn-route');
@@ -243,7 +242,7 @@ async function snapToRoads(points) {
                 'type': 'Feature',
                 'geometry': {
                     'type': 'LineString',
-                    'coordinates': snappedPoints
+                    'coordinates': snappedPoints // Use snapped points here
                 }
             };
 
@@ -266,15 +265,15 @@ async function snapToRoads(points) {
     }
 }
 
+
 // ==========================
 // SECTION: Save Drawn Route
 // ==========================
-// This section handles saving the drawn route to the backend (MongoDB)
 function saveDrawnRoute() {
-    if (drawnPoints.length > 1) {
-        console.log("Saving drawn route...", drawnPoints);  // Debugging log to see points
+    if (snappedPoints.length > 1) { // Check for snapped points instead
+        console.log("Saving drawn route...", snappedPoints);  // Debugging log to see points
 
-        // Construct GeoJSON data from drawn points
+        // Construct GeoJSON data from snapped points
         const geojsonData = {
             'type': 'FeatureCollection',
             'features': [
@@ -282,7 +281,7 @@ function saveDrawnRoute() {
                     'type': 'Feature',
                     'geometry': {
                         'type': 'LineString',
-                        'coordinates': drawnPoints // The drawn route's coordinates
+                        'coordinates': snappedPoints // Use snapped points here
                     },
                     'properties': {}
                 }
