@@ -280,9 +280,11 @@ function resetRoute() {
 
     drawnPoints = []; 
 
-    disableDrawingMode(false); 
+    // Disable drawing mode but keep control panel visible
+    disableDrawingMode(false);
 
-    document.getElementById('control-panel').style.display = 'none'; 
+    // No longer hiding the control panel to keep it visible after reset
+    // document.getElementById('control-panel').style.display = 'none'; // This line is removed
 
     alert('Route has been reset.');
 }
@@ -303,16 +305,17 @@ function undoLastPoint() {
         }
     } else if (drawnPoints.length === 1) {
         const firstMarker = markers.pop();
-        if (firstMarker) firstMarker.remove();
+        if (firstMarker) firstMarker remove();
         drawnPoints = [];
         if (currentLine) {
             map.removeLayer('drawn-route');
-            map.removeSource('drawn-route');
+            map removeSource('drawn-route');
             currentLine = null;
         }
         alert('All points have been undone.');
     }
 }
+
 
 // ============================
 // SECTION: Photo Marker Logic
