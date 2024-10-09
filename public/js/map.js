@@ -3,7 +3,6 @@ let layerVisibility = { segments: false, gravel: false, photos: false, pois: fal
 let drawnPoints = [];
 let currentLine = null;
 let drawingEnabled = false; // Flag for drawing mode
-let firstPointMarker = null; // Store the first point marker
 let markers = []; // Store all point markers, including the first point
 
 // ===========================
@@ -34,78 +33,77 @@ function initMap() {
 // segments, photo markers, and POIs.
 function toggleSegmentsLayer() {
     layerVisibility.segments = !layerVisibility.segments;
-    const visibility = layerVisibility.segments ? 'visible' : 'none';
-    map.setLayoutProperty('gpx-route-layer', 'visibility', visibility);
+
+    if (layerVisibility.segments) {
+        loadSegmentsFromDB();  // Load saved segments when the tab is enabled
+    } else {
+        if (map.getLayer('segments-layer')) {
+            map.removeLayer('segments-layer');
+        }
+        if (map.getSource('segments')) {
+            map.removeSource('segments');
+        }
+    }
+
     updateTabHighlight('segments-tab', layerVisibility.segments);
 }
 
-function toggleDrawingMode() {
-    drawingEnabled = !drawingEnabled;
-    if (drawingEnabled) {
-        enableDrawingMode();
-        document.getElementById('control-panel').style.display = 'block'; // Show control panel
-        updateTabHighlight('draw-route-tab', true);
-        map.getCanvas().style.cursor = 'crosshair'; // Use Mapbox's native method to change cursor
-    } else {
-        disableDrawingMode(false); // Disable drawing mode without saving
-        document.getElementById('control-panel').style.display = 'none'; // Hide control panel
-        updateTabHighlight('draw-route-tab', false);
-        map.getCanvas().style.cursor = ''; // Reset cursor to default when drawing is disabled
-    }
-}
+// ============================
+// SECTION: Load Segments from MongoDB
+// ============================
+// This section retrieves previously saved routes (segments) from MongoDB and
+// displays them on the map when the Segments tab is activated.
+async function loadSegmentsFromDB() {
+    try {
+        const response = await fetch('/api/get-saved-routes');
+        const data = await response.json();
 
+        if (data.routes && data.routes.length > 0) {
+            const geojsonData = {
+                type: 'FeatureCollection',
+                features: data.routes.map(route => ({
+                    type: 'Feature',
+                    geometry: route.geojson.features[0].geometry,
+                    properties: route.geojson.features[0].properties || {}
+                }))
+            };
 
+            if (map.getSource('segments')) {
+                map.getSource('segments').setData(geojsonData);
+            } else {
+                map.addSource('segments', {
+                    type: 'geojson',
+                    data: geojsonData
+                });
 
-function togglePhotoLayer() {
-    layerVisibility.photos = !layerVisibility.photos;
-    updateTabHighlight('photos-tab', layerVisibility.photos);
-    if (layerVisibility.photos) {
-        loadPhotoMarkers(); // Show photos
-    } else {
-        removePhotoMarkers(); // Hide photos
-    }
-}
-
-function togglePOILayer() {
-    layerVisibility.pois = !layerVisibility.pois;
-    updateTabHighlight('pois-tab', layerVisibility.pois);
-    if (layerVisibility.pois) {
-        loadPOIMarkers(); // Show POIs
-    } else {
-        removePOIMarkers(); // Hide POIs.
+                map.addLayer({
+                    id: 'segments-layer',
+                    type: 'line',
+                    source: 'segments',
+                    layout: {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    paint: {
+                        'line-color': '#FFA500',
+                        'line-width': 4
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading segments:', error);
     }
 }
 
 // =========================
-// SECTION: Dropdown Toggles
-// =========================
-// This section handles toggling the "Add" dropdown menu.
-function toggleAddDropdown() {
-    const dropdown = document.getElementById('add-dropdown');
-    dropdown.classList.toggle('show');
-}
-
-// =========================
-// SECTION: Tab Highlighting
-// =========================
-// This section manages highlighting tabs when a layer is toggled on/off.
-function updateTabHighlight(tabId, isActive) {
-    const tab = document.getElementById(tabId);
-    if (isActive) {
-        tab.classList.add('active');
-    } else {
-        tab.classList.remove('active');
-    }
-}
-
-// ========================
 // SECTION: Drawing Function
-// ========================
+// =========================
 // This section handles enabling/disabling the drawing mode, creating points,
 // and snapping drawn points to roads using the Mapbox API.
 function enableDrawingMode() {
     map.on('click', drawPoint);
-    document.getElementById('map').style.cursor = 'crosshair'; // Set cursor to crosshair
+    map.getCanvas().style.cursor = 'crosshair'; // Set cursor to crosshair
 }
 
 function disableDrawingMode(shouldSave = true) {
@@ -113,7 +111,7 @@ function disableDrawingMode(shouldSave = true) {
     if (shouldSave && drawnPoints.length > 1) {
         saveDrawnRoute();  // Save the drawn route only if this flag is true and there are points
     }
-    document.getElementById('map').style.cursor = ''; // Reset cursor
+    map.getCanvas().style.cursor = ''; // Reset cursor to default
 }
 
 function drawPoint(e) {
@@ -122,11 +120,11 @@ function drawPoint(e) {
 
     // Create a custom marker element (orange circle with white stroke)
     const markerElement = document.createElement('div');
-    markerElement.style.width = '16px';  
+    markerElement.style.width = '16px';
     markerElement.style.height = '16px';
-    markerElement.style.backgroundColor = '#FFA500'; 
-    markerElement.style.borderRadius = '50%'; 
-    markerElement.style.border = '2px solid white'; 
+    markerElement.style.backgroundColor = '#FFA500';
+    markerElement.style.borderRadius = '50%';
+    markerElement.style.border = '2px solid white';
 
     // Add the marker to the map
     const marker = new mapboxgl.Marker({ element: markerElement })
@@ -147,7 +145,6 @@ function drawPoint(e) {
 // to snap them to roads and bike paths, creating a new line with the snapped coordinates.
 async function snapToRoads(points) {
     try {
-        // Convert points array to a string of coordinates
         const coordinatesString = points.map(coord => coord.join(',')).join(';');
 
         // Send the request to Mapbox's Map Matching API with the 'cycling' profile
@@ -164,22 +161,22 @@ async function snapToRoads(points) {
             }
 
             currentLine = {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'LineString',
-                    'coordinates': snappedPoints
+                type: 'Feature',
+                geometry: {
+                    type: 'LineString',
+                    coordinates: snappedPoints
                 }
             };
 
-            map.addSource('drawn-route', { 'type': 'geojson', 'data': currentLine });
+            map.addSource('drawn-route', { type: 'geojson', data: currentLine });
             map.addLayer({
-                'id': 'drawn-route',
-                'type': 'line',
-                'source': 'drawn-route',
-                'layout': { 'line-join': 'round', 'line-cap': 'round' },
-                'paint': { 
-                    'line-color': '#FFA500', // Orange color for the line
-                    'line-width': 4 
+                id: 'drawn-route',
+                type: 'line',
+                source: 'drawn-route',
+                layout: { 'line-join': 'round', 'line-cap': 'round' },
+                paint: {
+                    'line-color': '#FFA500',
+                    'line-width': 4
                 }
             });
         } else {
@@ -198,15 +195,15 @@ async function snapToRoads(points) {
 function saveDrawnRoute() {
     if (drawnPoints.length > 1) {
         const geojsonData = {
-            'type': 'FeatureCollection',
-            'features': [
+            type: 'FeatureCollection',
+            features: [
                 {
-                    'type': 'Feature',
-                    'geometry': {
-                        'type': 'LineString',
-                        'coordinates': drawnPoints
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: drawnPoints
                     },
-                    'properties': {}
+                    properties: {}
                 }
             ]
         };
@@ -214,7 +211,7 @@ function saveDrawnRoute() {
         fetch('/api/save-drawn-route', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(geojsonData)
+            body: JSON.stringify({ geojson: geojsonData })
         })
         .then(response => response.json())
         .then(data => {
@@ -239,29 +236,26 @@ function resetRoute() {
     if (currentLine) {
         map.removeLayer('drawn-route');
         map.removeSource('drawn-route');
-        currentLine = null; 
+        currentLine = null;
     }
 
-    // Remove all markers from the map
     markers.forEach(marker => marker.remove());
-    markers = []; 
+    markers = [];
+    drawnPoints = [];
 
-    drawnPoints = []; 
-
-    // Keep drawing mode enabled after reset
     disableDrawingMode(false);
-    enableDrawingMode();  // Re-enable drawing mode after reset
+    enableDrawingMode(); // Re-enable drawing mode after reset
 
     alert('Route has been reset.');
 }
 
 function undoLastPoint() {
     if (drawnPoints.length > 1) {
-        drawnPoints.pop(); 
+        drawnPoints.pop();
         const lastMarker = markers.pop();
         if (lastMarker) lastMarker.remove();
         if (drawnPoints.length > 1) {
-            snapToRoads(drawnPoints); 
+            snapToRoads(drawnPoints);
         } else {
             if (currentLine) {
                 map.removeLayer('drawn-route');
@@ -271,11 +265,11 @@ function undoLastPoint() {
         }
     } else if (drawnPoints.length === 1) {
         const firstMarker = markers.pop();
-        if (firstMarker) firstMarker.remove(); // Fixed the missing parentheses here
+        if (firstMarker) firstMarker.remove();
         drawnPoints = [];
         if (currentLine) {
             map.removeLayer('drawn-route');
-            map.removeSource('drawn-route'); // Fixed the missing period here
+            map.removeSource('drawn-route');
             currentLine = null;
         }
         alert('All points have been undone.');
@@ -294,39 +288,31 @@ function removePhotoMarkers() {
     console.log("Removing photo markers...");
 }
 
-let poiMarkers = []; // Array to store POI markers
+let poiMarkers = [];
 
 // ==========================
 // SECTION: POI Marker Logic
 // ==========================
-// This section handles loading and removing Points of Interest (POI) markers.
 async function loadPOIMarkers() {
     console.log("Loading POI markers...");
 
-    // Example POI data
     const poiData = [
         { coords: [144.9631, -37.8136], name: "POI 1" },
         { coords: [144.9701, -37.8206], name: "POI 2" }
     ];
 
-    // Loop through the POI data and create markers
     poiData.forEach(poi => {
         const marker = new mapboxgl.Marker()
             .setLngLat(poi.coords)
-            .setPopup(new mapboxgl.Popup().setText(poi.name)) // Add a popup with the POI name
+            .setPopup(new mapboxgl.Popup().setText(poi.name))
             .addTo(map);
 
-        // Store each marker in the poiMarkers array
         poiMarkers.push(marker);
     });
 }
 
 function removePOIMarkers() {
     console.log("Removing POI markers...");
-
-    // Loop through the poiMarkers array and remove each marker from the map
     poiMarkers.forEach(marker => marker.remove());
-
-    // Clear the array after removing the markers
     poiMarkers = [];
 }
