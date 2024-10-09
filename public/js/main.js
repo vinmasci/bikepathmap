@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('undo-btn').addEventListener('click', undoLastPoint); // Undo button triggers undoLastPoint
 
     // Tab and modal interaction
-    document.getElementById('road-tab').addEventListener('click', toggleRoadLayer);
+    document.getElementById('segments-tab').addEventListener('click', toggleRoadLayer);
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
 

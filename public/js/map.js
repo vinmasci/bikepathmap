@@ -1,5 +1,5 @@
 let map;
-let layerVisibility = { road: false, gravel: false, photos: false, pois: false };
+let layerVisibility = { segments: false, gravel: false, photos: false, pois: false };
 let drawnPoints = [];
 let currentLine = null;
 let drawingEnabled = false; // Flag for drawing mode
@@ -9,8 +9,7 @@ let markers = []; // Store all point markers, including the first point
 // ===========================
 // SECTION: Map Initialization
 // ===========================
-// This section initializes the map using Mapbox. It sets the initial map view
-// and loads existing GPX data from local storage if available.
+// This section initializes the map using Mapbox. It sets the initial map view.
 function initMap() {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
     map = new mapboxgl.Map({
@@ -20,56 +19,24 @@ function initMap() {
         zoom: 10
     });
 
-    // Load existing GPX data if available
-    map.on('load', function () {
-        const storedGPX = localStorage.getItem('gpxData');
-        if (storedGPX) {
-            const geojson = JSON.parse(storedGPX);
-            addGPXLayer(geojson);
-        }
-    });
-
     // Add event listeners for the tabs (toggles for layers)
-    document.getElementById('road-tab').addEventListener('click', toggleRoadLayer);
+    document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer);
     document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode);
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
     document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
 }
 
-// ========================================
-// SECTION: Adding GPX Layer (Roads/Gravel)
-// ========================================
-// This section handles adding a GPX layer to the map. It checks if a GPX route
-// layer already exists and adds it if not, applying specific styling (orange line).
-function addGPXLayer(geojson) {
-    if (map.getSource('gpx-route')) {
-        map.getSource('gpx-route').setData(geojson);
-    } else {
-        map.addSource('gpx-route', { type: 'geojson', data: geojson });
-        map.addLayer({
-            id: 'gpx-route-layer',
-            type: 'line',
-            source: 'gpx-route',
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 
-                'line-color': '#FFA500', // Orange color for the line
-                'line-width': 4 
-            }
-        });
-    }
-}
-
 // ============================
 // SECTION: Toggle Functionality
 // ============================
 // This section handles toggling the visibility of different map layers such as
-// road routes, photo markers, and POIs.
-function toggleRoadLayer() {
-    layerVisibility.road = !layerVisibility.road;
-    const visibility = layerVisibility.road ? 'visible' : 'none';
+// segments, photo markers, and POIs.
+function toggleSegmentsLayer() {
+    layerVisibility.segments = !layerVisibility.segments;
+    const visibility = layerVisibility.segments ? 'visible' : 'none';
     map.setLayoutProperty('gpx-route-layer', 'visibility', visibility);
-    updateTabHighlight('road-tab', layerVisibility.road);
+    updateTabHighlight('segments-tab', layerVisibility.segments);
 }
 
 function toggleDrawingMode() {
@@ -87,7 +54,6 @@ function toggleDrawingMode() {
     }
 }
 
-
 function togglePhotoLayer() {
     layerVisibility.photos = !layerVisibility.photos;
     updateTabHighlight('photos-tab', layerVisibility.photos);
@@ -104,7 +70,7 @@ function togglePOILayer() {
     if (layerVisibility.pois) {
         loadPOIMarkers(); // Show POIs
     } else {
-        removePOIMarkers(); // Hide POIs
+        removePOIMarkers(); // Hide POIs.
     }
 }
 
@@ -326,14 +292,39 @@ function removePhotoMarkers() {
     console.log("Removing photo markers...");
 }
 
+let poiMarkers = []; // Array to store POI markers
+
 // ==========================
 // SECTION: POI Marker Logic
 // ==========================
 // This section handles loading and removing Points of Interest (POI) markers.
 async function loadPOIMarkers() {
     console.log("Loading POI markers...");
+
+    // Example POI data
+    const poiData = [
+        { coords: [144.9631, -37.8136], name: "POI 1" },
+        { coords: [144.9701, -37.8206], name: "POI 2" }
+    ];
+
+    // Loop through the POI data and create markers
+    poiData.forEach(poi => {
+        const marker = new mapboxgl.Marker()
+            .setLngLat(poi.coords)
+            .setPopup(new mapboxgl.Popup().setText(poi.name)) // Add a popup with the POI name
+            .addTo(map);
+
+        // Store each marker in the poiMarkers array
+        poiMarkers.push(marker);
+    });
 }
 
 function removePOIMarkers() {
     console.log("Removing POI markers...");
+
+    // Loop through the poiMarkers array and remove each marker from the map
+    poiMarkers.forEach(marker => marker.remove());
+
+    // Clear the array after removing the markers
+    poiMarkers = [];
 }
