@@ -222,7 +222,7 @@ function saveDrawnRoute() {
     }
 }
 
-// Function to reset the route
+// Updated function to reset the route
 function resetRoute() {
     if (currentLine) {
         map.removeLayer('drawn-route');
@@ -239,15 +239,26 @@ function resetRoute() {
     alert('Route has been reset.');
 }
 
-// Function to undo the last drawn point
+// Updated function to undo the last drawn point
 function undoLastPoint() {
     if (drawnPoints.length > 1) {
         drawnPoints.pop(); // Remove the last point
-        snapToRoads(drawnPoints); // Redraw the route without the last point
 
         // Remove the last marker
         const lastMarker = markers.pop();
         lastMarker.remove();
+
+        // Redraw the route without the last point
+        if (drawnPoints.length > 1) {
+            snapToRoads(drawnPoints); 
+        } else {
+            // If only one point remains, remove the current line
+            if (currentLine) {
+                map.removeLayer('drawn-route');
+                map.removeSource('drawn-route');
+                currentLine = null;
+            }
+        }
     } else if (drawnPoints.length === 1) {
         // Remove the first marker and reset the drawing
         markers.pop().remove();
