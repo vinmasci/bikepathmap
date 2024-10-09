@@ -280,8 +280,9 @@ function resetRoute() {
 
     drawnPoints = []; 
 
-    // Disable drawing mode but keep control panel visible
+    // Keep drawing mode enabled after reset
     disableDrawingMode(false);
+    enableDrawingMode();  // Re-enable drawing mode after reset
 
     // No longer hiding the control panel to keep it visible after reset
     // document.getElementById('control-panel').style.display = 'none'; // This line is removed
@@ -315,6 +316,7 @@ function undoLastPoint() {
         alert('All points have been undone.');
     }
 }
+
 
 // ============================
 // SECTION: Photo Marker Logic
