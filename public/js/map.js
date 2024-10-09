@@ -6,7 +6,7 @@ let drawingEnabled = false; // Flag for drawing mode
 let markers = []; // Store all point markers, including the first point
 
 function initMap() {
-    mapboxgl.accessToken = 'your-mapbox-access-token';
+    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
