@@ -5,9 +5,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize modals
     initModals();
 
-    // Add event listeners for the reset and undo buttons
+    // Add event listeners for the reset, undo and save buttons
     document.getElementById('reset-btn').addEventListener('click', resetRoute);  // Reset button triggers resetRoute
     document.getElementById('undo-btn').addEventListener('click', undoLastPoint); // Undo button triggers undoLastPoint
+    document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);  // Add this line
 
     // Tab and modal interaction
     document.getElementById('segments-tab').addEventListener('click', toggleRoadLayer);
