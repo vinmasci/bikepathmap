@@ -136,8 +136,8 @@ function drawPoint(e) {
 
     // Create a custom marker element
     const markerElement = document.createElement('div');
-    markerElement.style.width = '10px';  // Diameter of the marker
-    markerElement.style.height = '10px';
+    markerElement.style.width = '20px';  // Diameter of the marker
+    markerElement.style.height = '20px';
     markerElement.style.backgroundColor = '#FFA500'; // Orange color
     markerElement.style.borderRadius = '50%'; // Circle shape
     markerElement.style.border = '2px solid white'; // White stroke of 2px
