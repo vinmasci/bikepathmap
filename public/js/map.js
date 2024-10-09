@@ -197,6 +197,7 @@ async function snapToRoads(points) {
 // drawing mode is disabled and points are snapped to the road.
 function saveDrawnRoute() {
     if (drawnPoints.length > 1) {
+        // Construct GeoJSON data from drawn points
         const geojsonData = {
             'type': 'FeatureCollection',
             'features': [
@@ -204,17 +205,18 @@ function saveDrawnRoute() {
                     'type': 'Feature',
                     'geometry': {
                         'type': 'LineString',
-                        'coordinates': drawnPoints
+                        'coordinates': drawnPoints // The drawn route's coordinates
                     },
                     'properties': {}
                 }
             ]
         };
 
+        // Send the GeoJSON data to the backend API to save the route in MongoDB
         fetch('/api/save-drawn-route', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(geojsonData)
+            body: JSON.stringify({ geojson: geojsonData }) // Send the GeoJSON in the request body
         })
         .then(response => response.json())
         .then(data => {
@@ -229,6 +231,7 @@ function saveDrawnRoute() {
         alert('No route to save.');
     }
 }
+
 
 // ===========================
 // SECTION: Reset and Undo
