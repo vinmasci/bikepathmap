@@ -66,7 +66,7 @@ function toggleDrawingMode() {
         updateTabHighlight('draw-route-tab', true);
         document.getElementById('map').style.cursor = 'crosshair'; // Set crosshair cursor
     } else {
-        disableDrawingMode();
+        disableDrawingMode(false); // Disable drawing mode without saving
         document.getElementById('control-panel').style.display = 'none'; // Hide control panel
         updateTabHighlight('draw-route-tab', false);
         document.getElementById('map').style.cursor = ''; // Reset cursor
@@ -117,10 +117,12 @@ function enableDrawingMode() {
     document.getElementById('map').style.cursor = 'crosshair'; // Set cursor to crosshair
 }
 
-// Function to disable drawing mode and save the route
-function disableDrawingMode() {
+// Function to disable drawing mode with an optional save parameter
+function disableDrawingMode(shouldSave = true) {
     map.off('click', drawPoint);
-    saveDrawnRoute();  // Save the drawn route
+    if (shouldSave) {
+        saveDrawnRoute();  // Save the drawn route only if this flag is true
+    }
     document.getElementById('map').style.cursor = ''; // Reset cursor
 }
 
@@ -237,7 +239,8 @@ function resetRoute() {
     drawnPoints = [];  // Clear all drawn points
 
     // Disable drawing mode without triggering any save functionality
-    disableDrawingMode();  // Disable drawing mode
+    disableDrawingMode(false);  // Pass false to avoid saving the route
+
     document.getElementById('control-panel').style.display = 'none'; // Hide control panel if needed
 
     alert('Route has been reset.');
