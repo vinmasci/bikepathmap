@@ -45,12 +45,12 @@ function toggleDrawingMode() {
         enableDrawingMode();
         document.getElementById('control-panel').style.display = 'block'; // Show control panel
         updateTabHighlight('draw-route-tab', true);
-        document.getElementById('map').style.cursor = 'crosshair'; // Set crosshair cursor when drawing is enabled
+        map.getCanvas().style.cursor = 'crosshair'; // Set crosshair cursor when drawing is enabled
     } else {
         disableDrawingMode(false); // Disable drawing mode without saving
         document.getElementById('control-panel').style.display = 'none'; // Hide control panel
         updateTabHighlight('draw-route-tab', false);
-        document.getElementById('map').style.cursor = ''; // Reset cursor to default when drawing is disabled
+        map.getCanvas().style.cursor = ''; // Reset cursor to default when drawing is disabled
     }
 }
 
@@ -104,7 +104,7 @@ function updateTabHighlight(tabId, isActive) {
 // and snapping drawn points to roads using the Mapbox API.
 function enableDrawingMode() {
     map.on('click', drawPoint);
-    document.getElementById('map').style.cursor = 'crosshair'; // Set cursor to crosshair
+    map.getCanvas().style.cursor = 'crosshair'; // Ensure crosshair cursor is set when drawing mode is enabled
 }
 
 function disableDrawingMode(shouldSave = true) {
@@ -112,8 +112,9 @@ function disableDrawingMode(shouldSave = true) {
     if (shouldSave && drawnPoints.length > 1) {
         saveDrawnRoute();  // Save the drawn route only if this flag is true and there are points
     }
-    document.getElementById('map').style.cursor = ''; // Reset cursor
+    map.getCanvas().style.cursor = ''; // Reset cursor to default when drawing mode is disabled
 }
+
 
 function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
