@@ -3,10 +3,10 @@ let layerVisibility = { road: false, gravel: false, photos: false, pois: false }
 let drawnPoints = [];
 let currentLine = null;
 let drawingEnabled = false; // Flag for drawing mode
-let firstPointMarker = null; // Store the first point marker
+let markers = []; // Store all point markers, including the first point
 
 function initMap() {
-    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
+    mapboxgl.accessToken = 'your-mapbox-access-token';
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
@@ -72,44 +72,6 @@ function toggleDrawingMode() {
     }
 }
 
-// Toggle photo layer
-function togglePhotoLayer() {
-    layerVisibility.photos = !layerVisibility.photos;
-    updateTabHighlight('photos-tab', layerVisibility.photos);
-    if (layerVisibility.photos) {
-        loadPhotoMarkers(); // Show photos
-    } else {
-        removePhotoMarkers(); // Hide photos
-    }
-}
-
-// Toggle POI layer
-function togglePOILayer() {
-    layerVisibility.pois = !layerVisibility.pois;
-    updateTabHighlight('pois-tab', layerVisibility.pois);
-    if (layerVisibility.pois) {
-        loadPOIMarkers(); // Show POIs
-    } else {
-        removePOIMarkers(); // Hide POIs
-    }
-}
-
-// Toggle Add dropdown
-function toggleAddDropdown() {
-    const dropdown = document.getElementById('add-dropdown');
-    dropdown.classList.toggle('show');
-}
-
-// Update tab highlight
-function updateTabHighlight(tabId, isActive) {
-    const tab = document.getElementById(tabId);
-    if (isActive) {
-        tab.classList.add('active');
-    } else {
-        tab.classList.remove('active');
-    }
-}
-
 // Function to enable drawing mode
 function enableDrawingMode() {
     map.on('click', drawPoint);
@@ -128,20 +90,17 @@ function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
     drawnPoints.push(coords);
 
-    if (drawnPoints.length === 1) {
-        // Place the first marker as a highlighted marker
-        firstPointMarker = new mapboxgl.Marker({ color: '#FF0000' }) // Red marker for the first point
-            .setLngLat(coords)
-            .addTo(map);
-    } else {
-        // Place regular markers for the subsequent points
-        new mapboxgl.Marker({ color: '#00FF00' }) // Green markers for the rest
-            .setLngLat(coords)
-            .addTo(map);
-    }
+    // Add markers for each point and store them in the markers array
+    const marker = new mapboxgl.Marker({
+        color: drawnPoints.length === 1 ? '#FF0000' : '#00FF00' // Red for the first point, green for others
+    })
+    .setLngLat(coords)
+    .addTo(map);
+
+    markers.push(marker); // Store the marker
 
     if (drawnPoints.length > 1) {
-        snapToRoads(drawnPoints); // Snap to roads
+        snapToRoads(drawnPoints); // Snap to roads after the second point
     }
 }
 
@@ -230,13 +189,13 @@ function resetRoute() {
         map.removeLayer('drawn-route');
         map.removeSource('drawn-route');
         currentLine = null;
-        drawnPoints = [];
-        if (firstPointMarker) {
-            firstPointMarker.remove(); // Remove the first point marker
-            firstPointMarker = null; // Reset the first marker reference
-        }
     }
-    // Optionally clear any markers or UI elements related to the drawn route
+
+    // Remove all markers from the map
+    markers.forEach(marker => marker.remove());
+    markers = []; // Clear the markers array
+
+    drawnPoints = []; // Clear drawn points
     disableDrawingMode(); 
     alert('Route has been reset.');
 }
@@ -246,36 +205,21 @@ function undoLastPoint() {
     if (drawnPoints.length > 1) {
         drawnPoints.pop(); // Remove the last point
         snapToRoads(drawnPoints); // Redraw the route without the last point
+
+        // Remove the last marker
+        const lastMarker = markers.pop();
+        lastMarker.remove();
     } else if (drawnPoints.length === 1) {
-        // If only the first point remains, remove the marker and reset the drawing
-        if (firstPointMarker) {
-            firstPointMarker.remove();
-            firstPointMarker = null;
-        }
+        // Remove the first marker and reset the drawing
+        markers.pop().remove();
         drawnPoints = [];
+
         if (currentLine) {
             map.removeLayer('drawn-route');
             map.removeSource('drawn-route');
             currentLine = null;
         }
+
         alert('All points have been undone.');
     }
-}
-
-// Load photo markers function
-async function loadPhotoMarkers() {
-    // Add logic to load and display photo markers on the map
-    console.log("Loading photo markers...");
-}
-
-// Remove photo markers function
-function removePhotoMarkers() {
-    // Add logic to remove photo markers from the map
-    console.log("Removing photo markers...");
-}
-
-// Load POI markers function
-async function loadPOIMarkers() {
-    // Add logic to load and display POI markers on the map
-    console.log("Loading POI markers...");
 }
