@@ -101,6 +101,89 @@ function removeSegments() {
 }
 
 // ============================
+// SECTION: Open Route Modal
+// ============================
+
+function openSegmentModal(segmentInfo) {
+    // Populate the modal with segment details
+    const segmentDetails = `
+        <strong>Route ID:</strong> ${segmentInfo.id} <br>
+        <strong>Coordinates:</strong> ${JSON.stringify(segmentInfo.geometry.coordinates)} <br>
+        <!-- Add more details as needed -->
+    `;
+    
+    document.getElementById('segment-details').innerHTML = segmentDetails;
+
+    // Show the modal
+    document.getElementById('segment-modal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('segment-modal').style.display = 'none';
+}
+
+// Close the modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('segment-modal');
+    if (event.target === modal) {
+        closeModal();
+    }
+};
+
+// ============================
+// SECTION: Load Segments
+// ============================
+async function loadSegments() {
+    try {
+        const response = await fetch('/api/get-drawn-routes'); // Adjust this endpoint as necessary
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        if (data && data.routes) {
+            data.routes.forEach(route => {
+                const coordinates = route.geojson.features[0].geometry.coordinates;
+
+                // Add source and layer for each route
+                map.addSource(`route-${route.routeId}`, {
+                    type: 'geojson',
+                    data: route.geojson
+                });
+
+                map.addLayer({
+                    'id': `route-${route.routeId}-layer`,
+                    'type': 'line',
+                    'source': `route-${route.routeId}`,
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': '#FF0000', // Change to desired color
+                        'line-width': 4
+                    }
+                });
+
+                // Add click event listener for the segment
+                map.on('click', `route-${route.routeId}-layer`, function (e) {
+                    // Get the coordinates of the segment
+                    const features = map.queryRenderedFeatures(e.point, {
+                        layers: [`route-${route.routeId}-layer`]
+                    });
+                    if (features.length) {
+                        const segmentInfo = features[0]; // Assuming we want the first feature
+                        openSegmentModal(segmentInfo); // Call function to open the modal
+                    }
+                });
+            });
+        }
+    } catch (error) {
+        console.error('Error loading segments:', error);
+    }
+}
+
+// ============================
 // SECTION: TOOGLE DRAWING MODE
 // ============================
 
