@@ -61,7 +61,7 @@ async function loadSegments() {
         const data = await response.json();
         if (data && data.routes) {
             // Remove existing layers and sources before loading new ones
-            removeSegments();
+            removeSegments(); // Clear any existing segments
 
             data.routes.forEach(route => {
                 // Add source for each route
