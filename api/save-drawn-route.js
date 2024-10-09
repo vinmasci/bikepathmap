@@ -5,11 +5,12 @@ require('dotenv').config();
 const client = new MongoClient(process.env.MONGODB_URI);
 
 async function connectToMongo() {
-    if (!client.isConnected()) {
+    if (!client.topology || !client.topology.isConnected()) {
         await client.connect();
     }
     return client.db('roadApp').collection('drawnRoutes');
 }
+
 
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
