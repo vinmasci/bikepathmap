@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
             routeId: result.insertedId
         });
     } catch (error) {
-        console.error('Error saving drawn route:', error); // Log the error
+        console.error('Error saving drawn route:', error); // Log the error.
         return res.status(500).json({ error: 'Failed to save route' });
     }
 };
