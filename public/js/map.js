@@ -32,12 +32,77 @@ function initMap() {
 // ============================
 // This section handles toggling the visibility of different map layers such as
 // segments, photo markers, and POIs.
+// ============================
+// SECTION: Toggle Functionality
+// ============================
 function toggleSegmentsLayer() {
     layerVisibility.segments = !layerVisibility.segments;
     const visibility = layerVisibility.segments ? 'visible' : 'none';
-    map.setLayoutProperty('gpx-route-layer', 'visibility', visibility);
+    
+    if (layerVisibility.segments) {
+        loadSegments(); // Fetch and display segments if toggled on
+    } else {
+        removeSegments(); // Remove segments if toggled off
+    }
+
     updateTabHighlight('segments-tab', layerVisibility.segments);
 }
+
+// ============================
+// SECTION: Load Segments
+// ============================
+async function loadSegments() {
+    try {
+        const response = await fetch('/api/get-drawn-routes'); // Adjust this endpoint as necessary
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        if (data && data.routes) {
+            data.routes.forEach(route => {
+                const coordinates = route.geojson.features[0].geometry.coordinates;
+
+                // Add source and layer for each route
+                map.addSource(`route-${route.routeId}`, {
+                    type: 'geojson',
+                    data: route.geojson
+                });
+
+                map.addLayer({
+                    'id': `route-${route.routeId}-layer`,
+                    'type': 'line',
+                    'source': `route-${route.routeId}`,
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': '#FF0000', // Change to desired color
+                        'line-width': 4
+                    }
+                });
+            });
+        }
+    } catch (error) {
+        console.error('Error loading segments:', error);
+    }
+}
+
+// ============================
+// SECTION: Remove Segments
+// ============================
+function removeSegments() {
+    const existingLayers = map.getStyle().layers.filter(layer => layer.id.startsWith('route-'));
+    existingLayers.forEach(layer => {
+        map.removeLayer(layer.id);
+        map.removeSource(layer.id.replace('-layer', ''));
+    });
+}
+
+// ============================
+// SECTION: TOOGLE DRAWING MODE
+// ============================
 
 function toggleDrawingMode() {
     drawingEnabled = !drawingEnabled;
@@ -54,6 +119,9 @@ function toggleDrawingMode() {
     }
 }
 
+// ============================
+// SECTION: TOOGLE PHOTO LAYER
+// ============================
 
 function togglePhotoLayer() {
     layerVisibility.photos = !layerVisibility.photos;
@@ -65,6 +133,10 @@ function togglePhotoLayer() {
     }
 }
 
+// ============================
+// SECTION: TOOGLE POI LAYER
+// ============================
+
 function togglePOILayer() {
     layerVisibility.pois = !layerVisibility.pois;
     updateTabHighlight('pois-tab', layerVisibility.pois);
@@ -74,6 +146,7 @@ function togglePOILayer() {
         removePOIMarkers(); // Hide POIs.
     }
 }
+
 
 // =========================
 // SECTION: Dropdown Toggles
