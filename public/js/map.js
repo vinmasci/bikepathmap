@@ -217,7 +217,7 @@ function saveDrawnRoute() {
         };
 
         // Debugging log to check GeoJSON format
-        console.log("GeoJSON data to save:", geojsonData);
+        console.log("GeoJSON data to save:", JSON.stringify(geojsonData, null, 2));
 
         // Send the GeoJSON data to the backend API to save the route in MongoDB
         fetch('/api/save-drawn-route', {
@@ -227,18 +227,18 @@ function saveDrawnRoute() {
         })
         .then(response => {
             console.log("Fetch response status:", response.status);  // Log fetch status
-            return response.json();
-        })
-        .then(data => {
-            console.log("Fetch data:", data);  // Log actual response data
-            if (data.success) {
-                alert('Route saved successfully!');
-            } else {
-                alert('Error saving route.');
-            }
+            return response.json().then(data => {
+                console.log("Fetch data:", data);  // Log actual response data
+                if (data.success) {
+                    alert('Route saved successfully!');
+                } else {
+                    alert('Error saving route: ' + data.error); // Provide the specific error
+                }
+            });
         })
         .catch(error => {
             console.error('Error during fetch request:', error);  // Log fetch errors
+            alert('An error occurred while saving the route. Check the console for more details.');
         });
 
     } else {
