@@ -104,19 +104,19 @@ function removeSegments() {
 // SECTION: Open Route Modal
 // ============================
 
-function openSegmentModal(segmentInfo) {
-    // Populate the modal with segment details
-    const segmentDetails = `
-        <strong>Route ID:</strong> ${segmentInfo.id} <br>
-        <strong>Coordinates:</strong> ${JSON.stringify(segmentInfo.geometry.coordinates)} <br>
-        <!-- Add more details as needed -->
-    `;
-    
-    document.getElementById('segment-details').innerHTML = segmentDetails;
+function openSegmentModal(segmentId) {
+    // Display segment details without coordinates
+    const segmentDetails = document.getElementById('segment-details');
+    segmentDetails.textContent = `Segment ID: ${segmentId}`; // Display segment ID or other relevant details
 
     // Show the modal
     document.getElementById('segment-modal').style.display = 'block';
+
+    // Set up the delete button to delete this segment
+    const deleteButton = document.getElementById('delete-segment');
+    deleteButton.onclick = () => deleteSegment(segmentId); // Pass the segment ID to delete
 }
+
 
 function closeModal() {
     document.getElementById('segment-modal').style.display = 'none';
@@ -173,7 +173,7 @@ async function loadSegments() {
                     });
                     if (features.length) {
                         const segmentInfo = features[0]; // Assuming we want the first feature
-                        openSegmentModal(segmentInfo); // Call function to open the modal
+                        openSegmentModal(route.routeId); // Pass the segment ID to open the modal
                     }
                 });
             });
@@ -182,6 +182,7 @@ async function loadSegments() {
         console.error('Error loading segments:', error);
     }
 }
+
 
 // ============================
 // SECTION: DELETE SEGMENT
