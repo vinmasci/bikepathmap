@@ -222,12 +222,12 @@ function saveDrawnRoute() {
     }
 }
 
-// Function to reset the route and markers
+// Function to reset the route and markers without saving
 function resetRoute() {
     if (currentLine) {
         map.removeLayer('drawn-route');
         map.removeSource('drawn-route');
-        currentLine = null;  // Ensure the current line is reset
+        currentLine = null;  // Reset the current line
     }
 
     // Remove all markers from the map
@@ -235,7 +235,11 @@ function resetRoute() {
     markers = [];  // Clear the markers array
 
     drawnPoints = [];  // Clear all drawn points
+
+    // Disable drawing mode without triggering any save functionality
     disableDrawingMode();  // Disable drawing mode
+    document.getElementById('control-panel').style.display = 'none'; // Hide control panel if needed
+
     alert('Route has been reset.');
 }
 
