@@ -5,6 +5,7 @@ let currentLine = null;
 let drawingEnabled = false; // Flag for drawing mode
 let firstPointMarker = null; // Store the first point marker
 let markers = []; // Store all point markers, including the first point
+let segmentRoutes = []; // To store the segment routes loaded from MongoDB
 
 // ===========================
 // SECTION: Map Initialization
@@ -35,67 +36,61 @@ function initMap() {
 function toggleSegmentsLayer() {
     layerVisibility.segments = !layerVisibility.segments;
     const visibility = layerVisibility.segments ? 'visible' : 'none';
-    map.setLayoutProperty('gpx-route-layer', 'visibility', visibility);
+
+    if (layerVisibility.segments) {
+        loadSavedRoutes(); // Load saved routes from MongoDB when the segment layer is toggled on
+    } else {
+        removeSegmentRoutes(); // Remove segment routes from the map when toggled off
+    }
+
     updateTabHighlight('segments-tab', layerVisibility.segments);
 }
 
-function toggleDrawingMode() {
-    drawingEnabled = !drawingEnabled;
-    if (drawingEnabled) {
-        enableDrawingMode();
-        document.getElementById('control-panel').style.display = 'block'; // Show control panel
-        updateTabHighlight('draw-route-tab', true);
-        map.getCanvas().style.cursor = 'crosshair'; // Use Mapbox's native method to change cursor
-    } else {
-        disableDrawingMode(false); // Disable drawing mode without saving
-        document.getElementById('control-panel').style.display = 'none'; // Hide control panel
-        updateTabHighlight('draw-route-tab', false);
-        map.getCanvas().style.cursor = ''; // Reset cursor to default when drawing is disabled
+// ============================
+// SECTION: Load Saved Routes
+// ============================
+// This section loads saved routes from MongoDB and displays them on the map.
+async function loadSavedRoutes() {
+    try {
+        const response = await fetch('/api/get-saved-routes'); // Assuming you have a route to fetch saved routes
+        const data = await response.json();
+
+        if (data.routes) {
+            data.routes.forEach(route => {
+                const geojson = route.geojson;
+                map.addSource(`route-${route._id}`, { type: 'geojson', data: geojson });
+
+                map.addLayer({
+                    id: `route-layer-${route._id}`,
+                    type: 'line',
+                    source: `route-${route._id}`,
+                    layout: { 'line-join': 'round', 'line-cap': 'round' },
+                    paint: { 'line-color': '#00FF00', 'line-width': 4 } // Green color for saved segments
+                });
+
+                segmentRoutes.push(route._id); // Store the route IDs
+            });
+        }
+    } catch (error) {
+        console.error('Error loading saved routes:', error);
     }
 }
 
+// ============================
+// SECTION: Remove Segment Routes
+// ============================
+// This section removes the saved routes from the map when the segment layer is toggled off.
+function removeSegmentRoutes() {
+    segmentRoutes.forEach(routeId => {
+        if (map.getLayer(`route-layer-${routeId}`)) {
+            map.removeLayer(`route-layer-${routeId}`);
+        }
+        if (map.getSource(`route-${routeId}`)) {
+            map.removeSource(`route-${routeId}`);
+        }
+    });
 
-
-function togglePhotoLayer() {
-    layerVisibility.photos = !layerVisibility.photos;
-    updateTabHighlight('photos-tab', layerVisibility.photos);
-    if (layerVisibility.photos) {
-        loadPhotoMarkers(); // Show photos
-    } else {
-        removePhotoMarkers(); // Hide photos
-    }
-}
-
-function togglePOILayer() {
-    layerVisibility.pois = !layerVisibility.pois;
-    updateTabHighlight('pois-tab', layerVisibility.pois);
-    if (layerVisibility.pois) {
-        loadPOIMarkers(); // Show POIs
-    } else {
-        removePOIMarkers(); // Hide POIs.
-    }
-}
-
-// =========================
-// SECTION: Dropdown Toggles
-// =========================
-// This section handles toggling the "Add" dropdown menu.
-function toggleAddDropdown() {
-    const dropdown = document.getElementById('add-dropdown');
-    dropdown.classList.toggle('show');
-}
-
-// =========================
-// SECTION: Tab Highlighting
-// =========================
-// This section manages highlighting tabs when a layer is toggled on/off.
-function updateTabHighlight(tabId, isActive) {
-    const tab = document.getElementById(tabId);
-    if (isActive) {
-        tab.classList.add('active');
-    } else {
-        tab.classList.remove('active');
-    }
+    segmentRoutes = []; // Clear the stored routes
 }
 
 // ========================
@@ -116,83 +111,9 @@ function disableDrawingMode(shouldSave = true) {
     document.getElementById('map').style.cursor = ''; // Reset cursor
 }
 
-function drawPoint(e) {
-    const coords = [e.lngLat.lng, e.lngLat.lat];
-    drawnPoints.push(coords);
-
-    // Create a custom marker element (orange circle with white stroke)
-    const markerElement = document.createElement('div');
-    markerElement.style.width = '16px';  
-    markerElement.style.height = '16px';
-    markerElement.style.backgroundColor = '#FFA500'; 
-    markerElement.style.borderRadius = '50%'; 
-    markerElement.style.border = '2px solid white'; 
-
-    // Add the marker to the map
-    const marker = new mapboxgl.Marker({ element: markerElement })
-        .setLngLat(coords)
-        .addTo(map);
-
-    markers.push(marker); // Store the marker
-
-    if (drawnPoints.length > 1) {
-        snapToRoads(drawnPoints); // Snap to roads after the second point
-    }
-}
-
 // ================================
-// SECTION: Road and Bike Path Snapping Function
-// ================================
-// This section sends the drawn points to the Mapbox API using the cycling profile
-// to snap them to roads and bike paths, creating a new line with the snapped coordinates.
-async function snapToRoads(points) {
-    try {
-        // Convert points array to a string of coordinates
-        const coordinatesString = points.map(coord => coord.join(',')).join(';');
-
-        // Send the request to Mapbox's Map Matching API with the 'cycling' profile
-        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true`);
-
-        const data = await response.json();
-
-        if (data && data.matchings) {
-            const snappedPoints = data.matchings[0].geometry.coordinates;
-
-            if (currentLine) {
-                map.removeLayer('drawn-route');
-                map.removeSource('drawn-route');
-            }
-
-            currentLine = {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'LineString',
-                    'coordinates': snappedPoints
-                }
-            };
-
-            map.addSource('drawn-route', { 'type': 'geojson', 'data': currentLine });
-            map.addLayer({
-                'id': 'drawn-route',
-                'type': 'line',
-                'source': 'drawn-route',
-                'layout': { 'line-join': 'round', 'line-cap': 'round' },
-                'paint': { 
-                    'line-color': '#FFA500', // Orange color for the line
-                    'line-width': 4 
-                }
-            });
-        } else {
-            console.error('Snap to road and bike path error:', data.message);
-        }
-    } catch (error) {
-        console.error('Error calling Mapbox cycling API:', error);
-    }
-}
-
-// ==========================
 // SECTION: Save Drawn Route
-// ==========================
+// ================================
 // This section handles saving the drawn route to the backend (MongoDB) once the
 // drawing mode is disabled and points are snapped to the road.
 function saveDrawnRoute() {
@@ -214,7 +135,7 @@ function saveDrawnRoute() {
         fetch('/api/save-drawn-route', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(geojsonData)
+            body: JSON.stringify({ geojson: geojsonData }) // Send geojson to your API
         })
         .then(response => response.json())
         .then(data => {
