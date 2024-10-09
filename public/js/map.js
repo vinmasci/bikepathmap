@@ -63,12 +63,28 @@ async function loadSegments() {
             data.routes.forEach(route => {
                 const coordinates = route.geojson.features[0].geometry.coordinates;
 
-                // Add source and layer for each route
+                // Add source for each route
                 map.addSource(`route-${route.routeId}`, {
                     type: 'geojson',
                     data: route.geojson
                 });
 
+                // Add layer for the stroke (this should be below the main route layer)
+                map.addLayer({
+                    'id': `route-${route.routeId}-layer-stroke`,
+                    'type': 'line',
+                    'source': `route-${route.routeId}`,
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': 'black', // Black color for the stroke
+                        'line-width': 5 // Stroke width to create an offset effect
+                    }
+                });
+
+                // Add layer for the route (this should be above the stroke layer)
                 map.addLayer({
                     'id': `route-${route.routeId}-layer`,
                     'type': 'line',
@@ -78,8 +94,19 @@ async function loadSegments() {
                         'line-cap': 'round'
                     },
                     'paint': {
-                        'line-color': '#FF0000', // Change to desired color
-                        'line-width': 4
+                        'line-color': 'cyan', // Cyan color for the line
+                        'line-width': 3 // Width of the route line
+                    }
+                });
+
+                // Add click event listener for the route layer
+                map.on('click', `route-${route.routeId}-layer`, function (e) {
+                    const features = map.queryRenderedFeatures(e.point, {
+                        layers: [`route-${route.routeId}-layer`]
+                    });
+                    if (features.length) {
+                        const segmentId = route.routeId; // Get the segment ID
+                        openSegmentModal(segmentId); // Open modal with the segment ID
                     }
                 });
             });
@@ -88,6 +115,7 @@ async function loadSegments() {
         console.error('Error loading segments:', error);
     }
 }
+
 
 // ============================
 // SECTION: Remove Segments
