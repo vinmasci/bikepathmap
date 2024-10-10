@@ -30,23 +30,18 @@ function initMap() {
 // ============================
 // SECTION: Toggle Functionality
 // ============================
-// This section handles toggling the visibility of different map layers such as
-// segments, photo markers, and POIs.
-// ============================
-// SECTION: Toggle Functionality
-// ============================
 function toggleSegmentsLayer() {
     layerVisibility.segments = !layerVisibility.segments;
-    const visibility = layerVisibility.segments ? 'visible' : 'none';
-    
+
     if (layerVisibility.segments) {
-        loadSegments(); // Fetch and display segments if toggled on
+        loadSegments(); // Load segments when toggled on
     } else {
-        removeSegments(); // Remove segments if toggled off
+        removeSegments(); // Remove segments when toggled off
     }
 
     updateTabHighlight('segments-tab', layerVisibility.segments);
 }
+
 
 // ============================
 // SECTION: Load Segments
@@ -60,62 +55,64 @@ async function loadSegments() {
 
         const data = await response.json();
         if (data && data.routes) {
-            // Remove existing layers and sources before loading new ones
-            removeSegments(); // Clear any existing segments
+            // No need to call removeSegments here, as it's already called in toggleSegmentsLayer
 
             data.routes.forEach(route => {
-                // Add source for each route
-                map.addSource(`route-${route.routeId}`, {
-                    type: 'geojson',
-                    data: route.geojson
-                });
-
-                // Add layer for the stroke
-                map.addLayer({
-                    'id': `route-${route.routeId}-layer-stroke`,
-                    'type': 'line',
-                    'source': `route-${route.routeId}`,
-                    'layout': {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    'paint': {
-                        'line-color': 'black', // Black color for the stroke
-                        'line-width': 5 // Stroke width to create an offset effect
-                    }
-                });
-
-                // Add layer for the route
-                map.addLayer({
-                    'id': `route-${route.routeId}-layer`,
-                    'type': 'line',
-                    'source': `route-${route.routeId}`,
-                    'layout': {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    'paint': {
-                        'line-color': 'cyan', // Cyan color for the line
-                        'line-width': 3 // Width of the route line
-                    }
-                });
-
-                // Add click event listener for the route layer
-                map.on('click', `route-${route.routeId}-layer`, function (e) {
-                    const features = map.queryRenderedFeatures(e.point, {
-                        layers: [`route-${route.routeId}-layer`]
+                // Add source for each route only if it doesn't already exist
+                if (!map.getSource(`route-${route.routeId}`)) {
+                    map.addSource(`route-${route.routeId}`, {
+                        type: 'geojson',
+                        data: route.geojson
                     });
-                    if (features.length) {
-                        const segmentId = route.routeId; // Get the segment ID
-                        openSegmentModal(segmentId); // Open modal with the segment ID
-                    }
-                });
+
+                    // Add layer for the stroke
+                    map.addLayer({
+                        'id': `route-${route.routeId}-layer-stroke`,
+                        'type': 'line',
+                        'source': `route-${route.routeId}`,
+                        'layout': {
+                            'line-join': 'round',
+                            'line-cap': 'round'
+                        },
+                        'paint': {
+                            'line-color': 'black', // Black color for the stroke
+                            'line-width': 5 // Stroke width to create an offset effect
+                        }
+                    });
+
+                    // Add layer for the route
+                    map.addLayer({
+                        'id': `route-${route.routeId}-layer`,
+                        'type': 'line',
+                        'source': `route-${route.routeId}`,
+                        'layout': {
+                            'line-join': 'round',
+                            'line-cap': 'round'
+                        },
+                        'paint': {
+                            'line-color': 'cyan', // Cyan color for the line
+                            'line-width': 3 // Width of the route line
+                        }
+                    });
+
+                    // Add click event listener for the route layer
+                    map.on('click', `route-${route.routeId}-layer`, function (e) {
+                        const features = map.queryRenderedFeatures(e.point, {
+                            layers: [`route-${route.routeId}-layer`]
+                        });
+                        if (features.length) {
+                            const segmentId = route.routeId; // Get the segment ID
+                            openSegmentModal(segmentId); // Open modal with the segment ID
+                        }
+                    });
+                }
             });
         }
     } catch (error) {
         console.error('Error loading segments:', error);
     }
 }
+
 
 
 // ============================
