@@ -93,6 +93,13 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             z-index: 1000;
         }
+
+        /* Small modal style */
+.small-modal {
+    width: 250px; /* Smaller width */
+    padding: 10px; /* Less padding */
+}
+
     </style>
 </head>
 <body>
@@ -134,7 +141,7 @@
 
 <!-- Drawing Options Modal -->
 <div id="drawingOptionsModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content small-modal"> <!-- Add class 'small-modal' for smaller size -->
       <h4>Select Road Type and Color</h4>
       <div>
         <h5>Gravel Type (Color):</h5>

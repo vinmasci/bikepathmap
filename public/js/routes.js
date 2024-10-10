@@ -50,6 +50,18 @@ function enableDrawingMode() {
     console.log("Drawing mode enabled.");
     map.on('click', drawPoint); // Bind click event to draw points
     map.getCanvas().style.cursor = 'crosshair'; // Set the cursor to crosshair when drawing
+
+    // Show the control panel when drawing mode is active
+    document.getElementById('control-panel').style.display = 'block';
+}
+
+function disableDrawingMode() {
+    console.log("Drawing mode disabled.");
+    map.off('click', drawPoint); // Unbind the click event
+    map.getCanvas().style.cursor = ''; // Reset cursor to default
+
+    // Hide the control panel when drawing mode is disabled
+    document.getElementById('control-panel').style.display = 'none';
 }
 
 // ============================
