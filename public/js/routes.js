@@ -4,6 +4,8 @@ let currentLine = null;
 let markers = [];
 let selectedColor = '#FFFFFF'; // Default color
 let selectedLineStyle = 'solid'; // Default to solid line
+let segmentColorStyle = []; // Store the color and style of each segment
+let previousPoint = null; // Store the last drawn point to start new segments
 
 // Gravel type color mapping
 const gravelColors = {
@@ -131,13 +133,25 @@ async function snapToRoads(points) {
 // ============================
 function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
+
+    // Push current segment color and style before drawing the next one
+    if (previousPoint) {
+        // Store the segment's color and style before drawing a new one
+        segmentColorStyle.push({ color: selectedColor, style: selectedLineStyle, points: [previousPoint, coords] });
+
+        // Draw the snapped segment
+        drawSegment(previousPoint, coords);
+    }
+
+    // Update previousPoint to the current point
+    previousPoint = coords;
     drawnPoints.push(coords);
 
-    // Create a new marker element
+    // Create a new marker element with the current color
     const markerElement = document.createElement('div');
     markerElement.style.width = '16px';
     markerElement.style.height = '16px';
-    markerElement.style.backgroundColor = selectedColor; // Set marker color to match selected route color
+    markerElement.style.backgroundColor = selectedColor; // Set marker color to match current color
     markerElement.style.borderRadius = '50%';
     markerElement.style.border = '1px solid white';
 
@@ -146,13 +160,45 @@ function drawPoint(e) {
         .setLngLat(coords)
         .addTo(map);
 
-    markers.push(marker); // Store marker for possible removal later (e.g., undo)
+    markers.push(marker); // Store the marker
 
     if (drawnPoints.length > 1) {
-        snapToRoads(drawnPoints); // Snap to roads after the second point is added
+        // After the second point, start snapping to roads
+        snapToRoads(drawnPoints);
     }
 }
 
+// ============================
+// SECTION: Draw Individual Segment
+// ============================
+function drawSegment(start, end) {
+    // Prepare the segment data
+    const segmentLine = {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'LineString',
+            'coordinates': [start, end]
+        }
+    };
+
+    // Add the segment to the map
+    map.addSource(`segment-${Date.now()}`, { 'type': 'geojson', 'data': segmentLine });
+    
+    map.addLayer({
+        'id': `segment-${Date.now()}`,
+        'type': 'line',
+        'source': `segment-${Date.now()}`,
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': selectedColor, // Use the selected color
+            'line-width': 4,
+            'line-dasharray': selectedLineStyle === 'dashed' ? [2, 4] : [1] // Use dashed or solid line
+        }
+    });
+}
 
 
 // ============================
