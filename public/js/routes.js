@@ -133,23 +133,26 @@ function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
     drawnPoints.push(coords);
 
+    // Create a new marker element
     const markerElement = document.createElement('div');
     markerElement.style.width = '16px';
     markerElement.style.height = '16px';
-    markerElement.style.backgroundColor = '#FFA500'; // Marker color
+    markerElement.style.backgroundColor = selectedColor; // Set marker color to match selected route color
     markerElement.style.borderRadius = '50%';
     markerElement.style.border = '1px solid white';
 
+    // Add the marker to the map
     const marker = new mapboxgl.Marker({ element: markerElement })
         .setLngLat(coords)
         .addTo(map);
 
-    markers.push(marker);
+    markers.push(marker); // Store marker for possible removal later (e.g., undo)
 
     if (drawnPoints.length > 1) {
-        snapToRoads(drawnPoints); // Snap to roads after the second point
+        snapToRoads(drawnPoints); // Snap to roads after the second point is added
     }
 }
+
 
 
 // ============================
