@@ -228,9 +228,11 @@ async function loadSegments() {
             removeSegments(); 
 
             data.routes.forEach(route => {
+                const routeId = `route-${route.routeId}`;
+
                 // Add source for each route only if it doesn't already exist
-                if (!map.getSource(`route-${route.routeId}`)) {
-                    map.addSource(`route-${route.routeId}`, {
+                if (!map.getSource(routeId)) {
+                    map.addSource(routeId, {
                         type: 'geojson',
                         data: route.geojson
                     });
@@ -238,11 +240,11 @@ async function loadSegments() {
                     // Determine the color based on gravel type
                     const routeColor = gravelColors[route.gravelType[0]] || '#FFFFFF'; // Default to white if undefined
 
-                    // Add layer for the stroke
+                    // Add stroke layer (black outline)
                     map.addLayer({
-                        'id': `route-${route.routeId}-layer-stroke`,
+                        'id': `${routeId}-layer-stroke`,
                         'type': 'line',
-                        'source': `route-${route.routeId}`,
+                        'source': routeId,
                         'layout': {
                             'line-join': 'round',
                             'line-cap': 'round'
@@ -253,11 +255,11 @@ async function loadSegments() {
                         }
                     });
 
-                    // Add layer for the route
+                    // Add colored layer for the route itself
                     map.addLayer({
-                        'id': `route-${route.routeId}-layer`,
+                        'id': `${routeId}-layer`,
                         'type': 'line',
-                        'source': `route-${route.routeId}`,
+                        'source': routeId,
                         'layout': {
                             'line-join': 'round',
                             'line-cap': 'round'
@@ -268,10 +270,12 @@ async function loadSegments() {
                         }
                     });
 
+                    console.log(`Added route: ${route.routeId}, color: ${routeColor}`);
+
                     // Add click event listener for the route layer
-                    map.on('click', `route-${route.routeId}-layer`, function (e) {
+                    map.on('click', `${routeId}-layer`, function (e) {
                         const features = map.queryRenderedFeatures(e.point, {
-                            layers: [`route-${route.routeId}-layer`]
+                            layers: [`${routeId}-layer`]
                         });
                         if (features.length) {
                             const segmentId = route.routeId; // Get the segment ID
@@ -280,11 +284,14 @@ async function loadSegments() {
                     });
                 }
             });
+        } else {
+            console.error("No routes found in the response data.");
         }
     } catch (error) {
         console.error('Error loading segments:', error);
     }
 }
+
 
 
 // ============================
