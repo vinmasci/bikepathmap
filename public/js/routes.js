@@ -133,20 +133,21 @@ async function snapToRoads(points) {
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
-    
+
     // Add the current point to the drawn points array
     drawnPoints.push(coords);
 
+    // If there are at least two points, snap the last segment to the road
     if (drawnPoints.length > 1) {
         // Snap the last segment (from the previous point to the current point)
         const snappedSegment = await snapToRoads(drawnPoints.slice(-2)); // Only snap the last two points
 
         if (snappedSegment && snappedSegment.length === 2) {
             // Store the snapped segment's color and style
-            segmentColorStyle.push({ 
-                color: selectedColor, 
-                style: selectedLineStyle, 
-                points: [snappedSegment[0], snappedSegment[1]] 
+            segmentColorStyle.push({
+                color: selectedColor,
+                style: selectedLineStyle,
+                points: [snappedSegment[0], snappedSegment[1]]
             });
 
             // Draw the snapped segment with the current selected color and style
@@ -169,6 +170,7 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker
 }
+
 
 // ============================
 // SECTION: Draw Individual Segment
@@ -205,6 +207,7 @@ function drawSegment(start, end, color, lineStyle) {
         }
     });
 }
+
 
 
 
