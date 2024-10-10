@@ -131,16 +131,21 @@ async function snapToRoads(points) {
 // ============================
 // SECTION: Draw Point and Snap to Road
 // ============================
-function drawPoint(e) {
+async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
 
     // Push current segment color and style before drawing the next one
     if (previousPoint) {
-        // Store the segment's color and style before drawing a new one
-        segmentColorStyle.push({ color: selectedColor, style: selectedLineStyle, points: [previousPoint, coords] });
+        // Snap the segment to roads
+        const snappedSegment = await snapToRoads([previousPoint, coords]);
 
-        // Draw the snapped segment with the current selected color and style
-        drawSegment(previousPoint, coords, selectedColor, selectedLineStyle);
+        if (snappedSegment) {
+            // Store the segment's color and style before drawing a new one
+            segmentColorStyle.push({ color: selectedColor, style: selectedLineStyle, points: [snappedSegment[0], snappedSegment[1]] });
+
+            // Draw the snapped segment with the current selected color and style
+            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
+        }
     }
 
     // Update previousPoint to the current point
@@ -163,9 +168,33 @@ function drawPoint(e) {
     markers.push(marker); // Store the marker
 }
 
+// ================================
+// SECTION: Snap to Road Function for a Single Segment
+// ================================
+async function snapToRoads(points) {
+    try {
+        const coordinatesString = points.map(coord => coord.join(',')).join(';');
+
+        // Request to Mapbox's Map Matching API with 'cycling' profile
+        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true`);
+
+        const data = await response.json();
+
+        if (data && data.matchings && data.matchings[0].geometry.coordinates) {
+            const snappedPoints = data.matchings[0].geometry.coordinates;
+            return snappedPoints;
+        } else {
+            console.error('Error snapping to road:', data.message);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error calling Mapbox API:', error);
+        return null;
+    }
+}
 
 // ============================
-// SECTION: Draw Individual Segment
+// SECTION: Draw Individual Segment (now uses snapped points)
 // ============================
 function drawSegment(start, end, color, lineStyle) {
     // Create a unique ID for the segment
