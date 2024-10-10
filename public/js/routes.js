@@ -60,7 +60,7 @@ function disableDrawingMode() {
 }
 
 // ================================
-// SECTION: Snap to Road Function (updated to keep all segments)
+// SECTION: Snap to Road Function (Updated to handle full routes with multiple segments)
 // ================================
 async function snapToRoads(points) {
     try {
@@ -84,51 +84,46 @@ async function snapToRoads(points) {
     }
 }
 
-
 // ============================
 // SECTION: Draw Point and Snap to Road (Updated for multiple segments)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
-
-    // Store the previous point before adding the new one
+    
+    // If there is a previous point, we need to snap the segment between the previous point and the current one
     if (previousPoint) {
-        // Snap the segment between the previous point and the current point
         const snappedSegment = await snapToRoads([previousPoint, coords]);
-
+        
         if (snappedSegment && snappedSegment.length === 2) {
-            // Store the snapped segment's color and style
-            segmentColorStyle.push({
-                color: selectedColor,
-                style: selectedLineStyle,
-                points: [snappedSegment[0], snappedSegment[1]]
-            });
-
-            // Draw the snapped segment with the current selected color and style
+            // Draw the snapped segment between the two points
             drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
+            
+            // Add the snapped points to the snappedPoints array
+            snappedPoints.push(snappedSegment[1]); // Only push the new end point
         }
+    } else {
+        // Add the first point to snappedPoints if it's the start of the drawing
+        snappedPoints.push(coords);
     }
 
-    // Update the previous point to the current point
-    previousPoint = coords; // Now it's used for the next segment connection
-    drawnPoints.push(coords); // Add current point to the drawn points array
+    // Update the previous point to the current one for future connections
+    previousPoint = coords;
+    drawnPoints.push(coords); // Add the current point to drawnPoints
 
-    // Create a new marker element with the current color
+    // Create and add a marker for the current point
     const markerElement = document.createElement('div');
     markerElement.style.width = '16px';
     markerElement.style.height = '16px';
-    markerElement.style.backgroundColor = selectedColor; // Set marker color to match current color
+    markerElement.style.backgroundColor = selectedColor;
     markerElement.style.borderRadius = '50%';
     markerElement.style.border = '1px solid white';
-
-    // Add the marker to the map
+    
     const marker = new mapboxgl.Marker({ element: markerElement })
         .setLngLat(coords)
         .addTo(map);
-
-    markers.push(marker); // Store the marker
+    
+    markers.push(marker); // Store the marker for future reference
 }
-
 
 
 // ================================
