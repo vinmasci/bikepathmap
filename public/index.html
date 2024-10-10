@@ -9,8 +9,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
- /* Map container style */
- body { 
+        body { 
             margin: 0; 
             padding: 0; 
         }
@@ -23,7 +22,6 @@
             z-index: 0; 
         }
 
-        /* Tabs at the bottom */
         .tabs {
             position: fixed; 
             bottom: 0; 
@@ -45,14 +43,13 @@
             background-color: #555;
         }
 
-        /* Dropdown Content */
         .dropdown-content {
             display: none;
             position: absolute;
             bottom: 60px;
             background-color: #f9f9f9;
             min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
             z-index: 9999;
         }
 
@@ -68,70 +65,41 @@
             display: block; 
         }
 
-        #control-panel {
-    display: none; /* Initially hidden */
-    position: absolute;
-    bottom: 70px;
-    left: 10px;
-    background-color: white;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-}
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border-radius: 8px;
+        }
 
+        .modal-content {
+            padding: 20px;
+        }
+
+        #control-panel {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
 
-<!-- Console/Control panel -->
-<div id="routeSaveModal" class="modal">
-    <div class="modal-content">
-      <h4>Select Gravel and Surface Type</h4>
-      
-      <div>
-        <h5>Gravel Type:</h5>
-        <label>
-          <input type="checkbox" name="gravelType" value="0"> Bad or rough asphalt roads
-        </label>
-        <label>
-          <input type="checkbox" name="gravelType" value="1"> Non-technical (smooth gravel)
-        </label>
-        <label>
-          <input type="checkbox" name="gravelType" value="2"> Slightly technical (small rocks over a hard pack surface)
-        </label>
-        <label>
-          <input type="checkbox" name="gravelType" value="3"> Technical (rough larger-type gravel or sand)
-        </label>
-        <label>
-          <input type="checkbox" name="gravelType" value="4"> Very technical (large rocks, shale, or thick sand)
-        </label>
-        <label>
-          <input type="checkbox" name="gravelType" value="5"> Hike-a-bike
-        </label>
-      </div>
-      
-      <div>
-        <h5>Surface Type:</h5>
-        <label>
-          <input type="radio" name="surfaceType" value="cobbles"> Cobbles / rough asphalt road
-        </label>
-        <label>
-          <input type="radio" name="surfaceType" value="gravel"> Gravel road
-        </label>
-        <label>
-          <input type="radio" name="surfaceType" value="singletrack"> Single track
-        </label>
-      </div>
-      
-      <button id="saveRouteButton">Save Route</button>
-    </div>
-  </div>
-  
-
-<!-- Console/Control panel -->
+<!-- Control Panel -->
 <div id="control-panel" class="btn-group">
     <button id="undo-btn" class="btn btn-secondary">Undo</button>
     <button id="reset-btn" class="btn btn-warning">Reset</button>
@@ -155,12 +123,36 @@
 </div>
 
 <!-- Segment Info Modal -->
-<div id="segment-modal" class="modal" style="display:none;">
+<div id="segment-modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
         <h2>Segment Information</h2>
         <p id="segment-details"></p>
         <button id="delete-segment" class="btn btn-danger">Delete Segment</button>
+    </div>
+</div>
+
+<!-- Drawing Options Modal -->
+<div id="drawingOptionsModal" class="modal">
+    <div class="modal-content">
+      <h4>Select Road Type and Color</h4>
+      <div>
+        <h5>Gravel Type (Color):</h5>
+        <label><input type="radio" name="gravelType" value="0"> Blue (Bad or rough asphalt)</label>
+        <label><input type="radio" name="gravelType" value="1"> Green (Non-technical)</label>
+        <label><input type="radio" name="gravelType" value="2"> Yellow (Slightly technical)</label>
+        <label><input type="radio" name="gravelType" value="3"> Red (Technical)</label>
+        <label><input type="radio" name="gravelType" value="4"> Dark Red (Very technical)</label>
+        <label><input type="radio" name="gravelType" value="5"> Black Red (Hike-a-bike)</label>
+      </div>
+      
+      <div>
+        <h5>Road Type:</h5>
+        <label><input type="radio" name="roadType" value="solid"> Gravel Road (Solid Line)</label>
+        <label><input type="radio" name="roadType" value="dashed"> Single Track (Dashed Line)</label>
+      </div>
+      
+      <button id="applyDrawingOptionsButton">Apply</button>
     </div>
 </div>
 

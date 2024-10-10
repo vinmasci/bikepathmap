@@ -15,7 +15,9 @@ module.exports = async (req, res) => {
 
         const formattedRoutes = routes.map(route => ({
             routeId: route._id.toString(),
-            geojson: route.geojson
+            geojson: route.geojson,
+            gravelType: route.gravelType, // Include gravel type
+            surfaceType: route.surfaceType // Include surface type
         }));
 
         res.status(200).json({ routes: formattedRoutes });
