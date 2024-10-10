@@ -1,4 +1,5 @@
 let drawnPoints = [];
+let snappedPoints = []; // Store snapped points for saving the route
 let currentLine = null; // Current drawn line
 let drawingEnabled = false; // Flag for drawing mode
 let markers = []; // Store all point markers
@@ -37,7 +38,7 @@ function disableDrawingMode() {
 }
 
 // ============================
-// SECTION: Draw Point
+// SECTION: Draw Point and Snap to Road
 // ============================
 function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
@@ -58,8 +59,133 @@ function drawPoint(e) {
     markers.push(marker);
 
     if (drawnPoints.length > 1) {
-        // Additional logic for snapping to roads, etc.
-        console.log("Line drawing functionality can be added here.");
+        snapToRoads(drawnPoints); // Snap to roads after the second point
+    }
+}
+
+// ================================
+// SECTION: Snap to Road Function
+// ================================
+async function snapToRoads(points) {
+    try {
+        const coordinatesString = points.map(coord => coord.join(',')).join(';');
+
+        // Request to Mapbox's Map Matching API with 'cycling' profile
+        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true`);
+
+        const data = await response.json();
+
+        if (data && data.matchings) {
+            // Store snapped points
+            snappedPoints = data.matchings[0].geometry.coordinates;
+
+            if (currentLine) {
+                map.removeLayer('drawn-route');
+                map.removeSource('drawn-route');
+            }
+
+            currentLine = {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': snappedPoints
+                }
+            };
+
+            map.addSource('drawn-route', { 'type': 'geojson', 'data': currentLine });
+            map.addLayer({
+                'id': 'drawn-route',
+                'type': 'line',
+                'source': 'drawn-route',
+                'layout': { 'line-join': 'round', 'line-cap': 'round' },
+                'paint': { 
+                    'line-color': '#FFA500',
+                    'line-width': 4 
+                }
+            });
+        } else {
+            console.error('Error snapping to road:', data.message);
+        }
+    } catch (error) {
+        console.error('Error calling Mapbox API:', error);
+    }
+}
+
+// ============================
+// SECTION: Save Drawn Route
+// ============================
+function saveDrawnRoute() {
+    if (snappedPoints.length > 1) {
+        console.log("Saving drawn route...");
+
+        const geojsonData = {
+            'type': 'FeatureCollection',
+            'features': [
+                {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'LineString',
+                        'coordinates': snappedPoints
+                    },
+                    'properties': {}
+                }
+            ]
+        };
+
+        fetch('/api/save-drawn-route', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ geojson: geojsonData })
+        })
+        .then(response => {
+            return response.json().then(data => {
+                if (data.success) {
+                    alert('Route saved successfully!');
+                } else {
+                    alert('Error saving route: ' + data.error);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error saving route:', error);
+            alert('An error occurred while saving the route.');
+        });
+    } else {
+        console.log("No points to save.");
+        alert('No route to save.');
+    }
+}
+
+// ============================
+// SECTION: Reset and Undo Logic
+// ============================
+function resetRoute() {
+    console.log("Resetting route...");
+
+    if (currentLine) {
+        map.removeLayer('drawn-route');
+        map.removeSource('drawn-route');
+        currentLine = null;
+    }
+
+    markers.forEach(marker => marker.remove());
+    markers = [];
+    drawnPoints = [];
+    snappedPoints = [];
+}
+
+function undoLastPoint() {
+    if (drawnPoints.length > 1) {
+        drawnPoints.pop();
+        const lastMarker = markers.pop();
+        if (lastMarker) lastMarker.remove();
+        if (drawnPoints.length > 1) {
+            snapToRoads(drawnPoints);
+        } else if (currentLine) {
+            map.removeLayer('drawn-route');
+            map.removeSource('drawn-route');
+            currentLine = null;
+        }
     }
 }
 
