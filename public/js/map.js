@@ -9,7 +9,6 @@ let markers = []; // Store all point markers, including the first point
 // ===========================
 // SECTION: Map Initialization
 // ===========================
-// This section initializes the map using Mapbox. It sets the initial map view.
 function initMap() {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';
     map = new mapboxgl.Map({
@@ -42,7 +41,6 @@ function toggleSegmentsLayer() {
     updateTabHighlight('segments-tab', layerVisibility.segments);
 }
 
-
 // ============================
 // SECTION: Load Segments
 // ============================
@@ -55,7 +53,8 @@ async function loadSegments() {
 
         const data = await response.json();
         if (data && data.routes) {
-            // No need to call removeSegments here, as it's already called in toggleSegmentsLayer
+            // Clear existing segments
+            removeSegments(); 
 
             data.routes.forEach(route => {
                 // Add source for each route only if it doesn't already exist
@@ -113,104 +112,37 @@ async function loadSegments() {
     }
 }
 
-
+// ============================
+// SECTION: Remove Segments
+// ============================
+function removeSegments() {
+    const existingLayers = map.getStyle().layers.filter(layer => layer.id.startsWith('route-'));
+    existingLayers.forEach(layer => {
+        map.removeLayer(layer.id); // Remove the layer
+        map.removeSource(layer.id.replace('-layer', '')); // Remove the corresponding source
+    });
+}
 
 // ============================
 // SECTION: Open Route Modal
 // ============================
-
 function openSegmentModal(segmentId) {
-    // Display segment details without coordinates
     const segmentDetails = document.getElementById('segment-details');
-    segmentDetails.textContent = `Segment ID: ${segmentId}`; // Display segment ID or other relevant details
+    segmentDetails.textContent = `Segment ID: ${segmentId}`;
 
     // Show the modal
     document.getElementById('segment-modal').style.display = 'block';
 
-    // Set up the delete button to delete this segment
     const deleteButton = document.getElementById('delete-segment');
     deleteButton.onclick = () => deleteSegment(segmentId); // Pass the segment ID to delete
 }
 
-
-function closeModal() {
-    document.getElementById('segment-modal').style.display = 'none';
-}
-
-// Close the modal when clicking outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById('segment-modal');
-    if (event.target === modal) {
-        closeModal();
-    }
-};
-
-// ============================
-// SECTION: Load Segments
-// ============================
-async function loadSegments() {
-    try {
-        const response = await fetch('/api/get-drawn-routes'); // Adjust this endpoint as necessary
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        if (data && data.routes) {
-            data.routes.forEach(route => {
-                const coordinates = route.geojson.features[0].geometry.coordinates;
-
-                // Add source for each route
-                map.addSource(`route-${route.routeId}`, {
-                    type: 'geojson',
-                    data: route.geojson
-                });
-
-                // Add layer for the stroke
-                map.addLayer({
-                    'id': `route-${route.routeId}-layer-stroke`,
-                    'type': 'line',
-                    'source': `route-${route.routeId}`,
-                    'layout': {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    'paint': {
-                        'line-color': 'black', // Black color for the stroke
-                        'line-width': 5 // Stroke width to create an offset effect
-                    }
-                });
-
-                // Add layer for the route
-                map.addLayer({
-                    'id': `route-${route.routeId}-layer`,
-                    'type': 'line',
-                    'source': `route-${route.routeId}`,
-                    'layout': {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    'paint': {
-                        'line-color': 'cyan', // Cyan color for the line
-                        'line-width': 3 // Width of the route line
-                    }
-                });
-            });
-        }
-    } catch (error) {
-        console.error('Error loading segments:', error);
-    }
-}
-
-
-
 // ============================
 // SECTION: DELETE SEGMENT
 // ============================
-
 async function deleteSegment(segmentId) {
     try {
-        const response = await fetch(`/api/delete-drawn-route?id=${segmentId}`, { // Use query parameter instead of path variable
+        const response = await fetch(`/api/delete-drawn-route?id=${segmentId}`, {
             method: 'DELETE'
         });
 
@@ -230,28 +162,24 @@ async function deleteSegment(segmentId) {
     }
 }
 
-
 // ============================
-// SECTION: DELETE BUTTON
-// =======================
-
-function openSegmentModal(segmentId) {
-    // Display segment details
-    const segmentDetails = document.getElementById('segment-details');
-    segmentDetails.textContent = `Segment ID: ${segmentId}`; // Or any other relevant details
-
-    // Show the modal
-    document.getElementById('segment-modal').style.display = 'block';
-
-    // Set up the delete button to delete this segment
-    const deleteButton = document.getElementById('delete-segment');
-    deleteButton.onclick = () => deleteSegment(segmentId); // Pass the segment ID to delete
+// SECTION: Close Modal
+// ============================
+function closeModal() {
+    document.getElementById('segment-modal').style.display = 'none';
 }
+
+// Close the modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('segment-modal');
+    if (event.target === modal) {
+        closeModal();
+    }
+};
 
 // ============================
 // SECTION: TOOGLE DRAWING MODE
 // ============================
-
 function toggleDrawingMode() {
     drawingEnabled = !drawingEnabled;
     if (drawingEnabled) {
