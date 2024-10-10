@@ -16,9 +16,11 @@ function initMap() {
 
     map.on('load', () => {
         console.log("Map loaded successfully.");
-        initEventListeners();
-        loadSegments(); // Load segments once the map is loaded
+        initEventListeners(); // Set up event listeners
+        loadSegments(); // Load segments on map load
+        updateTabHighlight('segments-tab', true); // Highlight the segments tab
     });
+    
 
     map.on('error', (e) => {
         console.error("Map error:", e);
