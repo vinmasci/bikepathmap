@@ -19,6 +19,51 @@ function toggleSegmentsLayer() {
 }
 
 // ============================
+// SECTION: Enable Drawing Mode
+// ============================
+function enableDrawingMode() {
+    console.log("Drawing mode enabled.");
+    map.on('click', drawPoint); // Bind click event to draw points
+    map.getCanvas().style.cursor = 'crosshair'; // Set the cursor to crosshair when drawing
+}
+
+// ============================
+// SECTION: Disable Drawing Mode
+// ============================
+function disableDrawingMode() {
+    console.log("Drawing mode disabled.");
+    map.off('click', drawPoint); // Unbind the click event
+    map.getCanvas().style.cursor = ''; // Reset cursor to default
+}
+
+// ============================
+// SECTION: Draw Point
+// ============================
+function drawPoint(e) {
+    const coords = [e.lngLat.lng, e.lngLat.lat];
+    console.log("Adding point:", coords); // Log each point added
+    drawnPoints.push(coords);
+
+    const markerElement = document.createElement('div');
+    markerElement.style.width = '16px';  
+    markerElement.style.height = '16px';
+    markerElement.style.backgroundColor = '#FFA500'; 
+    markerElement.style.borderRadius = '50%'; 
+    markerElement.style.border = '1px solid white';
+
+    const marker = new mapboxgl.Marker({ element: markerElement })
+        .setLngLat(coords)
+        .addTo(map);
+
+    markers.push(marker);
+
+    if (drawnPoints.length > 1) {
+        // Additional logic for snapping to roads, etc.
+        console.log("Line drawing functionality can be added here.");
+    }
+}
+
+// ============================
 // SECTION: Load Segments
 // ============================
 async function loadSegments() {
