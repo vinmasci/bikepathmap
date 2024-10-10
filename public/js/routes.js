@@ -1,6 +1,6 @@
 let drawnPoints = [];
 let snappedPoints = [];
-let currentLine = null;
+let currentLine = null; // Track the current drawn line
 let markers = [];
 let selectedColor = '#FFFFFF'; // Default color
 let selectedLineStyle = 'solid'; // Default to solid line
@@ -31,22 +31,6 @@ document.getElementById('applyDrawingOptionsButton').addEventListener('click', f
     document.getElementById('drawingOptionsModal').style.display = 'none';
 });
 
-
-// ============================
-// SECTION: Toggle Functionality
-// ============================
-function toggleSegmentsLayer() {
-    layerVisibility.segments = !layerVisibility.segments;
-
-    if (layerVisibility.segments) {
-        loadSegments(); // Load segments when toggled on
-    } else {
-        removeSegments(); // Remove segments when toggled off
-    }
-
-    updateTabHighlight('segments-tab', layerVisibility.segments);
-}
-
 // ============================
 // SECTION: Enable Drawing Mode
 // ============================
@@ -75,10 +59,8 @@ function disableDrawingMode() {
     document.getElementById('control-panel').style.display = 'none';
 }
 
-
-
 // ================================
-// SECTION: Snap to Road Function with Selected Style
+// SECTION: Snap to Road Function
 // ================================
 async function snapToRoads(points) {
     try {
@@ -89,43 +71,16 @@ async function snapToRoads(points) {
 
         const data = await response.json();
 
-        if (data && data.matchings) {
-            snappedPoints = data.matchings[0].geometry.coordinates;
-
-            if (currentLine) {
-                map.removeLayer('drawn-route');
-                map.removeSource('drawn-route');
-            }
-
-            currentLine = {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'LineString',
-                    'coordinates': snappedPoints
-                }
-            };
-
-            map.addSource('drawn-route', { 'type': 'geojson', 'data': currentLine });
-
-            map.addLayer({
-                'id': 'drawn-route',
-                'type': 'line',
-                'source': 'drawn-route',
-                'layout': { 
-                    'line-join': 'round', 
-                    'line-cap': 'round' 
-                },
-                'paint': {
-                    'line-color': selectedColor, // Set the selected color
-                    'line-width': 4,
-                    'line-dasharray': selectedLineStyle === 'dashed' ? [2, 4] : [1] // Dashed or solid based on selection
-                }
-            });
+        if (data && data.matchings && data.matchings[0].geometry.coordinates.length) {
+            // Return the snapped coordinates for the segment
+            return data.matchings[0].geometry.coordinates;
         } else {
             console.error('Error snapping to road:', data.message);
+            return null;
         }
     } catch (error) {
         console.error('Error calling Mapbox API:', error);
+        return null;
     }
 }
 
@@ -144,13 +99,6 @@ async function drawPoint(e) {
         const snappedSegment = await snapToRoads(drawnPoints.slice(-2)); // Only snap the last two points
 
         if (snappedSegment && snappedSegment.length === 2) {
-            // Store the snapped segment's color and style
-            segmentColorStyle.push({
-                color: selectedColor,
-                style: selectedLineStyle,
-                points: [snappedSegment[0], snappedSegment[1]]
-            });
-
             // Draw the snapped segment with the current selected color and style
             drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
         }
@@ -212,7 +160,7 @@ function drawSegment(start, end, color, lineStyle) {
 // SECTION: Save Drawn Route
 // ============================
 function saveDrawnRoute() {
-    if (snappedPoints.length > 1) {
+    if (drawnPoints.length > 1) {
         // Open the modal for gravel/surface type selection
         const modal = document.getElementById('routeSaveModal');
         modal.style.display = 'block';
@@ -229,7 +177,7 @@ function saveDrawnRoute() {
                         'type': 'Feature',
                         'geometry': {
                             'type': 'LineString',
-                            'coordinates': snappedPoints
+                            'coordinates': drawnPoints
                         },
                         'properties': {
                             'gravelType': gravelTypes, // Store gravel type(s)
@@ -266,7 +214,6 @@ function saveDrawnRoute() {
     }
 }
 
-
 // ============================
 // SECTION: Reset and Undo Logic
 // ============================
@@ -287,11 +234,9 @@ function resetRoute() {
     markers.forEach(marker => marker.remove()); // Remove all markers
     markers = [];
     drawnPoints = [];
-    previousPoint = null; // Reset previous point
     snappedPoints = [];
     console.log("Route reset.");
 }
-
 
 function undoLastPoint() {
     if (drawnPoints.length > 1) {
@@ -300,10 +245,8 @@ function undoLastPoint() {
         if (lastMarker) lastMarker.remove();
         if (drawnPoints.length > 1) {
             snapToRoads(drawnPoints);
-        } else if (currentLine) {
-            map.removeLayer('drawn-route');
-            map.removeSource('drawn-route');
-            currentLine = null;
+        } else {
+            console.log('No more points to snap.');
         }
     }
 }
@@ -311,7 +254,6 @@ function undoLastPoint() {
 // ============================
 // SECTION: Load Segments
 // ============================
-
 async function loadSegments() {
     try {
         const response = await fetch('/api/get-drawn-routes');
@@ -322,7 +264,7 @@ async function loadSegments() {
         const data = await response.json();
         if (data && data.routes) {
             // Clear existing segments
-            removeSegments(); 
+            removeSegments();
 
             data.routes.forEach(route => {
                 const routeId = `route-${route.routeId}`;
@@ -368,17 +310,6 @@ async function loadSegments() {
                     });
 
                     console.log(`Added route: ${route.routeId}, color: ${routeColor}`);
-
-                    // Add click event listener for the route layer
-                    map.on('click', `${routeId}-layer`, function (e) {
-                        const features = map.queryRenderedFeatures(e.point, {
-                            layers: [`${routeId}-layer`]
-                        });
-                        if (features.length) {
-                            const segmentId = route.routeId; // Get the segment ID
-                            openSegmentModal(segmentId); // Open modal with the segment ID
-                        }
-                    });
                 }
             });
         } else {
@@ -388,8 +319,6 @@ async function loadSegments() {
         console.error('Error loading segments:', error);
     }
 }
-
-
 
 // ============================
 // SECTION: Remove Segments
@@ -418,7 +347,6 @@ async function deleteSegment(segmentId) {
             const data = await response.json();
             console.log('Segment deleted:', data);
             alert('Segment deleted successfully!');
-            closeModal(); // Close the modal after deletion
             removeSegments(); // Update the map to remove the deleted segment
         } else {
             console.error('Failed to delete segment:', response.statusText);
