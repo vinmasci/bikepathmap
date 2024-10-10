@@ -139,8 +139,8 @@ function drawPoint(e) {
         // Store the segment's color and style before drawing a new one
         segmentColorStyle.push({ color: selectedColor, style: selectedLineStyle, points: [previousPoint, coords] });
 
-        // Draw the snapped segment
-        drawSegment(previousPoint, coords);
+        // Draw the snapped segment with the current selected color and style
+        drawSegment(previousPoint, coords, selectedColor, selectedLineStyle);
     }
 
     // Update previousPoint to the current point
@@ -161,17 +161,16 @@ function drawPoint(e) {
         .addTo(map);
 
     markers.push(marker); // Store the marker
-
-    if (drawnPoints.length > 1) {
-        // After the second point, start snapping to roads
-        snapToRoads(drawnPoints);
-    }
 }
+
 
 // ============================
 // SECTION: Draw Individual Segment
 // ============================
-function drawSegment(start, end) {
+function drawSegment(start, end, color, lineStyle) {
+    // Create a unique ID for the segment
+    const segmentId = `segment-${Date.now()}`;
+
     // Prepare the segment data
     const segmentLine = {
         'type': 'Feature',
@@ -181,24 +180,26 @@ function drawSegment(start, end) {
         }
     };
 
-    // Add the segment to the map
-    map.addSource(`segment-${Date.now()}`, { 'type': 'geojson', 'data': segmentLine });
-    
+    // Add the segment as a unique source to the map
+    map.addSource(segmentId, { 'type': 'geojson', 'data': segmentLine });
+
+    // Add the segment as a unique layer to the map with the selected color and style
     map.addLayer({
-        'id': `segment-${Date.now()}`,
+        'id': segmentId,
         'type': 'line',
-        'source': `segment-${Date.now()}`,
+        'source': segmentId,
         'layout': {
             'line-join': 'round',
             'line-cap': 'round'
         },
         'paint': {
-            'line-color': selectedColor, // Use the selected color
+            'line-color': color, // Use the passed color
             'line-width': 4,
-            'line-dasharray': selectedLineStyle === 'dashed' ? [2, 4] : [1] // Use dashed or solid line
+            'line-dasharray': lineStyle === 'dashed' ? [2, 4] : [1] // Use dashed or solid line
         }
     });
 }
+
 
 
 // ============================
