@@ -16,6 +16,23 @@ const gravelColors = {
 };
 
 // ============================
+// SECTION: Toggle Drawing Mode
+// ============================
+function toggleDrawingMode() {
+    drawingEnabled = !drawingEnabled;
+    
+    if (drawingEnabled) {
+        enableDrawingMode();
+        document.getElementById('drawingOptionsModal').style.display = 'block'; // Show the modal when enabling drawing
+        updateTabHighlight('draw-route-tab', true);
+    } else {
+        disableDrawingMode();
+        document.getElementById('drawingOptionsModal').style.display = 'none'; // Hide modal when disabling drawing
+        updateTabHighlight('draw-route-tab', false);
+    }
+}
+
+// ============================
 // SECTION: Apply Drawing Options
 // ============================
 document.getElementById('applyDrawingOptionsButton').addEventListener('click', function() {
@@ -27,6 +44,7 @@ document.getElementById('applyDrawingOptionsButton').addEventListener('click', f
     // Close the modal after applying
     document.getElementById('drawingOptionsModal').style.display = 'none';
 });
+
 
 // ============================
 // SECTION: Toggle Functionality
