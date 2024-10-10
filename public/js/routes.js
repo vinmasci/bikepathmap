@@ -116,45 +116,59 @@ async function snapToRoads(points) {
 // ============================
 function saveDrawnRoute() {
     if (snappedPoints.length > 1) {
-        console.log("Saving drawn route...");
+        // Open the modal for gravel/surface type selection
+        const modal = document.getElementById('routeSaveModal');
+        modal.style.display = 'block';
 
-        const geojsonData = {
-            'type': 'FeatureCollection',
-            'features': [
-                {
-                    'type': 'Feature',
-                    'geometry': {
-                        'type': 'LineString',
-                        'coordinates': snappedPoints
-                    },
-                    'properties': {}
-                }
-            ]
-        };
+        // Set up the event listener for the save button
+        document.getElementById('saveRouteButton').addEventListener('click', function() {
+            const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
+            const surfaceType = document.querySelector('input[name="surfaceType"]:checked').value;
 
-        fetch('/api/save-drawn-route', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ geojson: geojsonData })
-        })
-        .then(response => {
-            return response.json().then(data => {
+            const geojsonData = {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'LineString',
+                            'coordinates': snappedPoints
+                        },
+                        'properties': {
+                            'gravelType': gravelTypes, // Store gravel type(s)
+                            'surfaceType': surfaceType // Store surface type
+                        }
+                    }
+                ]
+            };
+
+            // Make the request to save the route and metadata
+            fetch('/api/save-drawn-route', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ geojson: geojsonData })
+            })
+            .then(response => response.json())
+            .then(data => {
                 if (data.success) {
                     alert('Route saved successfully!');
                 } else {
                     alert('Error saving route: ' + data.error);
                 }
+                modal.style.display = 'none'; // Close the modal after saving
+            })
+            .catch(error => {
+                console.error('Error saving route:', error);
+                alert('An error occurred while saving the route.');
+                modal.style.display = 'none';
             });
-        })
-        .catch(error => {
-            console.error('Error saving route:', error);
-            alert('An error occurred while saving the route.');
         });
     } else {
         console.log("No points to save.");
         alert('No route to save.');
     }
 }
+
 
 // ============================
 // SECTION: Reset and Undo Logic
@@ -192,6 +206,15 @@ function undoLastPoint() {
 // ============================
 // SECTION: Load Segments
 // ============================
+const gravelColors = {
+    0: '#00a8ff', // Blue for rough asphalt
+    1: '#4cd137', // Green for smooth gravel
+    2: '#fbc531', // Yellow for slightly technical
+    3: '#e84118', // Red for technical
+    4: '#c23616', // Dark Red for very technical
+    5: '#470002'  // Black Red for hike-a-bike
+};
+
 async function loadSegments() {
     try {
         const response = await fetch('/api/get-drawn-routes');
@@ -211,6 +234,9 @@ async function loadSegments() {
                         type: 'geojson',
                         data: route.geojson
                     });
+
+                    // Determine the color based on gravel type
+                    const routeColor = gravelColors[route.gravelType[0]] || '#FFFFFF'; // Default to white if undefined
 
                     // Add layer for the stroke
                     map.addLayer({
@@ -237,7 +263,7 @@ async function loadSegments() {
                             'line-cap': 'round'
                         },
                         'paint': {
-                            'line-color': 'cyan', // Cyan color for the line
+                            'line-color': routeColor, // Set the route color based on gravel type
                             'line-width': 3 // Width of the route line
                         }
                     });
@@ -259,6 +285,7 @@ async function loadSegments() {
         console.error('Error loading segments:', error);
     }
 }
+
 
 // ============================
 // SECTION: Remove Segments

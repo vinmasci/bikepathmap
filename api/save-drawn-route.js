@@ -11,7 +11,6 @@ async function connectToMongo() {
     return client.db('roadApp').collection('drawnRoutes');
 }
 
-
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
 
@@ -23,10 +22,12 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // Save the drawn route to MongoDB
+        // Save the drawn route with additional metadata (gravel type, surface type)
         const collection = await connectToMongo();
         const result = await collection.insertOne({
             geojson: geojson,
+            gravelType: geojson.features[0].properties.gravelType, // Store gravel type(s)
+            surfaceType: geojson.features[0].properties.surfaceType, // Store surface type
             createdAt: new Date()
         });
 

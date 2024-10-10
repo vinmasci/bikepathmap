@@ -87,6 +87,51 @@
 <div id="map"></div>
 
 <!-- Console/Control panel -->
+<div id="routeSaveModal" class="modal">
+    <div class="modal-content">
+      <h4>Select Gravel and Surface Type</h4>
+      
+      <div>
+        <h5>Gravel Type:</h5>
+        <label>
+          <input type="checkbox" name="gravelType" value="0"> Bad or rough asphalt roads
+        </label>
+        <label>
+          <input type="checkbox" name="gravelType" value="1"> Non-technical (smooth gravel)
+        </label>
+        <label>
+          <input type="checkbox" name="gravelType" value="2"> Slightly technical (small rocks over a hard pack surface)
+        </label>
+        <label>
+          <input type="checkbox" name="gravelType" value="3"> Technical (rough larger-type gravel or sand)
+        </label>
+        <label>
+          <input type="checkbox" name="gravelType" value="4"> Very technical (large rocks, shale, or thick sand)
+        </label>
+        <label>
+          <input type="checkbox" name="gravelType" value="5"> Hike-a-bike
+        </label>
+      </div>
+      
+      <div>
+        <h5>Surface Type:</h5>
+        <label>
+          <input type="radio" name="surfaceType" value="cobbles"> Cobbles / rough asphalt road
+        </label>
+        <label>
+          <input type="radio" name="surfaceType" value="gravel"> Gravel road
+        </label>
+        <label>
+          <input type="radio" name="surfaceType" value="singletrack"> Single track
+        </label>
+      </div>
+      
+      <button id="saveRouteButton">Save Route</button>
+    </div>
+  </div>
+  
+
+<!-- Console/Control panel -->
 <div id="control-panel" class="btn-group">
     <button id="undo-btn" class="btn btn-secondary">Undo</button>
     <button id="reset-btn" class="btn btn-warning">Reset</button>
