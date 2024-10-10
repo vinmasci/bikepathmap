@@ -28,24 +28,6 @@ window.onclick = function(event) {
 };
 
 // ============================
-// SECTION: TOOGLE DRAWING MODE
-// ============================
-function toggleDrawingMode() {
-    drawingEnabled = !drawingEnabled;
-    if (drawingEnabled) {
-        enableDrawingMode();
-        document.getElementById('control-panel').style.display = 'block'; // Show control panel
-        updateTabHighlight('draw-route-tab', true);
-        map.getCanvas().style.cursor = 'crosshair'; // Set crosshair cursor when drawing is enabled
-    } else {
-        disableDrawingMode(false); // Disable drawing mode without saving
-        document.getElementById('control-panel').style.display = 'none'; // Hide control panel
-        updateTabHighlight('draw-route-tab', false);
-        map.getCanvas().style.cursor = ''; // Reset cursor to default when drawing is disabled
-    }
-}
-
-// ============================
 // SECTION: Tab Highlighting
 // ============================
 function updateTabHighlight(tabId, isActive) {

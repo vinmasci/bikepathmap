@@ -66,17 +66,19 @@
         }
 
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            background-color: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            border-radius: 8px;
-        }
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px; /* Control the width */
+    max-height: 90%; /* Limit the height */
+    overflow-y: auto; /* Scroll content if it overflows */
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    border-radius: 8px;
+}
 
         .modal-content {
             padding: 20px;
