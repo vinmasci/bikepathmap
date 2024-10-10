@@ -86,7 +86,7 @@ async function snapToRoads(points) {
 
 
 // ============================
-// SECTION: Draw Point and Snap to Road (Updated to support multiple segments)
+// SECTION: Draw Point and Snap to Road (Updated for multiple segments)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
@@ -110,8 +110,8 @@ async function drawPoint(e) {
     }
 
     // Update the previous point to the current point
-    previousPoint = coords;
-    drawnPoints.push(coords);
+    previousPoint = coords; // Now it's used for the next segment connection
+    drawnPoints.push(coords); // Add current point to the drawn points array
 
     // Create a new marker element with the current color
     const markerElement = document.createElement('div');
@@ -128,6 +128,7 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker
 }
+
 
 
 // ================================
