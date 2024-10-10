@@ -82,15 +82,6 @@ function disableDrawingMode() {
     document.getElementById('control-panel').style.display = 'none';
 }
 
-// ============================
-// SECTION: Disable Drawing Mode
-// ============================
-function disableDrawingMode() {
-    console.log("Drawing mode disabled.");
-    map.off('click', drawPoint); // Unbind the click event
-    map.getCanvas().style.cursor = ''; // Reset cursor to default
-}
-
 // ================================
 // SECTION: Snap to Road Function with Selected Style
 // ================================
@@ -168,66 +159,6 @@ function drawPoint(e) {
     }
 }
 
-// ================================
-// SECTION: Snap to Road Function
-// ================================
-async function snapToRoads(points) {
-    try {
-        const coordinatesString = points.map(coord => coord.join(',')).join(';');
-
-        // Request to Mapbox's Map Matching API with 'cycling' profile
-        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true`);
-
-        const data = await response.json();
-
-        if (data && data.matchings) {
-            // Store snapped points
-            snappedPoints = data.matchings[0].geometry.coordinates;
-
-            if (currentLine) {
-                map.removeLayer('drawn-route');
-                map.removeSource('drawn-route');
-            }
-
-            currentLine = {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'LineString',
-                    'coordinates': snappedPoints
-                }
-            };
-
-            map.addSource('drawn-route', { 'type': 'geojson', 'data': currentLine });
-            map.addLayer({
-                'id': 'drawn-route',
-                'type': 'line',
-                'source': 'drawn-route',
-                'layout': { 'line-join': 'round', 'line-cap': 'round' },
-                'paint': { 
-                    'line-color': '#FFA500',
-                    'line-width': 4 
-                }
-            });
-        } else {
-            console.error('Error snapping to road:', data.message);
-        }
-    } catch (error) {
-        console.error('Error calling Mapbox API:', error);
-    }
-}
-
-// ============================
-// SECTION: Enable Drawing Mode
-// ============================
-function enableDrawingMode() {
-    console.log("Drawing mode enabled.");
-    
-    // Open the modal for gravel and road type selection before drawing
-    document.getElementById('drawingOptionsModal').style.display = 'block';
-    
-    map.on('click', drawPoint); // Bind click event to draw points
-    map.getCanvas().style.cursor = 'crosshair'; // Set the cursor to crosshair when drawing
-}
 
 // ============================
 // SECTION: Save Drawn Route
