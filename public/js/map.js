@@ -5,7 +5,8 @@ let layerVisibility = { segments: false, gravel: false, photos: false, pois: fal
 // SECTION: Map Initialization
 // ===========================
 function initMap() {
-    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIhY9PiiA';
+    console.log("Initializing map...");
+    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your Mapbox token
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
@@ -13,8 +14,15 @@ function initMap() {
         zoom: 10
     });
 
-    // Initialize event listeners
-    initEventListeners();
+    map.on('load', () => {
+        console.log("Map loaded successfully.");
+        initEventListeners();
+        loadSegments(); // Load segments once the map is loaded
+    });
+
+    map.on('error', (e) => {
+        console.error("Map error:", e);
+    });
 }
 
 // ============================
