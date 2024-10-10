@@ -6,6 +6,7 @@ let selectedColor = '#FFFFFF'; // Default color
 let selectedLineStyle = 'solid'; // Default to solid line
 let segmentColorStyle = []; // Store the color and style of each segment
 let previousPoint = null; // Store the last drawn point to start new segments
+let segmentCounter = 0; // Counter for unique segment IDs
 
 // Gravel type color mapping
 const gravelColors = {
@@ -171,13 +172,12 @@ async function drawPoint(e) {
     markers.push(marker); // Store the marker
 }
 
-
-// ============================
+// ================================
 // SECTION: Draw Individual Segment
-// ============================
+// ================================
 function drawSegment(start, end, color, lineStyle) {
     // Create a unique ID for the segment
-    const segmentId = `segment-${Date.now()}`;
+    const segmentId = `segment-${segmentCounter++}`; // Increment segmentCounter to ensure uniqueness
 
     // Prepare the segment data
     const segmentLine = {
@@ -207,10 +207,6 @@ function drawSegment(start, end, color, lineStyle) {
         }
     });
 }
-
-
-
-
 
 // ============================
 // SECTION: Save Drawn Route
