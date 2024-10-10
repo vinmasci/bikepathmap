@@ -64,46 +64,45 @@ function disableDrawingMode() {
 // ================================
 async function snapToRoads(points) {
     try {
+        // Convert the points array to a string that Mapbox's API can process
         const coordinatesString = points.map(coord => coord.join(',')).join(';');
-
-        // Request to Mapbox's Map Matching API with the 'cycling' profile
+        
+        // Call the Mapbox Map Matching API with the 'cycling' profile
         const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true`);
 
+        // Parse the API response
         const data = await response.json();
 
-        if (data && data.matchings && data.matchings[0].geometry.coordinates.length) {
-            // Return the snapped coordinates for the segment
+        // Check if we received matchings and valid geometry data
+        if (data && data.matchings && data.matchings[0] && data.matchings[0].geometry.coordinates.length) {
             return data.matchings[0].geometry.coordinates;
         } else {
-            console.error('Error snapping to road:', data.message || 'No matchings found');
-            return null; // Return null if snapping fails
+            console.error('Mapbox Map Matching API returned no valid matchings', data);
+            return null;
         }
     } catch (error) {
         console.error('Error calling Mapbox API:', error);
-        return null; // Return null in case of an error
+        return null;
     }
 }
 
 
-// ============================
-// SECTION: Draw Point and Snap to Road (Fix for corner handling and fallback)
-// ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
-    
-    // If there is a previous point, attempt to snap the segment between the previous point and the current one
+
+    // If there is a previous point, snap the segment between the previous point and the current one
     if (previousPoint) {
-        let snappedSegment = await snapToRoads([previousPoint, coords]);
+        const snappedSegment = await snapToRoads([previousPoint, coords]);
         
         if (snappedSegment && snappedSegment.length === 2) {
-            // Draw the snapped segment if snapping succeeds
+            // Draw the snapped segment between the two points
             drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
             
             // Add the snapped points to the snappedPoints array
             snappedPoints.push(snappedSegment[1]); // Only push the new end point
         } else {
-            // If snapping fails, fall back to drawing the raw line between points
-            console.warn('Snapping failed, drawing raw line.');
+            console.warn('Snapping failed, drawing raw line');
+            // If snapping fails, fall back to a raw line between points
             drawSegment(previousPoint, coords, selectedColor, selectedLineStyle);
         }
     } else {
@@ -129,7 +128,6 @@ async function drawPoint(e) {
     
     markers.push(marker); // Store the marker for future reference
 }
-
 
 
 // ================================
