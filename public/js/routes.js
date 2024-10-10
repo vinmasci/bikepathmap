@@ -60,7 +60,7 @@ function disableDrawingMode() {
 }
 
 // ================================
-// SECTION: Snap to Road Function
+// SECTION: Snap to Road Function (updated to keep all segments)
 // ================================
 async function snapToRoads(points) {
     try {
@@ -84,25 +84,34 @@ async function snapToRoads(points) {
     }
 }
 
+
 // ============================
-// SECTION: Draw Point and Snap to Road
+// SECTION: Draw Point and Snap to Road (Updated to support multiple segments)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
 
-    // Add the current point to the drawn points array
-    drawnPoints.push(coords);
-
-    // If there are at least two points, snap the last segment to the road
-    if (drawnPoints.length > 1) {
-        // Snap the last segment (from the previous point to the current point)
-        const snappedSegment = await snapToRoads(drawnPoints.slice(-2)); // Only snap the last two points
+    // Store the previous point before adding the new one
+    if (previousPoint) {
+        // Snap the segment between the previous point and the current point
+        const snappedSegment = await snapToRoads([previousPoint, coords]);
 
         if (snappedSegment && snappedSegment.length === 2) {
+            // Store the snapped segment's color and style
+            segmentColorStyle.push({
+                color: selectedColor,
+                style: selectedLineStyle,
+                points: [snappedSegment[0], snappedSegment[1]]
+            });
+
             // Draw the snapped segment with the current selected color and style
             drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
         }
     }
+
+    // Update the previous point to the current point
+    previousPoint = coords;
+    drawnPoints.push(coords);
 
     // Create a new marker element with the current color
     const markerElement = document.createElement('div');
@@ -119,6 +128,7 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker
 }
+
 
 // ================================
 // SECTION: Draw Individual Segment
