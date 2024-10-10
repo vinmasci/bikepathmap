@@ -49,11 +49,18 @@ function toggleSegmentsLayer() {
 // ============================
 function enableDrawingMode() {
     console.log("Drawing mode enabled.");
-    map.on('click', drawPoint); // Bind click event to draw points
-    map.getCanvas().style.cursor = 'crosshair'; // Set the cursor to crosshair when drawing
 
-    // Show the control panel when drawing mode is active
-    document.getElementById('control-panel').style.display = 'block';
+    // Show the drawing options modal to let the user select road and gravel types
+    document.getElementById('drawingOptionsModal').style.display = 'block';
+
+    // Bind click event to draw points only after modal options are applied
+    document.getElementById('applyDrawingOptionsButton').addEventListener('click', function() {
+        map.on('click', drawPoint); // Bind click event to draw points after user applies options
+        map.getCanvas().style.cursor = 'crosshair'; // Set the cursor to crosshair when drawing
+
+        // Show the control panel when drawing mode is active
+        document.getElementById('control-panel').style.display = 'block';
+    });
 }
 
 function disableDrawingMode() {
@@ -63,7 +70,11 @@ function disableDrawingMode() {
 
     // Hide the control panel when drawing mode is disabled
     document.getElementById('control-panel').style.display = 'none';
+    
+    // Hide the drawing options modal if it is open
+    document.getElementById('drawingOptionsModal').style.display = 'none';
 }
+
 
 // ================================
 // SECTION: Snap to Road Function with Selected Style
