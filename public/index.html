@@ -120,17 +120,37 @@
     margin-bottom: 10px;
 }
 
-        #control-panel {
-            display: none;
-            position: absolute;
-            bottom: 70px;
-            left: 10px;
-            background-color: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-        }
+#control-panel {
+    display: none;
+    position: absolute;
+    bottom: 70px;
+    left: 10px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.drawing-options {
+    margin-top: 10px;
+}
+
+.drawing-options h5 {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.drawing-options label {
+    font-size: 12px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+#applyDrawingOptionsButton {
+    margin-top: 10px;
+}
+
 
     </style>
 </head>
@@ -143,6 +163,23 @@
     <button id="undo-btn" class="btn btn-secondary">Undo</button>
     <button id="reset-btn" class="btn btn-warning">Reset</button>
     <button id="save-btn" class="btn btn-success">Save</button>
+    
+    <!-- Drawing Options -->
+    <div class="drawing-options">
+        <h5>Gravel Type (Color):</h5>
+        <label><input type="radio" name="gravelType" value="0"> Blue (Bad or rough asphalt)</label>
+        <label><input type="radio" name="gravelType" value="1"> Green (Non-technical)</label>
+        <label><input type="radio" name="gravelType" value="2"> Yellow (Slightly technical)</label>
+        <label><input type="radio" name="gravelType" value="3"> Red (Technical)</label>
+        <label><input type="radio" name="gravelType" value="4"> Moroon (Very technical)</label>
+        <label><input type="radio" name="gravelType" value="5"> Black (Hike-a-bike)</label>
+      
+        <h5>Road Type:</h5>
+        <label><input type="radio" name="roadType" value="solid"> Gravel Road (Solid line)</label>
+        <label><input type="radio" name="roadType" value="dashed"> Single Track (Dashed line)</label>
+      
+        <button id="applyDrawingOptionsButton" class="btn btn-primary">Apply</button>
+    </div>
 </div>
 
 <div class="tabs">

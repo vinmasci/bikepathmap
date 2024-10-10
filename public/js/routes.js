@@ -50,30 +50,28 @@ function toggleSegmentsLayer() {
 function enableDrawingMode() {
     console.log("Drawing mode enabled.");
 
-    // Show the drawing options modal to let the user select road and gravel types
-    document.getElementById('drawingOptionsModal').style.display = 'block';
-
-    // Bind click event to draw points only after modal options are applied
+    // Show the control panel when drawing mode is active
+    document.getElementById('control-panel').style.display = 'block';
+    
+    // Wait for the user to apply drawing options
     document.getElementById('applyDrawingOptionsButton').addEventListener('click', function() {
+        // Apply drawing mode once options are set
         map.on('click', drawPoint); // Bind click event to draw points after user applies options
         map.getCanvas().style.cursor = 'crosshair'; // Set the cursor to crosshair when drawing
 
-        // Show the control panel when drawing mode is active
-        document.getElementById('control-panel').style.display = 'block';
-    });
+        console.log("Drawing options applied, ready to draw.");
+    }, { once: true }); // Ensure this event listener is only added once
 }
 
 function disableDrawingMode() {
     console.log("Drawing mode disabled.");
-    map.off('click', drawPoint); // Unbind the click event
+    map.off('click', drawPoint); // Unbind the click event to stop drawing points
     map.getCanvas().style.cursor = ''; // Reset cursor to default
 
     // Hide the control panel when drawing mode is disabled
     document.getElementById('control-panel').style.display = 'none';
-    
-    // Hide the drawing options modal if it is open
-    document.getElementById('drawingOptionsModal').style.display = 'none';
 }
+
 
 
 // ================================
