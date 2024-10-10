@@ -170,30 +170,6 @@ async function drawPoint(e) {
     markers.push(marker); // Store the marker
 }
 
-// ================================
-// SECTION: Snap to Road Function for a Single Segment
-// ================================
-async function snapToRoads(points) {
-    try {
-        const coordinatesString = points.map(coord => coord.join(',')).join(';');
-
-        // Request to Mapbox's Map Matching API with 'cycling' profile
-        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true`);
-
-        const data = await response.json();
-
-        if (data && data.matchings && data.matchings[0].geometry.coordinates) {
-            return data.matchings[0].geometry.coordinates;
-        } else {
-            console.error('Error snapping to road:', data.message);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error calling Mapbox API:', error);
-        return null;
-    }
-}
-
 // ============================
 // SECTION: Draw Individual Segment
 // ============================
@@ -298,17 +274,25 @@ function saveDrawnRoute() {
 function resetRoute() {
     console.log("Resetting route...");
 
-    if (currentLine) {
-        map.removeLayer('drawn-route');
-        map.removeSource('drawn-route');
-        currentLine = null;
-    }
+    // Remove all segment layers and sources
+    map.getStyle().layers
+        .filter(layer => layer.id.startsWith('segment-'))
+        .forEach(layer => {
+            map.removeLayer(layer.id); // Remove the layer
+            const sourceId = layer.id.replace('-layer', '');
+            if (map.getSource(sourceId)) {
+                map.removeSource(sourceId); // Remove the corresponding source
+            }
+        });
 
-    markers.forEach(marker => marker.remove());
+    markers.forEach(marker => marker.remove()); // Remove all markers
     markers = [];
     drawnPoints = [];
+    previousPoint = null; // Reset previous point
     snappedPoints = [];
+    console.log("Route reset.");
 }
+
 
 function undoLastPoint() {
     if (drawnPoints.length > 1) {
