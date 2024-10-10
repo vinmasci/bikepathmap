@@ -6,7 +6,7 @@ let layerVisibility = { segments: false, gravel: false, photos: false, pois: fal
 // ===========================
 function initMap() {
     console.log("Initializing map...");
-    mapboxgl.accessToken = 'your_mapbox_access_token_here'; // Replace with your Mapbox token
+    mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your Mapbox token
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
