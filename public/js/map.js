@@ -54,25 +54,6 @@ function toggleSegmentsLayer() {
 }
 
 // ============================
-// SECTION: Toggle Drawing Mode
-// ============================
-function toggleDrawingMode() {
-    layerVisibility.drawing = !layerVisibility.drawing;
-
-    const controlPanel = document.getElementById('control-panel');
-    
-    if (layerVisibility.drawing) {
-        enableDrawingMode(); // Enable drawing mode logic here
-        controlPanel.style.display = 'block'; // Show control panel
-    } else {
-        disableDrawingMode(); // Disable drawing mode logic here
-        controlPanel.style.display = 'none'; // Hide control panel
-    }
-
-    updateTabHighlight('draw-route-tab', layerVisibility.drawing);
-}
-
-// ============================
 // SECTION: Toggle Photo Layer
 // ============================
 function togglePhotoLayer() {
