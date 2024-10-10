@@ -133,24 +133,26 @@ async function snapToRoads(points) {
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
+    
+    // Add the current point to the drawn points array
+    drawnPoints.push(coords);
 
-    // Push current segment color and style before drawing the next one
-    if (previousPoint) {
-        // Snap the segment to roads
-        const snappedSegment = await snapToRoads([previousPoint, coords]);
+    if (drawnPoints.length > 1) {
+        // Snap the last segment (from the previous point to the current point)
+        const snappedSegment = await snapToRoads(drawnPoints.slice(-2)); // Only snap the last two points
 
-        if (snappedSegment) {
-            // Store the segment's color and style before drawing a new one
-            segmentColorStyle.push({ color: selectedColor, style: selectedLineStyle, points: [snappedSegment[0], snappedSegment[1]] });
+        if (snappedSegment && snappedSegment.length === 2) {
+            // Store the snapped segment's color and style
+            segmentColorStyle.push({ 
+                color: selectedColor, 
+                style: selectedLineStyle, 
+                points: [snappedSegment[0], snappedSegment[1]] 
+            });
 
             // Draw the snapped segment with the current selected color and style
             drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
         }
     }
-
-    // Update previousPoint to the current point
-    previousPoint = coords;
-    drawnPoints.push(coords);
 
     // Create a new marker element with the current color
     const markerElement = document.createElement('div');
@@ -181,8 +183,7 @@ async function snapToRoads(points) {
         const data = await response.json();
 
         if (data && data.matchings && data.matchings[0].geometry.coordinates) {
-            const snappedPoints = data.matchings[0].geometry.coordinates;
-            return snappedPoints;
+            return data.matchings[0].geometry.coordinates;
         } else {
             console.error('Error snapping to road:', data.message);
             return null;
@@ -194,7 +195,7 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Draw Individual Segment (now uses snapped points)
+// SECTION: Draw Individual Segment
 // ============================
 function drawSegment(start, end, color, lineStyle) {
     // Create a unique ID for the segment
@@ -228,6 +229,7 @@ function drawSegment(start, end, color, lineStyle) {
         }
     });
 }
+
 
 
 
