@@ -10,7 +10,7 @@ let segmentCounter = 0; // Counter for unique segment IDs
 let originalPins = [];  // Store user-added pins
 
 
-// Gravel type color mapping
+// Gravel type color mapping (last GOOD)
 const gravelColors = {
     0: '#00a8ff', // Blue for rough asphalt
     1: '#4cd137', // Green for smooth gravel
@@ -115,10 +115,13 @@ async function snapToRoad() {
 // ============================
 function preserveColorsAndDrawSegments(snappedSegment) {
     // Iterate over the snappedSegment, but only draw from the last saved snapped point to the new one
-    let lastIndex = snappedPoints.length > 0 ? snappedPoints.length - 1 : 0; // Find the last snapped point
+    let lastIndex = snappedPoints.length > 0 ? snappedPoints.length - 1 : 0;  // Find the last snapped point
 
     for (let i = lastIndex; i < snappedSegment.length - 1; i++) {
-        // Check if the segment between snappedSegment[i] and snappedSegment[i + 1] already exists
+        let color = selectedColor;
+        let lineStyle = selectedLineStyle;
+
+        // If there's an existing segment, use its color and style
         const existingSegment = segmentColorStyle.find(segment =>
             segment.coordinates[0][0] === snappedSegment[i][0] &&
             segment.coordinates[0][1] === snappedSegment[i][1] &&
@@ -126,43 +129,29 @@ function preserveColorsAndDrawSegments(snappedSegment) {
             segment.coordinates[1][1] === snappedSegment[i + 1][1]
         );
 
-        let color, lineStyle;
-
         if (existingSegment) {
-            // If the segment already exists, preserve its color and style
             color = existingSegment.color;
             lineStyle = existingSegment.lineStyle;
-        } else {
-            // Otherwise, use the currently selected color and line style
-            color = selectedColor;
-            lineStyle = selectedLineStyle;
-
-            // Store the new segment's color and style
-            segmentColorStyle.push({
-                coordinates: [snappedSegment[i], snappedSegment[i + 1]],
-                color: selectedColor,
-                lineStyle: selectedLineStyle
-            });
         }
 
-        // Draw the segment with the preserved or selected color and style
         drawSegment(snappedSegment[i], snappedSegment[i + 1], color, lineStyle);
     }
 
-    // Update the snappedPoints array by appending the new snapped points
-    snappedPoints.push(...snappedSegment.slice(lastIndex + 1)); // Append only the new points
+    // Store the new snapped points
+    snappedPoints.push(...snappedSegment.slice(lastIndex + 1));  // Append only the new points
 }
 
 
 
+
 // ============================
-// 1SECTION: Draw Point (Combines snapping and drawing with color preservation)
+// SECTION: Draw Point (Combines snapping and drawing with color preservation)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
 
     // Add the current point to drawnPoints
-    drawnPoints.push(coords);    
+    drawnPoints.push(coords);
     originalPins.push(coords);  // Store the actual user-clicked pin
 
     // Snap to road and draw segments if valid snapping occurs
@@ -187,20 +176,33 @@ async function drawPoint(e) {
         .setLngLat(coords)
         .addTo(map);
 
-    markers.push(marker); // Store the marker for future reference
+    // Store the marker for future reference
+    markers.push(marker);
+
+    // If there's a previous marker, store the segment created between the two
+    if (originalPins.length > 1) {
+        const previousMarker = originalPins[originalPins.length - 2];
+        segmentColorStyle.push({
+            coordinates: [previousMarker, coords],
+            color: selectedColor,
+            lineStyle: selectedLineStyle,
+            id: `segment-${segmentCounter++}`  // Create a unique segment ID
+        });
+    }
 }
 
 // ============================
 // 1SECTION: Remove Previous Segments
 // ============================
 function removePreviousSegments() {
-    // This function should remove only those segments that are being redrawn, not all segments
+    // This function removes previously drawn segments from the map
     const layers = map.getStyle().layers.filter(layer => layer.id.startsWith('segment-'));
     layers.forEach(layer => {
         const sourceId = layer.id.replace('-layer', '');
         if (map.getSource(sourceId)) {
-            map.removeSource(sourceId); // Remove the corresponding source
+            map.removeSource(sourceId);  // Remove the corresponding source
         }
+        map.removeLayer(layer.id);  // Remove the segment layer
     });
 }
 
@@ -341,38 +343,25 @@ function resetRoute() {
 
 async function undoLastPoint() {
     if (originalPins.length > 1) {
-        // Remove the last user-added pin and corresponding marker
+        // Remove the last marker and its corresponding segment
         originalPins.pop();  // Remove the last user pin
         const lastMarker = markers.pop();
         if (lastMarker) lastMarker.remove();  // Remove the last marker
 
-        // Get the last remaining pin
-        const lastPin = originalPins[originalPins.length - 1];
-
-        // Find the index of the last remaining pin in snappedPoints
-        const lastPinIndex = snappedPoints.findIndex(point =>
-            point[0] === lastPin[0] && point[1] === lastPin[1]
-        );
-
-        // If found, remove all snapped points after the last pin
-        if (lastPinIndex !== -1) {
-            snappedPoints = snappedPoints.slice(0, lastPinIndex + 1);  // Keep snapped points up to the last valid pin
-        }
-
-        // Remove the corresponding segments from the map
-        while (segmentCounter > snappedPoints.length - 1) {
-            const lastSegmentId = `segment-${segmentCounter - 1}`;
+        // Get the last drawn segment and remove it
+        const lastSegment = segmentColorStyle.pop();  // Remove the last drawn segment
+        if (lastSegment) {
+            const lastSegmentId = lastSegment.id;
             if (map.getLayer(lastSegmentId)) {
                 map.removeLayer(lastSegmentId);  // Remove the segment layer
-                const sourceId = lastSegmentId.replace('-layer', '');
-                if (map.getSource(sourceId)) {
-                    map.removeSource(sourceId);  // Remove the segment source
+                if (map.getSource(lastSegmentId)) {
+                    map.removeSource(lastSegmentId);  // Remove the source
                 }
             }
             segmentCounter--;  // Decrement the segment counter
         }
 
-        // Clear previous segments and redraw from the remaining snapped points
+        // Redraw the remaining route from snapped points (if any)
         removePreviousSegments();  // Clear existing segments
 
         if (snappedPoints.length > 1) {
@@ -388,6 +377,7 @@ async function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
+
 
 
 // ============================
