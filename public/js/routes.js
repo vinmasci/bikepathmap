@@ -60,37 +60,54 @@ function disableDrawingMode() {
     document.getElementById('control-panel').style.display = 'none';
 }
 
+//2 ================================
+// SECTION: Snap to Road Function (streamlined, no retries, no fallback)
 // ================================
-// SECTION: Snap to Road (Combines API call and point snapping logic)
-// ================================
-async function snapToRoad(points) {
-    if (points.length > 1) {
-        try {
-            // Convert the points array to a string for Mapbox's API
-            const coordinatesString = points.map(coord => coord.join(',')).join(';');
-            const url = `https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true&tidy=true`;
+async function snapToRoads(points) {
+    try {
+        // Convert the points array to a string for Mapbox's API
+        const coordinatesString = points.map(coord => coord.join(',')).join(';');
+        const url = `https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true&tidy=true`;
 
-            // Fetch data from Mapbox API
-            const response = await fetch(url);
-            const data = await response.json();
+        // Fetch data from Mapbox API
+        const response = await fetch(url);
 
-            // Check if we received valid matchings and geometry
-            if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length) {
-                // Clear previously drawn segments before drawing new ones
-                removePreviousSegments();
-                return data.matchings[0].geometry.coordinates; // Return snapped coordinates
-            } else {
-                console.error('No valid matchings from Mapbox API', data);
-                return null;
-            }
-        } catch (error) {
-            console.error('Error calling Mapbox API:', error);
-            return null; // Return null on error
+        // Parse the API response
+        const data = await response.json();
+
+        // Check if we received matchings and valid geometry data
+        if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length) {
+            return data.matchings[0].geometry.coordinates; // Return snapped coordinates
+        } else {
+            console.error('No valid matchings from Mapbox API', data);
+            return null;
         }
+    } catch (error) {
+        console.error('Error calling Mapbox API:', error);
+        return null; // Return null on error
     }
-    return null; // Return null if points length is not sufficient
 }
 
+// ============================
+// SECTION: Snap to Road (Handles snapping points to the road)
+// ============================
+async function snapToRoad() {
+    if (drawnPoints.length > 1) {
+        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
+
+        if (snappedSegment && snappedSegment.length >= 2) {
+            // Clear previously drawn segments
+            removePreviousSegments(); // Ensures older lines don't overlap with new ones
+
+            // Return the snapped points for drawing
+            return snappedSegment;
+        } else {
+            console.error('Snapping failed, no line drawn');
+            return null;
+        }
+    }
+    return null;
+}
 
 // ============================
 // SECTION: Preserve Colors and Draw Segments (Draws the segments and handles colors)
