@@ -14,7 +14,7 @@ const gravelColors = {
     0: '#00a8ff', // Blue for rough asphalt
     1: '#4cd137', // Green for smooth gravel
     2: '#fbc531', // Yellow for slightly technical
-    3: '#e84118', // Red for technical
+    3: '#f0932b', // Orange for technical
     4: '#c23616', // Dark Red for very technical
     5: '#470002'  // Black Red for hike-a-bike
 };
@@ -189,7 +189,7 @@ async function drawPoint(e) {
 }
 
 // ============================
-// SECTION: Remove Previous Segments
+// 1SECTION: Remove Previous Segments
 // ============================
 function removePreviousSegments() {
     // This function removes previously drawn segments from the map to avoid overlap
@@ -202,11 +202,10 @@ function removePreviousSegments() {
         }
     });
 
-    // Redraw all previously stored segments with their original colors and styles
-    segmentColorStyle.forEach(segment => {
-        drawSegment(segment.coordinates[0], segment.coordinates[1], segment.color, segment.lineStyle);
-    });
+    // Clear the segment color and style list to ensure it gets rebuilt correctly
+    segmentColorStyle = [];
 }
+
 
 // ================================
 // SECTION: Draw Individual Segment (Handles drawing lines on the map)
@@ -339,7 +338,7 @@ function resetRoute() {
 }
 
 // ============================
-// SECTION: Undo Logic
+// SECTION: Undo Logic (refined)
 // ============================
 
 async function undoLastPoint() {
@@ -359,26 +358,28 @@ async function undoLastPoint() {
             }
         }
 
-        segmentCounter--; // Decrement segment counter
-
-        // Update the snapped points by popping the last one
-        snappedPoints.pop();
-
-        // Remove the corresponding entry from segmentColorStyle
-        if (segmentColorStyle.length > 0) {
-            segmentColorStyle.pop();
+        // Ensure the segment counter gets decremented only when a segment is removed
+        if (segmentCounter > 0) {
+            segmentCounter--;
         }
 
-        // Redraw the remaining segments from the snapped points
+        // Ensure both snappedPoints and segmentColorStyle reflect the change
+        if (snappedPoints.length > 0) {
+            snappedPoints.pop(); // Remove the last snapped point
+        }
+        
+        if (segmentColorStyle.length > 0) {
+            segmentColorStyle.pop(); // Remove the last stored segment's style
+        }
+
+        // Clear previous segments and redraw from the remaining points
+        removePreviousSegments();
+
+        // Redraw only if there are more than 1 point left
         if (drawnPoints.length > 1) {
-            // Snap the remaining points to roads
             const snappedSegment = await snapToRoads(drawnPoints);
 
             if (snappedSegment) {
-                // Clear existing segments before redrawing
-                removePreviousSegments(); 
-
-                // Preserve colors and redraw the remaining segments
                 preserveColorsAndDrawSegments(snappedSegment);
             }
         } else {
@@ -388,6 +389,7 @@ async function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
+
 
 
 
