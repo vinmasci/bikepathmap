@@ -88,20 +88,29 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Draw Point and Snap to Road (no fallback to raw lines)
+// SECTION: Draw Point and Snap to Road (Using more points)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
+    
+    // Add the current point to drawnPoints
+    drawnPoints.push(coords); 
+    
+    // If there are at least two points, attempt to snap all points
+    if (drawnPoints.length > 1) {
+        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
 
-    // Only attempt to draw if there is a previous point
-    if (previousPoint) {
-        const snappedSegment = await snapToRoads([previousPoint, coords]); // Snap the previous and current point
+        if (snappedSegment && snappedSegment.length >= 2) {
+            // Clear previously drawn segments
+            removePreviousSegments();
 
-        if (snappedSegment && snappedSegment.length === 2) {
-            // Draw the snapped segment between the two points
-            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
-            // Add the snapped point to snappedPoints
-            snappedPoints.push(snappedSegment[1]); // Push only the end point
+            // Draw the snapped route segment by segment
+            for (let i = 0; i < snappedSegment.length - 1; i++) {
+                drawSegment(snappedSegment[i], snappedSegment[i + 1], selectedColor, selectedLineStyle);
+            }
+
+            // Store the snapped points
+            snappedPoints = [...snappedSegment]; // Replace the snappedPoints array with new snapped points
         } else {
             console.error('Snapping failed, no line drawn');
         }
@@ -109,7 +118,6 @@ async function drawPoint(e) {
 
     // Update the previous point to the current one for future connections
     previousPoint = coords;
-    drawnPoints.push(coords); // Add the current point to drawnPoints
 
     // Create and add a marker for the current point
     const markerElement = document.createElement('div');
@@ -124,6 +132,21 @@ async function drawPoint(e) {
         .addTo(map);
 
     markers.push(marker); // Store the marker for future reference
+}
+
+// ============================
+// SECTION: Remove Previous Segments
+// ============================
+function removePreviousSegments() {
+    // This function removes previously drawn segments from the map to avoid overlap
+    const layers = map.getStyle().layers.filter(layer => layer.id.startsWith('segment-'));
+    layers.forEach(layer => {
+        map.removeLayer(layer.id); // Remove the layer
+        const sourceId = layer.id.replace('-layer', '');
+        if (map.getSource(sourceId)) {
+            map.removeSource(sourceId); // Remove the corresponding source
+        }
+    });
 }
 
 // ================================
