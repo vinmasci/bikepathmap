@@ -114,21 +114,41 @@ async function snapToRoad() {
 // ============================
 function preserveColorsAndDrawSegments(snappedSegment) {
     for (let i = 0; i < snappedSegment.length - 1; i++) {
-        const color = segmentColorStyle[i]?.color || selectedColor; // Preserve previously set color
-        const lineStyle = segmentColorStyle[i]?.lineStyle || selectedLineStyle; // Preserve line style
+        // Check if the segment between snappedSegment[i] and snappedSegment[i + 1] already exists
+        const existingSegment = segmentColorStyle.find(segment =>
+            segment.coordinates[0][0] === snappedSegment[i][0] &&
+            segment.coordinates[0][1] === snappedSegment[i][1] &&
+            segment.coordinates[1][0] === snappedSegment[i + 1][0] &&
+            segment.coordinates[1][1] === snappedSegment[i + 1][1]
+        );
+
+        let color, lineStyle;
+
+        if (existingSegment) {
+            // If the segment already exists, preserve its color and style
+            color = existingSegment.color;
+            lineStyle = existingSegment.lineStyle;
+        } else {
+            // Otherwise, use the currently selected color and line style
+            color = selectedColor;
+            lineStyle = selectedLineStyle;
+
+            // Store the new segment's color and style
+            segmentColorStyle.push({
+                coordinates: [snappedSegment[i], snappedSegment[i + 1]],
+                color: selectedColor,
+                lineStyle: selectedLineStyle
+            });
+        }
+
+        // Draw the segment with the preserved or selected color and style
         drawSegment(snappedSegment[i], snappedSegment[i + 1], color, lineStyle);
-        
-        // Store the segment's color and style
-        segmentColorStyle.push({
-            coordinates: [snappedSegment[i], snappedSegment[i + 1]],
-            color: selectedColor,
-            lineStyle: selectedLineStyle
-        });
     }
 
     // Store the snapped points
     snappedPoints = [...snappedSegment]; // Replace snappedPoints array with newly snapped points
 }
+
 
 // ============================
 // SECTION: Draw Point (Combines snapping and drawing with color preservation)
