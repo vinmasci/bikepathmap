@@ -342,7 +342,7 @@ function resetRoute() {
 // SECTION: Undo Logic
 // ============================
 
-function undoLastPoint() {
+async function undoLastPoint() {
     if (drawnPoints.length > 1) {
         // Remove the last point and marker
         drawnPoints.pop();
@@ -360,10 +360,18 @@ function undoLastPoint() {
         }
         segmentCounter--; // Decrement segment counter
 
-        // Update the snapped points and redraw the remaining route
+        // Redraw the route from the remaining points
         if (drawnPoints.length > 1) {
-            const snappedSegment = snapToRoads(drawnPoints);
-            preserveColorsAndDrawSegments(snappedSegment);
+            // Snap the remaining points to roads
+            const snappedSegment = await snapToRoads(drawnPoints);
+
+            if (snappedSegment) {
+                // Clear existing segments before redrawing
+                removePreviousSegments(); 
+
+                // Preserve colors and redraw the remaining segments
+                preserveColorsAndDrawSegments(snappedSegment);
+            }
         } else {
             console.log('No more points to snap.');
         }
@@ -371,6 +379,7 @@ function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
+
 
 // ============================
 // SECTION: Load Segments
