@@ -88,29 +88,27 @@ async function snapToRoads(points) {
     }
 }
 
-// ============================
-// SECTION: Draw Point and Snap to Road (Snap segment by segment)
+1.// ============================
+// SECTION: Draw Point and Snap to Road (Using more points)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
+    
+    // Add the current point to drawnPoints
+    drawnPoints.push(coords); 
+    
+    // If there are at least two points, attempt to snap all points
+    if (drawnPoints.length > 1) {
+        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
 
-    // If there is a previous point, attempt to snap the segment between the previous point and the current one
-    if (previousPoint) {
-        const snappedSegment = await snapToRoads([previousPoint, coords]); // Snap the segment between the previous point and the new point
+        if (snappedSegment && snappedSegment.length >= 2) {
+            // Draw the snapped route segment by segment
+            for (let i = 0; i < snappedSegment.length - 1; i++) {
+                drawSegment(snappedSegment[i], snappedSegment[i + 1], selectedColor, selectedLineStyle);
+            }
 
-        if (snappedSegment && snappedSegment.length === 2) {
-            // Draw the snapped segment between the two points
-            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
-
-            // Store the segment's color and style
-            segmentColorStyle.push({
-                coordinates: [snappedSegment[0], snappedSegment[1]],
-                color: selectedColor,
-                lineStyle: selectedLineStyle
-            });
-
-            // Store the new snapped endpoint
-            snappedPoints.push(snappedSegment[1]); 
+            // Store the snapped points
+            snappedPoints = [...snappedSegment]; // Replace the snappedPoints array with new snapped points
         } else {
             console.error('Snapping failed, no line drawn');
         }
@@ -118,9 +116,6 @@ async function drawPoint(e) {
 
     // Update the previous point to the current one for future connections
     previousPoint = coords;
-
-    // Add the current point to drawnPoints
-    drawnPoints.push(coords);
 
     // Create and add a marker for the current point
     const markerElement = document.createElement('div');
@@ -136,9 +131,6 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker for future reference
 }
-
-// Ensure only the most recent snapped segment is sent for drawing, and previous segments are not redrawn unnecessarily.
-
 
 // ============================
 // SECTION: Remove Previous Segments (Only removes current snapped segments, preserves previous colors)
