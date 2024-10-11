@@ -88,7 +88,7 @@ async function snapToRoads(points) {
     }
 }
 
-// ============================
+// ============================1
 // SECTION: Draw Point and Snap to Road (Preserve colors between pins)
 // ============================
 async function drawPoint(e) {
@@ -97,23 +97,23 @@ async function drawPoint(e) {
     // Add the current point to drawnPoints
     drawnPoints.push(coords); 
 
-    // If there are at least two points, attempt to snap the last segment only
+    // If there are at least two points, attempt to snap all points
     if (drawnPoints.length > 1) {
-        const snappedSegment = await snapToRoads([previousPoint, coords]); // Snap just the last segment
+        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
 
-        if (snappedSegment && snappedSegment.length === 2) {
-            // Draw the snapped segment between the two points with the selected color and line style
-            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
+        if (snappedSegment && snappedSegment.length >= 2) {
+            // Clear previously drawn segments
+            removePreviousSegments(); // This ensures older lines don't overlap with new ones
 
-            // Store the segment color and style for this snapped segment
-            segmentColorStyle.push({
-                coordinates: [snappedSegment[0], snappedSegment[1]],
-                color: selectedColor,
-                lineStyle: selectedLineStyle
-            });
+            // Loop through each segment between snapped points
+            for (let i = 0; i < snappedSegment.length - 1; i++) {
+                const color = segmentColorStyle[i]?.color || selectedColor; // Preserve previously set color
+                const lineStyle = segmentColorStyle[i]?.lineStyle || selectedLineStyle; // Preserve line style
+                drawSegment(snappedSegment[i], snappedSegment[i + 1], color, lineStyle);
+            }
 
             // Store the snapped points
-            snappedPoints.push(snappedSegment[1]); 
+            snappedPoints = [...snappedSegment]; // Replace snappedPoints array with newly snapped points
         } else {
             console.error('Snapping failed, no line drawn');
         }
@@ -136,7 +136,6 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker for future reference
 }
-
 
 
 // ============================
