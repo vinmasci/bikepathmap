@@ -341,39 +341,39 @@ function resetRoute() {
 
 async function undoLastPoint() {
     if (originalPins.length > 1) {
-        // Remove the last pin and corresponding marker
-        originalPins.pop();  // Remove the last clicked marker
+        // Remove the last user-added pin and corresponding marker
+        originalPins.pop();  // Remove the last user pin
         const lastMarker = markers.pop();
-        if (lastMarker) lastMarker.remove();
+        if (lastMarker) lastMarker.remove();  // Remove the last marker
 
-        // Get the last pin in originalPins and find its index in snappedPoints
+        // Get the last remaining pin
         const lastPin = originalPins[originalPins.length - 1];
 
-        // Find the index of the lastPin in the snappedPoints array
+        // Find the index of the last remaining pin in snappedPoints
         const lastPinIndex = snappedPoints.findIndex(point =>
             point[0] === lastPin[0] && point[1] === lastPin[1]
         );
 
         // If found, remove all snapped points after the last pin
         if (lastPinIndex !== -1) {
-            snappedPoints = snappedPoints.slice(0, lastPinIndex + 1);  // Keep snapped points up to the last pin
+            snappedPoints = snappedPoints.slice(0, lastPinIndex + 1);  // Keep snapped points up to the last valid pin
         }
 
-        // Remove the corresponding segments from the map and decrement the segment counter
+        // Remove the corresponding segments from the map
         while (segmentCounter > snappedPoints.length - 1) {
             const lastSegmentId = `segment-${segmentCounter - 1}`;
             if (map.getLayer(lastSegmentId)) {
-                map.removeLayer(lastSegmentId);
+                map.removeLayer(lastSegmentId);  // Remove the segment layer
                 const sourceId = lastSegmentId.replace('-layer', '');
                 if (map.getSource(sourceId)) {
-                    map.removeSource(sourceId);
+                    map.removeSource(sourceId);  // Remove the segment source
                 }
             }
-            segmentCounter--;  // Decrement segment counter
+            segmentCounter--;  // Decrement the segment counter
         }
 
-        // Redraw the remaining route from snapped points (if any)
-        removePreviousSegments();  // Clear existing segments before redrawing
+        // Clear previous segments and redraw from the remaining snapped points
+        removePreviousSegments();  // Clear existing segments
 
         if (snappedPoints.length > 1) {
             // Redraw the remaining segments
@@ -382,12 +382,13 @@ async function undoLastPoint() {
             console.log('No more points to snap.');
         }
     } else if (originalPins.length === 1) {
-        // If only one pin is left, remove everything (including the last point and marker)
-        resetRoute();  // Call the reset function to clear everything
+        // If there's only one pin left, reset everything
+        resetRoute();  // Reset everything when only one pin remains
     } else {
         console.log('Nothing to undo.');
     }
 }
+
 
 // ============================
 // SECTION: Load Segments
