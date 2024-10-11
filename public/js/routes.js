@@ -192,18 +192,14 @@ async function drawPoint(e) {
 // 1SECTION: Remove Previous Segments
 // ============================
 function removePreviousSegments() {
-    // This function removes previously drawn segments from the map to avoid overlap
+    // This function should remove only those segments that are being redrawn, not all segments
     const layers = map.getStyle().layers.filter(layer => layer.id.startsWith('segment-'));
     layers.forEach(layer => {
-        map.removeLayer(layer.id); // Remove the layer
         const sourceId = layer.id.replace('-layer', '');
         if (map.getSource(sourceId)) {
             map.removeSource(sourceId); // Remove the corresponding source
         }
     });
-
-    // Clear the segment color and style list to ensure it gets rebuilt correctly
-    segmentColorStyle = [];
 }
 
 
