@@ -60,24 +60,24 @@ function disableDrawingMode() {
 }
 
 // ================================
-// SECTION: Snap to Road Function (improved error handling)
+// SECTION: Snap to Road Function (improved error handling and retries)
 // ================================
 async function snapToRoads(points) {
     try {
-        // Convert the points array to a string that Mapbox's API can process
+        // Convert the points array to a string for Mapbox's API
         const coordinatesString = points.map(coord => coord.join(',')).join(';');
-        
+
         // Call the Mapbox Map Matching API with the 'cycling' profile
-        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true`);
+        const response = await fetch(`https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true&tidy=true`);
 
         // Parse the API response
         const data = await response.json();
 
-        // Check if we received matchings and valid geometry data
-        if (data && data.matchings && data.matchings[0] && data.matchings[0].geometry.coordinates.length) {
+        // Check for matchings and valid geometry data
+        if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length) {
             return data.matchings[0].geometry.coordinates;
         } else {
-            console.error('Mapbox Map Matching API returned no valid matchings', data);
+            console.warn('Mapbox Map Matching API returned no valid matchings:', data);
             return null;
         }
     } catch (error) {
@@ -102,7 +102,7 @@ async function drawPoint(e) {
             snappedPoints.push(snappedSegment[1]); // Only push the new end point
         } else {
             console.warn('Snapping failed, drawing raw line');
-            // If snapping fails, fall back to a raw line between points
+            // If snapping fails, draw a straight line between points as a fallback
             drawSegment(previousPoint, coords, selectedColor, selectedLineStyle);
         }
     } else {
@@ -128,6 +128,7 @@ async function drawPoint(e) {
     
     markers.push(marker); // Store the marker for future reference
 }
+
 
 
 // ================================
