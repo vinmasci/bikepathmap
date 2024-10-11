@@ -93,22 +93,27 @@ async function snapToRoads(points) {
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
-    
+
     // Add the current point to drawnPoints
     drawnPoints.push(coords); 
-    
+
     // If there are at least two points, attempt to snap all points
     if (drawnPoints.length > 1) {
-        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
+        const snappedSegment = await snapToRoads([previousPoint, coords]); // Snap the segment between the previous point and current point
 
-        if (snappedSegment && snappedSegment.length >= 2) {
-            // Draw the snapped route segment by segment
-            for (let i = 0; i < snappedSegment.length - 1; i++) {
-                drawSegment(snappedSegment[i], snappedSegment[i + 1], selectedColor, selectedLineStyle);
-            }
+        if (snappedSegment && snappedSegment.length === 2) {
+            // Draw the snapped segment between the two points
+            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
+            
+            // Store the segment's color and style in the segmentColorStyle array
+            segmentColorStyle.push({
+                coordinates: [snappedSegment[0], snappedSegment[1]],
+                color: selectedColor,
+                lineStyle: selectedLineStyle
+            });
 
-            // Store the snapped points
-            snappedPoints = [...snappedSegment]; // Replace the snappedPoints array with new snapped points
+            // Store only the new snapped endpoint
+            snappedPoints.push(snappedSegment[1]);
         } else {
             console.error('Snapping failed, no line drawn');
         }
