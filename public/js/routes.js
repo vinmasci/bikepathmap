@@ -88,35 +88,62 @@ async function snapToRoads(points) {
     }
 }
 
-// ============================1
-// SECTION: Draw Point and Snap to Road (Preserve colors between pins)
 // ============================
-async function drawPoint(e) {
-    const coords = [e.lngLat.lng, e.lngLat.lat];
-
-    // Add the current point to drawnPoints
-    drawnPoints.push(coords); 
-
-    // If there are at least two points, attempt to snap all points
+// SECTION: Snap to Road (Handles snapping points to the road)
+// ============================
+async function snapToRoad() {
     if (drawnPoints.length > 1) {
         const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
 
         if (snappedSegment && snappedSegment.length >= 2) {
             // Clear previously drawn segments
-            removePreviousSegments(); // This ensures older lines don't overlap with new ones
+            removePreviousSegments(); // Ensures older lines don't overlap with new ones
 
-            // Loop through each segment between snapped points
-            for (let i = 0; i < snappedSegment.length - 1; i++) {
-                const color = segmentColorStyle[i]?.color || selectedColor; // Preserve previously set color
-                const lineStyle = segmentColorStyle[i]?.lineStyle || selectedLineStyle; // Preserve line style
-                drawSegment(snappedSegment[i], snappedSegment[i + 1], color, lineStyle);
-            }
-
-            // Store the snapped points
-            snappedPoints = [...snappedSegment]; // Replace snappedPoints array with newly snapped points
+            // Return the snapped points for drawing
+            return snappedSegment;
         } else {
             console.error('Snapping failed, no line drawn');
+            return null;
         }
+    }
+    return null;
+}
+
+// ============================
+// SECTION: Preserve Colors and Draw Segments (Draws the segments and handles colors)
+// ============================
+function preserveColorsAndDrawSegments(snappedSegment) {
+    for (let i = 0; i < snappedSegment.length - 1; i++) {
+        const color = segmentColorStyle[i]?.color || selectedColor; // Preserve previously set color
+        const lineStyle = segmentColorStyle[i]?.lineStyle || selectedLineStyle; // Preserve line style
+        drawSegment(snappedSegment[i], snappedSegment[i + 1], color, lineStyle);
+        
+        // Store the segment's color and style
+        segmentColorStyle.push({
+            coordinates: [snappedSegment[i], snappedSegment[i + 1]],
+            color: selectedColor,
+            lineStyle: selectedLineStyle
+        });
+    }
+
+    // Store the snapped points
+    snappedPoints = [...snappedSegment]; // Replace snappedPoints array with newly snapped points
+}
+
+// ============================
+// SECTION: Draw Point (Combines snapping and drawing with color preservation)
+// ============================
+async function drawPoint(e) {
+    const coords = [e.lngLat.lng, e.lngLat.lat];
+
+    // Add the current point to drawnPoints
+    drawnPoints.push(coords);
+
+    // Snap to road and draw segments if valid snapping occurs
+    const snappedSegment = await snapToRoad();
+
+    if (snappedSegment) {
+        preserveColorsAndDrawSegments(snappedSegment); // Handle the drawing and color preservation
     }
 
     // Update the previous point to the current one for future connections
@@ -136,7 +163,6 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker for future reference
 }
-
 
 // ============================
 // SECTION: Remove Previous Segments
