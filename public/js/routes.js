@@ -60,6 +60,7 @@ function disableDrawingMode() {
     document.getElementById('control-panel').style.display = 'none';
 }
 
+//1
 // ================================
 // SECTION: Snap to Road Function (streamlined, no retries, no fallback)
 // ================================
@@ -89,35 +90,34 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Draw Point and Snap to Road (Using more points)
+// SECTION: Draw Point and Snap to Road (Color stays per segment)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
-    
+
     // Add the current point to drawnPoints
-    drawnPoints.push(coords); 
-    
-    // If there are at least two points, attempt to snap all points
-    if (drawnPoints.length > 1) {
-        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
+    if (previousPoint) {
+        // Snap only the current segment (previous to new point)
+        const snappedSegment = await snapToRoads([previousPoint, coords]); 
 
-        if (snappedSegment && snappedSegment.length >= 2) {
-            // Clear previously drawn segments
-            removePreviousSegments();
+        if (snappedSegment && snappedSegment.length === 2) {
+            // Draw only the snapped segment
+            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
 
-            // Draw the snapped route segment by segment
-            for (let i = 0; i < snappedSegment.length - 1; i++) {
-                drawSegment(snappedSegment[i], snappedSegment[i + 1], selectedColor, selectedLineStyle);
-            }
+            // Store the snapped segment's color and style in segmentColorStyle array
+            segmentColorStyle.push({
+                coordinates: [snappedSegment[0], snappedSegment[1]],
+                color: selectedColor,
+                lineStyle: selectedLineStyle
+            });
 
-            // Store the snapped points
-            snappedPoints = [...snappedSegment]; // Replace the snappedPoints array with new snapped points
+            snappedPoints.push(snappedSegment[1]); // Store the snapped point
         } else {
             console.error('Snapping failed, no line drawn');
         }
     }
 
-    // Update the previous point to the current one for future connections
+    // Update the previous point to the current one
     previousPoint = coords;
 
     // Create and add a marker for the current point
@@ -139,7 +139,7 @@ async function drawPoint(e) {
 // SECTION: Remove Previous Segments
 // ============================
 function removePreviousSegments() {
-    // This function removes previously drawn segments from the map to avoid overlap
+    // This function removes only previously drawn segments from the map to avoid overlap
     const layers = map.getStyle().layers.filter(layer => layer.id.startsWith('segment-'));
     layers.forEach(layer => {
         map.removeLayer(layer.id); // Remove the layer
@@ -171,8 +171,8 @@ function drawSegment(start, end, color, lineStyle) {
         }
     };
 
-       // Store the segment's color and style
-       segmentColorStyle.push({
+    // Store the segment's color and style
+    segmentColorStyle.push({
         id: segmentId,
         coordinates: [start, end],
         color: color,
@@ -198,6 +198,7 @@ function drawSegment(start, end, color, lineStyle) {
         }
     });
 }
+
 
 
 // ============================
