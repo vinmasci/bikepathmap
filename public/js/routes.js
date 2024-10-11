@@ -89,9 +89,6 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Draw Point and Snap to Road (Using more points)
-// ============================
-// ============================
 // SECTION: Draw Point and Snap to Road (Preserve colors between pins)
 // ============================
 async function drawPoint(e) {
