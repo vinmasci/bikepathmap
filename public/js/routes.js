@@ -89,29 +89,24 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Draw Point and Snap to Road (Using more points)
+// SECTION: Draw Point and Snap to Road (Draw line for each segment without removing previous segments)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
     
     // Add the current point to drawnPoints
     drawnPoints.push(coords); 
-    
-    // If there are at least two points, attempt to snap all points
-    if (drawnPoints.length > 1) {
-        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
 
-        if (snappedSegment && snappedSegment.length >= 2) {
-            // Clear previously drawn segments
-            removePreviousSegments();
+    // If there is a previous point, attempt to snap between previous and current point
+    if (previousPoint) {
+        const snappedSegment = await snapToRoads([previousPoint, coords]); // Snap between the previous point and the current one
 
-            // Draw the snapped route segment by segment
-            for (let i = 0; i < snappedSegment.length - 1; i++) {
-                drawSegment(snappedSegment[i], snappedSegment[i + 1], selectedColor, selectedLineStyle);
-            }
+        if (snappedSegment && snappedSegment.length === 2) {
+            // Draw the snapped segment between the two points with the current color and style
+            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
 
-            // Store the snapped points
-            snappedPoints = [...snappedSegment]; // Replace the snappedPoints array with new snapped points
+            // Store the snapped points in snappedPoints array
+            snappedPoints.push(snappedSegment[1]);
         } else {
             console.error('Snapping failed, no line drawn');
         }
@@ -135,11 +130,57 @@ async function drawPoint(e) {
     markers.push(marker); // Store the marker for future reference
 }
 
+// ================================
+// SECTION: Draw Individual Segment (Handles drawing lines on the map and storing their color/style)
+// ================================
+function drawSegment(start, end, color, lineStyle) {
+    // Create a unique ID for the segment
+    const segmentId = `segment-${segmentCounter++}`; // Increment segmentCounter to ensure uniqueness
+
+    // Prepare the segment data
+    const segmentLine = {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'LineString',
+            'coordinates': [start, end]
+        }
+    };
+
+    // Store the segment's color and style
+    segmentColorStyle.push({
+        id: segmentId,
+        coordinates: [start, end],
+        color: color,
+        lineStyle: lineStyle
+    });
+
+    // Add the segment as a unique source to the map
+    map.addSource(segmentId, { 'type': 'geojson', 'data': segmentLine });
+
+    // Add the segment as a unique layer to the map with the selected color and style
+    map.addLayer({
+        'id': segmentId,
+        'type': 'line',
+        'source': segmentId,
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': color, // Use the passed color
+            'line-width': 4,
+            'line-dasharray': lineStyle === 'dashed' ? [2, 4] : [1] // Use dashed or solid line
+        }
+    });
+}
+
 // ============================
-// SECTION: Remove Previous Segments
+// SECTION: Remove Previous Segments (Remove if needed, not always required)
 // ============================
+
 function removePreviousSegments() {
-    // This function removes previously drawn segments from the map to avoid overlap
+    // This function can be used if you need to remove segments for some reason
+    // Avoid removing all previous segments unless it's necessary.
     const layers = map.getStyle().layers.filter(layer => layer.id.startsWith('segment-'));
     layers.forEach(layer => {
         map.removeLayer(layer.id); // Remove the layer
@@ -148,12 +189,8 @@ function removePreviousSegments() {
             map.removeSource(sourceId); // Remove the corresponding source
         }
     });
-
-    // Redraw all previously stored segments with their original colors and styles
-    segmentColorStyle.forEach(segment => {
-        drawSegment(segment.coordinates[0], segment.coordinates[1], segment.color, segment.lineStyle);
-    });
 }
+
 
 // ================================
 // SECTION: Draw Individual Segment (Handles drawing lines on the map)
