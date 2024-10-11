@@ -8,6 +8,7 @@ let segmentColorStyle = []; // Store the color and style of each segment
 let previousPoint = null; // Store the last drawn point to start new segments
 let segmentCounter = 0; // Counter for unique segment IDs
 
+
 // Gravel type color mapping
 const gravelColors = {
     0: '#00a8ff', // Blue for rough asphalt
@@ -147,6 +148,11 @@ function removePreviousSegments() {
             map.removeSource(sourceId); // Remove the corresponding source
         }
     });
+
+    // Redraw all previously stored segments with their original colors and styles
+    segmentColorStyle.forEach(segment => {
+        drawSegment(segment.coordinates[0], segment.coordinates[1], segment.color, segment.lineStyle);
+    });
 }
 
 // ================================
@@ -164,6 +170,14 @@ function drawSegment(start, end, color, lineStyle) {
             'coordinates': [start, end]
         }
     };
+
+       // Store the segment's color and style
+       segmentColorStyle.push({
+        id: segmentId,
+        coordinates: [start, end],
+        color: color,
+        lineStyle: lineStyle
+    });
 
     // Add the segment as a unique source to the map
     map.addSource(segmentId, { 'type': 'geojson', 'data': segmentLine });
