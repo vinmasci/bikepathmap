@@ -354,24 +354,25 @@ async function undoLastPoint() {
             }
         }
 
-        // Ensure the segment counter gets decremented only when a segment is removed
+        // Decrement the segment counter
         if (segmentCounter > 0) {
             segmentCounter--;
         }
 
-        // Ensure both snappedPoints and segmentColorStyle reflect the change
+        // Remove the last snapped point
         if (snappedPoints.length > 0) {
-            snappedPoints.pop(); // Remove the last snapped point
-        }
-        
-        if (segmentColorStyle.length > 0) {
-            segmentColorStyle.pop(); // Remove the last stored segment's style
+            snappedPoints.pop();
         }
 
-        // Clear previous segments and redraw from the remaining points
+        // Remove the last segment's color/style from the array
+        if (segmentColorStyle.length > 0) {
+            segmentColorStyle.pop();
+        }
+
+        // Clear the map of previous segments and redraw from the remaining points
         removePreviousSegments();
 
-        // Redraw only if there are more than 1 point left
+        // Redraw the remaining route if there are still points
         if (drawnPoints.length > 1) {
             const snappedSegment = await snapToRoads(drawnPoints);
 
@@ -385,6 +386,7 @@ async function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
+
 
 
 
