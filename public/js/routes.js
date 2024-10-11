@@ -89,31 +89,31 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Draw Point and Snap to Road (Preserve colors between pins)
+// SECTION: Draw Point and Snap to Road (Apply colors per segment)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
 
     // Add the current point to drawnPoints
     drawnPoints.push(coords); 
-
-    // If there are at least two points, attempt to snap all points
+    
+    // If there are at least two points, attempt to snap the segment between the previous point and current point
     if (drawnPoints.length > 1) {
-        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
+        const snappedSegment = await snapToRoads([previousPoint, coords]); // Snap the segment between the previous point and current point
 
-        if (snappedSegment && snappedSegment.length >= 2) {
-            // Clear previously drawn segments
-            removePreviousSegments(); // This ensures older lines don't overlap with new ones
+        if (snappedSegment && snappedSegment.length === 2) {
+            // Draw the snapped segment using the color selected at this moment
+            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
+            
+            // Store the segment's color and style for future redraws
+            segmentColorStyle.push({
+                coordinates: [snappedSegment[0], snappedSegment[1]],
+                color: selectedColor,  // Store the current color
+                lineStyle: selectedLineStyle  // Store the current line style
+            });
 
-            // Loop through each segment between snapped points
-            for (let i = 0; i < snappedSegment.length - 1; i++) {
-                const color = segmentColorStyle[i]?.color || selectedColor; // Preserve previously set color
-                const lineStyle = segmentColorStyle[i]?.lineStyle || selectedLineStyle; // Preserve line style
-                drawSegment(snappedSegment[i], snappedSegment[i + 1], color, lineStyle);
-            }
-
-            // Store the snapped points
-            snappedPoints = [...snappedSegment]; // Replace snappedPoints array with newly snapped points
+            // Store the snapped point
+            snappedPoints.push(snappedSegment[1]);
         } else {
             console.error('Snapping failed, no line drawn');
         }
@@ -122,11 +122,11 @@ async function drawPoint(e) {
     // Update the previous point to the current one for future connections
     previousPoint = coords;
 
-    // Create and add a marker for the current point
+    // Create and add a marker for the current point using the current selected color
     const markerElement = document.createElement('div');
     markerElement.style.width = '16px';
     markerElement.style.height = '16px';
-    markerElement.style.backgroundColor = selectedColor;
+    markerElement.style.backgroundColor = selectedColor; // Marker gets the current color
     markerElement.style.borderRadius = '50%';
     markerElement.style.border = '1px solid white';
 
@@ -136,6 +136,7 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker for future reference
 }
+
 
 
 // ============================
