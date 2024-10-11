@@ -90,17 +90,15 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Snap to Road (Handles snapping points to the road)
+// 1SECTION: Snap to Road (Handles snapping points to the road)
 // ============================
 async function snapToRoad() {
     if (drawnPoints.length > 1) {
         const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
 
         if (snappedSegment && snappedSegment.length >= 2) {
-            // Clear previously drawn segments
-            removePreviousSegments(); // Ensures older lines don't overlap with new ones
-
-            // Return the snapped points for drawing
+            // No need to call removePreviousSegments here!
+            // This ensures that previous segments stay on the map.
             return snappedSegment;
         } else {
             console.error('Snapping failed, no line drawn');
