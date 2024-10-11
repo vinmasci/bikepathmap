@@ -143,7 +143,7 @@ function preserveColorsAndDrawSegments(snappedSegment) {
 
 
 // ============================
-// SECTION: Draw Point (Combines snapping and drawing with color preservation)
+// 1SECTION: Draw Point (Combines snapping and drawing with color preservation)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
@@ -359,15 +359,7 @@ async function undoLastPoint() {
             segmentCounter--;  // Decrement the segment counter
         }
 
-        // Redraw the remaining route from snapped points (if any)
-        removePreviousSegments();  // Clear existing segments
-
-        if (snappedPoints.length > 1) {
-            // Redraw the remaining segments
-            preserveColorsAndDrawSegments(snappedPoints);
-        } else {
-            console.log('No more points to snap.');
-        }
+        // No need to redraw all segments, just leave the remaining ones in place
     } else if (originalPins.length === 1) {
         // If there's only one pin left, reset everything
         resetRoute();  // Reset everything when only one pin remains
@@ -375,8 +367,6 @@ async function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
-
-
 
 // ============================
 // SECTION: Load Segments
