@@ -312,7 +312,7 @@ function saveDrawnRoute() {
 }
 
 // ============================
-// SECTION: Reset and Undo Logic
+// SECTION: Reset Logic
 // ============================
 function resetRoute() {
     console.log("Resetting route...");
@@ -328,23 +328,47 @@ function resetRoute() {
             }
         });
 
-    markers.forEach(marker => marker.remove()); // Remove all markers
-    markers = [];
-    drawnPoints = [];
-    snappedPoints = [];
+    // Also remove all previously stored segments
+    segmentColorStyle = []; // Clear the stored segment colors and styles
+    drawnPoints = [];       // Clear drawn points
+    snappedPoints = [];     // Clear snapped points
+    markers.forEach(marker => marker.remove()); // Remove all markers from the map
+    markers = [];           // Clear the markers array
+
     console.log("Route reset.");
 }
 
+// ============================
+// SECTION: Undo Logic
+// ============================
+
 function undoLastPoint() {
     if (drawnPoints.length > 1) {
+        // Remove the last point and marker
         drawnPoints.pop();
         const lastMarker = markers.pop();
         if (lastMarker) lastMarker.remove();
+
+        // Remove the last segment from the map
+        const lastSegmentId = `segment-${segmentCounter - 1}`;
+        if (map.getLayer(lastSegmentId)) {
+            map.removeLayer(lastSegmentId);
+            const sourceId = lastSegmentId.replace('-layer', '');
+            if (map.getSource(sourceId)) {
+                map.removeSource(sourceId);
+            }
+        }
+        segmentCounter--; // Decrement segment counter
+
+        // Update the snapped points and redraw the remaining route
         if (drawnPoints.length > 1) {
-            snapToRoads(drawnPoints);
+            const snappedSegment = snapToRoads(drawnPoints);
+            preserveColorsAndDrawSegments(snappedSegment);
         } else {
             console.log('No more points to snap.');
         }
+    } else {
+        console.log('Nothing to undo.');
     }
 }
 
