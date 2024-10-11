@@ -89,31 +89,30 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Draw Point and Snap to Road (Using more points)
+// SECTION: Draw Point and Snap to Road (Accumulate multiple points for snapping)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
 
     // Add the current point to drawnPoints
-    drawnPoints.push(coords); 
+    drawnPoints.push(coords);
 
     // If there are at least two points, attempt to snap all points
     if (drawnPoints.length > 1) {
-        const snappedSegment = await snapToRoads([previousPoint, coords]); // Snap the segment between the previous point and current point
+        // Send all drawn points to the snap function, not just the last two points
+        const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
 
-        if (snappedSegment && snappedSegment.length === 2) {
-            // Draw the snapped segment between the two points
-            drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
-            
-            // Store the segment's color and style in the segmentColorStyle array
-            segmentColorStyle.push({
-                coordinates: [snappedSegment[0], snappedSegment[1]],
-                color: selectedColor,
-                lineStyle: selectedLineStyle
-            });
+        if (snappedSegment && snappedSegment.length >= 2) {
+            // Clear previously drawn segments
+            removePreviousSegments();
 
-            // Store only the new snapped endpoint
-            snappedPoints.push(snappedSegment[1]);
+            // Draw the snapped route segment by segment
+            for (let i = 0; i < snappedSegment.length - 1; i++) {
+                drawSegment(snappedSegment[i], snappedSegment[i + 1], selectedColor, selectedLineStyle);
+            }
+
+            // Store the snapped points
+            snappedPoints = [...snappedSegment]; // Replace the snappedPoints array with new snapped points
         } else {
             console.error('Snapping failed, no line drawn');
         }
@@ -136,6 +135,7 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker for future reference
 }
+
 
 // ============================
 // SECTION: Remove Previous Segments (Only removes current snapped segments, preserves previous colors)
