@@ -113,7 +113,10 @@ async function snapToRoad() {
 // SECTION: Preserve Colors and Draw Segments (Draws the segments and handles colors)
 // ============================
 function preserveColorsAndDrawSegments(snappedSegment) {
-    for (let i = 0; i < snappedSegment.length - 1; i++) {
+    // Iterate over the snappedSegment, but only draw from the last saved snapped point to the new one
+    let lastIndex = snappedPoints.length > 0 ? snappedPoints.length - 1 : 0; // Find the last snapped point
+
+    for (let i = lastIndex; i < snappedSegment.length - 1; i++) {
         // Check if the segment between snappedSegment[i] and snappedSegment[i + 1] already exists
         const existingSegment = segmentColorStyle.find(segment =>
             segment.coordinates[0][0] === snappedSegment[i][0] &&
@@ -145,9 +148,10 @@ function preserveColorsAndDrawSegments(snappedSegment) {
         drawSegment(snappedSegment[i], snappedSegment[i + 1], color, lineStyle);
     }
 
-    // Store the snapped points
-    snappedPoints = [...snappedSegment]; // Replace snappedPoints array with newly snapped points
+    // Update the snappedPoints array by appending the new snapped points
+    snappedPoints.push(...snappedSegment.slice(lastIndex + 1)); // Append only the new points
 }
+
 
 
 // ============================
