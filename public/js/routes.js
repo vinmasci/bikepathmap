@@ -60,68 +60,51 @@ function disableDrawingMode() {
 }
 
 // ================================
-// SECTION: Snap to Road Function (improved error handling and retries)
+// SECTION: Snap to Road Function (streamlined, no retries, no fallback)
 // ================================
-async function snapToRoads(points, retries = 3, timeout = 5000) {
-    // Convert the points array to a string for Mapbox's API
-    const coordinatesString = points.map(coord => coord.join(',')).join(';');
-    const url = `https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true&tidy=true`;
+async function snapToRoads(points) {
+    try {
+        // Convert the points array to a string for Mapbox's API
+        const coordinatesString = points.map(coord => coord.join(',')).join(';');
+        const url = `https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true&tidy=true`;
 
-    // Retry logic, default is 3 retries
-    for (let attempt = 0; attempt < retries; attempt++) {
-        try {
-            const controller = new AbortController();
-            const fetchTimeout = setTimeout(() => controller.abort(), timeout); // Timeout after 5 seconds
+        // Fetch data from Mapbox API
+        const response = await fetch(url);
 
-            // Fetch data from Mapbox API
-            const response = await fetch(url, { signal: controller.signal });
-            clearTimeout(fetchTimeout); // Clear timeout once the request finishes
+        // Parse the API response
+        const data = await response.json();
 
-            // Parse the API response
-            const data = await response.json();
-
-            // Check if we received matchings and valid geometry data
-            if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length) {
-                return data.matchings[0].geometry.coordinates; // Return snapped coordinates
-            } else {
-                console.warn(`No matchings found (attempt ${attempt + 1}):`, data); // Log warning if no matchings are found
-            }
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                console.warn(`Request timed out (attempt ${attempt + 1}), retrying...`); // Retry if request timed out
-            } else {
-                console.error(`Error calling Mapbox API (attempt ${attempt + 1}):`, error); // Log other errors
-            }
+        // Check if we received matchings and valid geometry data
+        if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length) {
+            return data.matchings[0].geometry.coordinates; // Return snapped coordinates
+        } else {
+            console.error('No valid matchings from Mapbox API', data);
+            return null;
         }
+    } catch (error) {
+        console.error('Error calling Mapbox API:', error);
+        return null; // Return null on error
     }
-    console.error('All attempts to snap to roads failed.');
-    return null; // Return null if all retries fail
 }
 
 // ============================
-// SECTION: Draw Point and Snap to Road (Handles snapping and fallback to raw line)
+// SECTION: Draw Point and Snap to Road (no fallback to raw lines)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
 
-    // If there is a previous point, attempt to snap the segment between the previous point and the current one
+    // Only attempt to draw if there is a previous point
     if (previousPoint) {
         const snappedSegment = await snapToRoads([previousPoint, coords]); // Snap the previous and current point
 
         if (snappedSegment && snappedSegment.length === 2) {
             // Draw the snapped segment between the two points
             drawSegment(snappedSegment[0], snappedSegment[1], selectedColor, selectedLineStyle);
-            
-            // Add the snapped points to the snappedPoints array
-            snappedPoints.push(snappedSegment[1]); // Only push the new end point
+            // Add the snapped point to snappedPoints
+            snappedPoints.push(snappedSegment[1]); // Push only the end point
         } else {
-            console.warn('Snapping failed, drawing raw line');
-            // If snapping fails, draw a raw line between the points
-            drawSegment(previousPoint, coords, selectedColor, selectedLineStyle);
+            console.error('Snapping failed, no line drawn');
         }
-    } else {
-        // Add the first point to snappedPoints if it's the start of the drawing
-        snappedPoints.push(coords);
     }
 
     // Update the previous point to the current one for future connections
@@ -135,11 +118,11 @@ async function drawPoint(e) {
     markerElement.style.backgroundColor = selectedColor;
     markerElement.style.borderRadius = '50%';
     markerElement.style.border = '1px solid white';
-    
+
     const marker = new mapboxgl.Marker({ element: markerElement })
         .setLngLat(coords)
         .addTo(map);
-    
+
     markers.push(marker); // Store the marker for future reference
 }
 
