@@ -134,7 +134,20 @@ async function drawPoint(e) {
     markers.push(marker); // Store the marker for future reference
 }
 
-
+// ============================
+// SECTION: Remove Previous Segments
+// ============================
+function removePreviousSegments() {
+    // This function removes previously drawn segments from the map to avoid overlap
+    const layers = map.getStyle().layers.filter(layer => layer.id.startsWith('segment-'));
+    layers.forEach(layer => {
+        map.removeLayer(layer.id); // Remove the layer
+        const sourceId = layer.id.replace('-layer', '');
+        if (map.getSource(sourceId)) {
+            map.removeSource(sourceId); // Remove the corresponding source
+        }
+    });
+}
 
 // ================================
 // SECTION: Draw Individual Segment (Handles drawing lines on the map)
