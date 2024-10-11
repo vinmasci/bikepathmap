@@ -91,27 +91,32 @@ async function snapToRoads(points) {
 // ============================
 // SECTION: Draw Point and Snap to Road (Using more points)
 // ============================
+// ============================
+// SECTION: Draw Point and Snap to Road (Preserve colors between pins)
+// ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
-    
+
     // Add the current point to drawnPoints
     drawnPoints.push(coords); 
-    
+
     // If there are at least two points, attempt to snap all points
     if (drawnPoints.length > 1) {
         const snappedSegment = await snapToRoads(drawnPoints); // Snap all drawn points
 
         if (snappedSegment && snappedSegment.length >= 2) {
             // Clear previously drawn segments
-            removePreviousSegments();
+            removePreviousSegments(); // This ensures older lines don't overlap with new ones
 
-            // Draw the snapped route segment by segment
+            // Loop through each segment between snapped points
             for (let i = 0; i < snappedSegment.length - 1; i++) {
-                drawSegment(snappedSegment[i], snappedSegment[i + 1], selectedColor, selectedLineStyle);
+                const color = segmentColorStyle[i]?.color || selectedColor; // Preserve previously set color
+                const lineStyle = segmentColorStyle[i]?.lineStyle || selectedLineStyle; // Preserve line style
+                drawSegment(snappedSegment[i], snappedSegment[i + 1], color, lineStyle);
             }
 
             // Store the snapped points
-            snappedPoints = [...snappedSegment]; // Replace the snappedPoints array with new snapped points
+            snappedPoints = [...snappedSegment]; // Replace snappedPoints array with newly snapped points
         } else {
             console.error('Snapping failed, no line drawn');
         }
@@ -134,6 +139,7 @@ async function drawPoint(e) {
 
     markers.push(marker); // Store the marker for future reference
 }
+
 
 // ============================
 // SECTION: Remove Previous Segments
