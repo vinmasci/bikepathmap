@@ -7,6 +7,7 @@ let selectedLineStyle = 'solid'; // Default to solid line
 let segmentColorStyle = []; // Store the color and style of each segment
 let previousPoint = null; // Store the last drawn point to start new segments
 let segmentCounter = 0; // Counter for unique segment IDs
+let originalPins = [];  // Store user-added pins
 
 
 // Gravel type color mapping
@@ -155,13 +156,14 @@ function preserveColorsAndDrawSegments(snappedSegment) {
 
 
 // ============================
-// SECTION: Draw Point (Combines snapping and drawing with color preservation)
+// 1SECTION: Draw Point (Combines snapping and drawing with color preservation)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
 
     // Add the current point to drawnPoints
-    drawnPoints.push(coords);
+    drawnPoints.push(coords);    
+    originalPins.push(coords);  // Store the actual user-clicked pin
 
     // Snap to road and draw segments if valid snapping occurs
     const snappedSegment = await snapToRoad();
@@ -338,47 +340,44 @@ function resetRoute() {
 // ============================
 
 async function undoLastPoint() {
-    if (drawnPoints.length > 1) {
-        // Remove the last point and marker
-        drawnPoints.pop();
+    if (originalPins.length > 1) {
+        // Remove the last pin and corresponding marker
+        originalPins.pop();
         const lastMarker = markers.pop();
         if (lastMarker) lastMarker.remove();
 
-        // Remove the last segment from the map
-        const lastSegmentId = `segment-${segmentCounter - 1}`;
-        if (map.getLayer(lastSegmentId)) {
-            map.removeLayer(lastSegmentId);
-            const sourceId = lastSegmentId.replace('-layer', '');
-            if (map.getSource(sourceId)) {
-                map.removeSource(sourceId);
-            }
+        // Remove all snapped points between the last two original pins
+        const lastPin = originalPins[originalPins.length - 1];
+
+        // Find the index of the lastPin in the snappedPoints array
+        const lastPinIndex = snappedPoints.findIndex(point =>
+            point[0] === lastPin[0] && point[1] === lastPin[1]
+        );
+
+        if (lastPinIndex !== -1) {
+            // Remove all points from snappedPoints after the lastPin
+            snappedPoints = snappedPoints.slice(0, lastPinIndex + 1);
         }
 
-        // Decrement the segment counter
-        if (segmentCounter > 0) {
+        // Remove the corresponding segments from the map and update the segment counter
+        while (segmentCounter > snappedPoints.length - 1) {
+            const lastSegmentId = `segment-${segmentCounter - 1}`;
+            if (map.getLayer(lastSegmentId)) {
+                map.removeLayer(lastSegmentId);
+                const sourceId = lastSegmentId.replace('-layer', '');
+                if (map.getSource(sourceId)) {
+                    map.removeSource(sourceId);
+                }
+            }
             segmentCounter--;
         }
 
-        // Remove the last snapped point
-        if (snappedPoints.length > 0) {
-            snappedPoints.pop();
-        }
-
-        // Remove the last segment's color/style from the array
-        if (segmentColorStyle.length > 0) {
-            segmentColorStyle.pop();
-        }
-
-        // Clear the map of previous segments and redraw from the remaining points
+        // Clear previous segments and redraw from the remaining snapped points
         removePreviousSegments();
 
-        // Redraw the remaining route if there are still points
-        if (drawnPoints.length > 1) {
-            const snappedSegment = await snapToRoads(drawnPoints);
-
-            if (snappedSegment) {
-                preserveColorsAndDrawSegments(snappedSegment);
-            }
+        if (snappedPoints.length > 1) {
+            // Redraw the remaining segments from the snapped points
+            preserveColorsAndDrawSegments(snappedPoints);
         } else {
             console.log('No more points to snap.');
         }
@@ -386,9 +385,6 @@ async function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
-
-
-
 
 
 // ============================
