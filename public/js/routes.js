@@ -358,9 +358,18 @@ async function undoLastPoint() {
                 map.removeSource(sourceId);
             }
         }
+
         segmentCounter--; // Decrement segment counter
 
-        // Redraw the route from the remaining points
+        // Update the snapped points by popping the last one
+        snappedPoints.pop();
+
+        // Remove the corresponding entry from segmentColorStyle
+        if (segmentColorStyle.length > 0) {
+            segmentColorStyle.pop();
+        }
+
+        // Redraw the remaining segments from the snapped points
         if (drawnPoints.length > 1) {
             // Snap the remaining points to roads
             const snappedSegment = await snapToRoads(drawnPoints);
@@ -379,6 +388,7 @@ async function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
+
 
 
 // ============================
