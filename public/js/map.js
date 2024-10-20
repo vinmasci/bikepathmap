@@ -31,7 +31,26 @@ map.on('load', () => {
         });
     }
 
-    // Add a solid white background line layer (drawn below the colored line)
+    // Add a black stroke line layer (drawn below both the white and colored lines)
+    if (!map.getLayer('drawn-segments-layer-stroke')) {
+        map.addLayer({
+            'id': 'drawn-segments-layer-stroke',
+            'type': 'line',
+            'source': 'drawnSegments',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': '#000000',  // Black stroke
+                'line-width': 6           // Width of the black stroke (adjust as needed)
+            }
+        });
+    } else {
+        console.error("'drawn-segments-layer-stroke' already exists on the map");
+    }
+
+    // Add a solid white background line layer (drawn above the black stroke)
     if (!map.getLayer('drawn-segments-layer-background')) {
         map.addLayer({
             'id': 'drawn-segments-layer-background',
@@ -50,7 +69,7 @@ map.on('load', () => {
         console.error("'drawn-segments-layer-background' already exists on the map");
     }
 
-    // Add a dashed colored line layer (drawn on top of the white background)
+    // Add a dashed colored line layer (drawn on top of both the black stroke and white background)
     if (!map.getLayer('drawn-segments-layer')) {
         map.addLayer({
             'id': 'drawn-segments-layer',
