@@ -78,29 +78,19 @@ async function loadPhotoMarkers() {
                 }
             });
 
-// Load your custom camera icon image and use it for unclustered points
-map.loadImage('../cameraicon.png', (error, image) => {
-    if (error) throw error;
-
-    // Add the image to the map's style
-    if (!map.hasImage('camera-icon')) {
-        map.addImage('camera-icon', image);
-    }
-
-    // Replace the black dots with the custom image
-    map.addLayer({
-        id: 'unclustered-photo',
-        type: 'symbol',
-        source: 'photoMarkers',
-        filter: ['!', ['has', 'point_count']],  // Show only unclustered points
-        layout: {
-            'icon-image': 'camera-icon',  // Use the custom camera icon
-            'icon-size': 0.5,  // Adjust the size of the icon as needed
-            'icon-allow-overlap': true  // Allow icons to overlap if close together
-        }
-    });
-});
-
+            // Add unclustered photo points using black dots
+            map.addLayer({
+                id: 'unclustered-photo',
+                type: 'circle',
+                source: 'photoMarkers',
+                filter: ['!', ['has', 'point_count']],  // Show only unclustered points
+                paint: {
+                    'circle-color': '#000000',  // Black circle color
+                    'circle-radius': 5,  // Size of the unclustered photo points
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': '#fff'  // White border around black dots
+                }
+            });
 
             // Add click event for clusters to zoom into them
             map.on('click', 'clusters', (e) => {
