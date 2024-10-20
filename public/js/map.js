@@ -14,13 +14,14 @@ function initMap() {
         zoom: 10
     });
 
-    // ============================
-    // SECTION: Initialize GeoJSON Source for Segments
-    // ============================
-    map.on('load', () => {
-        console.log("Map loaded successfully.");
-    
-        // Add GeoJSON source for storing drawn segments
+// ============================
+// SECTION: Initialize GeoJSON Source for Segments
+// ============================
+map.on('load', () => {
+    console.log("Map loaded successfully.");
+
+    // Add GeoJSON source for storing drawn segments
+    if (!map.getSource('drawnSegments')) {
         map.addSource('drawnSegments', {
             'type': 'geojson',
             'data': {
@@ -28,25 +29,46 @@ function initMap() {
                 'features': []  // Initially empty
             }
         });
-    
-        if (!map.getLayer('drawn-segments-layer')) {
-            map.addLayer({
-                'id': 'drawn-segments-layer',
-                'type': 'line',
-                'source': 'drawnSegments',
-                'layout': {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                'paint': {
-                    'line-color': ['get', 'color'],  // Dynamic color from properties
-                    'line-width': 4,  // Width of the line
-                    'line-dasharray': ['case', ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], ['literal', [1]]]  // Use "literal" for arrays
-                }
-            });
-        } else {
-            console.error("'drawn-segments-layer' already exists on the map");
-        }
+    }
+
+    // Add a solid white background line layer (drawn below the colored line)
+    if (!map.getLayer('drawn-segments-layer-background')) {
+        map.addLayer({
+            'id': 'drawn-segments-layer-background',
+            'type': 'line',
+            'source': 'drawnSegments',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': '#FFFFFF',  // Solid white color
+                'line-width': 5           // Width of the white line (adjust as needed)
+            }
+        });
+    } else {
+        console.error("'drawn-segments-layer-background' already exists on the map");
+    }
+
+    // Add a dashed colored line layer (drawn on top of the white background)
+    if (!map.getLayer('drawn-segments-layer')) {
+        map.addLayer({
+            'id': 'drawn-segments-layer',
+            'type': 'line',
+            'source': 'drawnSegments',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': ['get', 'color'],  // Dynamic color from properties
+                'line-width': 3,                 // Width of the colored line (slightly smaller than the white line)
+                'line-dasharray': ['case', ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], ['literal', [1]]]  // Dashed or solid
+            }
+        });
+    } else {
+        console.error("'drawn-segments-layer' already exists on the map");
+    }
     
         initEventListeners();
         // loadSegments(); // Comment this out for now if not needed
