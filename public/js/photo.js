@@ -78,15 +78,15 @@ async function loadPhotoMarkers() {
                 }
             });
 
-            // Add unclustered photo points with custom styling
+            // Add unclustered photo points with a default marker for debugging
             map.addLayer({
                 id: 'unclustered-photo',
                 type: 'symbol',
                 source: 'photoMarkers',
                 filter: ['!', ['has', 'point_count']],  // Show only unclustered points
                 layout: {
-                    'icon-image': 'custom-photo-marker',  // Replace with custom marker sprite if needed
-                    'icon-size': 0.3,  // Adjust the size as needed
+                    'icon-image': 'marker-15',  // Use a default marker icon
+                    'icon-size': 1.0,  // Adjust the size as needed
                     'icon-allow-overlap': true
                 }
             });
