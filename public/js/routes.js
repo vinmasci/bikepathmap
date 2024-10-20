@@ -57,15 +57,17 @@ async function drawPoint(e) {
 
     // If there are at least two points, draw the segment
     if (originalPins.length > 1) {
-        const snappedSegment = await snapToRoads([originalPins[originalPins.length - 2], coords]);
-        console.log('Snapped Segment:', snappedSegment); // Add this line
-        if (snappedSegment) {
-            addSegment(snappedSegment);
-            drawSegmentsOnMap();
+        let snappedSegment = await snapToRoads([originalPins[originalPins.length - 2], coords]);
+        if (!snappedSegment) {
+            console.warn('Snapping failed, using original coordinates');
+            snappedSegment = [originalPins[originalPins.length - 2], coords]; // Fallback to non-snapped
         }
+        addSegment(snappedSegment);
+        drawSegmentsOnMap();
     }
     createMarker(coords);
 }
+
 
 // ============================
 // SECTION: Snap to Road Function
@@ -98,6 +100,7 @@ async function snapToRoads(points) {
 }
 
 
+
 // ============================
 // SECTION: Add Segment
 // ============================
@@ -109,13 +112,14 @@ function addSegment(snappedSegment) {
             coordinates: snappedSegment
         },
         properties: {
-            color: selectedColor,
-            lineStyle: selectedLineStyle,
-            id: `segment-${segmentCounter++}`
+            color: selectedColor,  // Use the selected color
+            lineStyle: selectedLineStyle,  // Use the selected line style
+            id: `segment-${segmentCounter++}`  // Unique ID for each segment
         }
     };
     segmentsGeoJSON.features.push(segmentFeature);
 }
+
 
 // ============================
 // SECTION: Draw Segments on Map
@@ -123,12 +127,13 @@ function addSegment(snappedSegment) {
 function drawSegmentsOnMap() {
     const source = map.getSource('drawnSegments');
     if (source) {
-        console.log('Updating drawn segments on map:', segmentsGeoJSON);
-        source.setData(segmentsGeoJSON);
+        console.log('Updating drawn segments on map:', JSON.stringify(segmentsGeoJSON, null, 2));
+        source.setData(segmentsGeoJSON);  // Make sure this is updating the map's source
     } else {
         console.error('GeoJSON source "drawnSegments" not found on the map');
     }
 }
+
 
 
 // ============================
