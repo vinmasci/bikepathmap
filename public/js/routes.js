@@ -336,37 +336,44 @@ function resetRoute() {
 }
 
 // ============================
-// SECTION: Undo Logic (refined)
+// SECTION: Undo Logic (Improved)
 // ============================
-
 async function undoLastPoint() {
     if (originalPins.length > 1) {
-        // Remove the last marker and its corresponding segment
-        originalPins.pop();  // Remove the last user pin
+        // Remove the last user-added pin
+        originalPins.pop();
         const lastMarker = markers.pop();
-        if (lastMarker) lastMarker.remove();  // Remove the last marker
+        if (lastMarker) lastMarker.remove();
 
         // Get the last drawn segment and remove it
-        const lastSegment = segmentColorStyle.pop();  // Remove the last drawn segment
+        const lastSegment = segmentColorStyle.pop();
         if (lastSegment) {
             const lastSegmentId = lastSegment.id;
             if (map.getLayer(lastSegmentId)) {
-                map.removeLayer(lastSegmentId);  // Remove the segment layer
+                map.removeLayer(lastSegmentId); // Remove the segment layer
                 if (map.getSource(lastSegmentId)) {
-                    map.removeSource(lastSegmentId);  // Remove the source
+                    map.removeSource(lastSegmentId); // Remove the source
                 }
             }
-            segmentCounter--;  // Decrement the segment counter
         }
 
-        // No need to redraw all segments, just leave the remaining ones in place
+        // Remove all snapped points that belong to the removed segment
+        snappedPoints = snappedPoints.slice(0, -2); // Remove the last two points from snappedPoints
+
+        // Redraw remaining segments
+        if (snappedPoints.length >= 2) {
+            segmentColorStyle.forEach(segment => {
+                drawSegment(segment.coordinates[0], segment.coordinates[1], segment.color, segment.lineStyle);
+            });
+        }
     } else if (originalPins.length === 1) {
         // If there's only one pin left, reset everything
-        resetRoute();  // Reset everything when only one pin remains
+        resetRoute();
     } else {
         console.log('Nothing to undo.');
     }
 }
+
 
 // ============================
 // SECTION: Load Segments
