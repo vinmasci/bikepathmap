@@ -74,19 +74,29 @@ async function snapToRoads(points) {
     try {
         const coordinatesString = points.map(coord => coord.join(',')).join(';');
         const url = `https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true&tidy=true`;
+        
         const response = await fetch(url);
+        
+        if (!response.ok) {
+            console.error('Error fetching snapped points:', response.statusText);
+            return null;  // Handle API error
+        }
+
         const data = await response.json();
-        if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length) {
+        
+        if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length > 0) {
+            console.log('Snapped Segment Coordinates:', data.matchings[0].geometry.coordinates);
             return data.matchings[0].geometry.coordinates;
         } else {
-            console.error('No valid matchings from Mapbox API', data);
-            return null;
+            console.error('No valid matchings from Mapbox API:', data);
+            return null;  // Return null if no valid match
         }
     } catch (error) {
-        console.error('Error calling Mapbox API:', error);
-        return null;
+        console.error('Error calling Mapbox Matching API:', error);
+        return null;  // Return null on error
     }
 }
+
 
 // ============================
 // SECTION: Add Segment
@@ -111,10 +121,15 @@ function addSegment(snappedSegment) {
 // SECTION: Draw Segments on Map
 // ============================
 function drawSegmentsOnMap() {
-    if (map.getSource('drawnSegments')) {
-        map.getSource('drawnSegments').setData(segmentsGeoJSON);
+    const source = map.getSource('drawnSegments');
+    if (source) {
+        console.log('Updating drawn segments on map:', segmentsGeoJSON);
+        source.setData(segmentsGeoJSON);
+    } else {
+        console.error('GeoJSON source "drawnSegments" not found on the map');
     }
 }
+
 
 // ============================
 // SECTION: Create Marker
