@@ -34,18 +34,32 @@ document.getElementById('applyDrawingOptionsButton').addEventListener('click', f
 // ============================
 // SECTION: Enable/Disable Drawing Mode
 // ============================
+let drawingEnabled = false; // Track whether drawing mode is enabled
+
 function enableDrawingMode() {
     console.log("Drawing mode enabled.");
     document.getElementById('control-panel').style.display = 'block';
-    map.on('click', drawPoint);
-    map.getCanvas().style.cursor = 'crosshair';
+    map.on('click', drawPoint);  // Start capturing clicks to draw points
+    map.getCanvas().style.cursor = 'crosshair';  // Change cursor to crosshair
 }
 
 function disableDrawingMode() {
     console.log("Drawing mode disabled.");
-    map.off('click', drawPoint);
-    map.getCanvas().style.cursor = '';
-    document.getElementById('control-panel').style.display = 'none';
+    map.off('click', drawPoint);  // Stop capturing clicks
+    map.getCanvas().style.cursor = '';  // Reset cursor
+    document.getElementById('control-panel').style.display = 'none';  // Hide the control panel
+}
+
+// ============================
+// SECTION: Toggle Drawing Mode
+// ============================
+function toggleDrawingMode() {
+    if (drawingEnabled) {
+        disableDrawingMode();  // Disable drawing if it’s enabled
+    } else {
+        enableDrawingMode();  // Enable drawing if it’s disabled
+    }
+    drawingEnabled = !drawingEnabled;  // Toggle the drawing state
 }
 
 // ============================
