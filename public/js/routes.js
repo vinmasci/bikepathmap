@@ -67,20 +67,23 @@ function toggleDrawingMode() {
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
-    originalPins.push(coords);
+    console.log("Point drawn at:", coords);  // Log the coordinates of each point
+    originalPins.push(coords);  // Add the point to the originalPins array
 
-    // If there are at least two points, draw the segment
+    // If there are at least two points, attempt to draw the segment
     if (originalPins.length > 1) {
         let snappedSegment = await snapToRoads([originalPins[originalPins.length - 2], coords]);
         if (!snappedSegment) {
             console.warn('Snapping failed, using original coordinates');
-            snappedSegment = [originalPins[originalPins.length - 2], coords]; // Fallback to non-snapped
+            snappedSegment = [originalPins[originalPins.length - 2], coords];  // Fallback to non-snapped
         }
-        addSegment(snappedSegment);
-        drawSegmentsOnMap();
+        console.log("Snapped or Fallback Segment:", snappedSegment);  // Log the segment to be drawn
+        addSegment(snappedSegment);  // Add the segment to GeoJSON
+        drawSegmentsOnMap();  // Draw the segment on the map
     }
-    createMarker(coords);
+    createMarker(coords);  // Create a marker at the clicked point
 }
+
 
 
 // ============================
@@ -90,16 +93,18 @@ async function snapToRoads(points) {
     try {
         const coordinatesString = points.map(coord => coord.join(',')).join(';');
         const url = `https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true&tidy=true`;
-        
+
+        console.log('Sending request to Mapbox Matching API:', url);  // Log the request URL
         const response = await fetch(url);
-        
+
         if (!response.ok) {
             console.error('Error fetching snapped points:', response.statusText);
             return null;  // Handle API error
         }
 
         const data = await response.json();
-        
+        console.log('Mapbox API Response Data:', data);  // Log the full response from Mapbox
+
         if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length > 0) {
             console.log('Snapped Segment Coordinates:', data.matchings[0].geometry.coordinates);
             return data.matchings[0].geometry.coordinates;
@@ -112,6 +117,7 @@ async function snapToRoads(points) {
         return null;  // Return null on error
     }
 }
+
 
 
 
@@ -141,8 +147,8 @@ function addSegment(snappedSegment) {
 function drawSegmentsOnMap() {
     const source = map.getSource('drawnSegments');
     if (source) {
-        console.log('Updating drawn segments on map:', JSON.stringify(segmentsGeoJSON, null, 2));
-        source.setData(segmentsGeoJSON);  // Make sure this is updating the map's source
+        console.log('GeoJSON Data before updating source:', JSON.stringify(segmentsGeoJSON, null, 2));  // Log the data to be set
+        source.setData(segmentsGeoJSON);  // Ensure this is updating the map's source
     } else {
         console.error('GeoJSON source "drawnSegments" not found on the map');
     }
