@@ -85,7 +85,7 @@ async function loadPhotoMarkers() {
                 source: 'photoMarkers',
                 filter: ['!', ['has', 'point_count']],  // Show only unclustered points
                 layout: {
-                    'icon-image': 'camera-15',  // Use Mapbox's default camera icon
+                    'icon-image': 'camera-15',  // Replace black dots with Mapbox's camera icon
                     'icon-size': 1.0,  // Adjust size as needed
                     'icon-allow-overlap': true
                 }
@@ -96,22 +96,9 @@ async function loadPhotoMarkers() {
                 const features = map.queryRenderedFeatures(e.point, {
                     layers: ['clusters']
                 });
-
-                if (features.length === 0) {
-                    console.error("No cluster features found at this point");
-                    return;
-                }
-
                 const clusterId = features[0].properties.cluster_id;
-                console.log("Cluster clicked:", clusterId);
-
                 map.getSource('photoMarkers').getClusterExpansionZoom(clusterId, (err, zoom) => {
-                    if (err) {
-                        console.error("Error during cluster expansion zoom:", err);
-                        return;
-                    }
-
-                    console.log("Zooming to cluster:", clusterId, "with zoom level:", zoom);
+                    if (err) return;
 
                     map.easeTo({
                         center: features[0].geometry.coordinates,
