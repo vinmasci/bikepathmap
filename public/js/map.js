@@ -64,10 +64,11 @@ map.on('load', () => {
 // ============================
 function initEventListeners() {
     document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer);
-    document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode); // Drawing mode logic
-    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer); // Photos toggle logic
-    document.getElementById('pois-tab').addEventListener('click', togglePOILayer); // POI toggle logic
-    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown); // Dropdown logic for Add tab
+    document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode); // Toggle Drawing Mode
+    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
+    document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
+    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
+    document.getElementById('undo-btn').addEventListener('click', undoLastSegment); // Undo Last Segment
 }
 
 // ============================
@@ -122,4 +123,15 @@ function toggleAddDropdown() {
     const dropdown = document.getElementById('add-dropdown');
     dropdown.classList.toggle('show');
     updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
+}
+
+// ============================
+// SECTION: Toggle Drawing Mode
+// ============================
+function toggleDrawingMode() {
+    if (map.getCanvas().style.cursor === 'crosshair') {
+        disableDrawingMode();
+    } else {
+        enableDrawingMode();
+    }
 }
