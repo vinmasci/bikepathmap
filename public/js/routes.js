@@ -58,6 +58,7 @@ async function drawPoint(e) {
     // If there are at least two points, draw the segment
     if (originalPins.length > 1) {
         const snappedSegment = await snapToRoads([originalPins[originalPins.length - 2], coords]);
+        console.log('Snapped Segment:', snappedSegment); // Add this line
         if (snappedSegment) {
             addSegment(snappedSegment);
             drawSegmentsOnMap();
