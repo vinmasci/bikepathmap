@@ -27,7 +27,7 @@ const gravelColors = {
 document.getElementById('applyDrawingOptionsButton').addEventListener('click', function () {
     const selectedGravelType = document.querySelector('input[name="gravelType"]:checked').value;
     selectedColor = gravelColors[selectedGravelType];
-    selectedLineStyle = document.querySelector('input[name="roadType"]:checked').value;
+    selectedLineStyle = document.querySelector('input[name="surfaceType"]:checked').value;
     document.getElementById('drawingOptionsModal').style.display = 'none';
 });
 
