@@ -22,7 +22,7 @@ async function loadPhotoMarkers() {
                 },
                 properties: {
                     originalName: photo.originalName,
-                    url: photo.url  // We'll use the URL as the marker icon for unclustered points
+                    url: photo.url  // We'll use the URL in popups, but not as an icon
                 }
             }))
         };
@@ -78,14 +78,14 @@ async function loadPhotoMarkers() {
                 }
             });
 
-            // Add unclustered photo points with a default marker icon
+            // Add unclustered photo points using a camera icon
             map.addLayer({
                 id: 'unclustered-photo',
                 type: 'symbol',
                 source: 'photoMarkers',
                 filter: ['!', ['has', 'point_count']],  // Show only unclustered points
                 layout: {
-                    'icon-image': 'marker-15',  // Use a default marker icon to ensure visibility
+                    'icon-image': 'camera-15',  // Use Mapbox's default camera icon
                     'icon-size': 1.0,  // Adjust size as needed
                     'icon-allow-overlap': true
                 }
@@ -133,7 +133,7 @@ async function loadPhotoMarkers() {
 // Function to remove all photo markers and clusters from the map
 function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
-    if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
-    if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
-    if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
+    if (map.getLayer('cluster-count')) map removeLayer('cluster-count');
+    if (map.getLayer('unclustered-photo')) map removeLayer('unclustered-photo');
+    if (map.getSource('photoMarkers')) map removeSource('photoMarkers');
 }
