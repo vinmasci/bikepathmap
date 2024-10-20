@@ -78,16 +78,17 @@ async function loadPhotoMarkers() {
                 }
             });
 
-            // Add unclustered photo points using a camera icon
+            // Add unclustered photo points using black dots
             map.addLayer({
                 id: 'unclustered-photo',
-                type: 'symbol',
+                type: 'circle',
                 source: 'photoMarkers',
                 filter: ['!', ['has', 'point_count']],  // Show only unclustered points
-                layout: {
-                    'icon-image': 'camera-15',  // Replace black dots with Mapbox's camera icon
-                    'icon-size': 1.0,  // Adjust size as needed
-                    'icon-allow-overlap': true
+                paint: {
+                    'circle-color': '#000000',  // Black circle color
+                    'circle-radius': 5,  // Size of the unclustered photo points
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': '#fff'  // White border around black dots
                 }
             });
 
