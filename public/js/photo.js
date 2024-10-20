@@ -96,9 +96,22 @@ async function loadPhotoMarkers() {
                 const features = map.queryRenderedFeatures(e.point, {
                     layers: ['clusters']
                 });
+
+                if (features.length === 0) {
+                    console.error("No cluster features found at this point");
+                    return;
+                }
+
                 const clusterId = features[0].properties.cluster_id;
+                console.log("Cluster clicked:", clusterId);
+
                 map.getSource('photoMarkers').getClusterExpansionZoom(clusterId, (err, zoom) => {
-                    if (err) return;
+                    if (err) {
+                        console.error("Error during cluster expansion zoom:", err);
+                        return;
+                    }
+
+                    console.log("Zooming to cluster:", clusterId, "with zoom level:", zoom);
 
                     map.easeTo({
                         center: features[0].geometry.coordinates,
