@@ -7,7 +7,7 @@ let selectedLineStyle = 'solid'; // Default to solid line
 let segmentColorStyle = []; // Store the color and style of each segment
 let previousPoint = null; // Store the last drawn point to start new segments
 let segmentCounter = 0; // Counter for unique segment IDs
-let originalPins = [];  // Store user-added pins (good)
+let originalPins = [];  // Store user-added pins
 let segments = []; // New structure to store complete segment information
 
 
@@ -225,10 +225,20 @@ function drawSegment(start, end, color, lineStyle) {
         }
     };
 
-       // Store the segment's color and style
-       segmentColorStyle.push({
+    // Store the segment's color and style in segmentColorStyle (legacy, can be removed if using segments array entirely)
+    segmentColorStyle.push({
         id: segmentId,
         coordinates: [start, end],
+        color: color,
+        lineStyle: lineStyle
+    });
+
+    // Store the segment in the segments array
+    segments.push({
+        id: segmentId,
+        start: start,
+        end: end,
+        snappedPoints: [start, end],  // Store snapped points
         color: color,
         lineStyle: lineStyle
     });
@@ -252,6 +262,7 @@ function drawSegment(start, end, color, lineStyle) {
         }
     });
 }
+s
 
 
 // ============================
@@ -353,11 +364,14 @@ async function undoLastPoint() {
         if (lastMarker) lastMarker.remove();
         originalPins.pop();
 
+        // Remove the segment layer and source from the map
         if (map.getLayer(lastSegmentId)) {
-            map.removeLayer(lastSegmentId);
-            if (map.getSource(lastSegmentId)) {
-                map.removeSource(lastSegmentId);
-            }
+            console.log(`Removing layer with ID: ${lastSegmentId}`);
+            map.removeLayer(lastSegmentId);  // Remove the segment layer
+        }
+        if (map.getSource(lastSegmentId)) {
+            console.log(`Removing source with ID: ${lastSegmentId}`);
+            map.removeSource(lastSegmentId);  // Remove the source
         }
 
         // Remove snapped points associated with the last segment
@@ -366,9 +380,6 @@ async function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
-
-
-
 
 // ============================
 // SECTION: Load Segments
