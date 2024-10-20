@@ -133,7 +133,7 @@ async function loadPhotoMarkers() {
 // Function to remove all photo markers and clusters from the map
 function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
-    if (map.getLayer('cluster-count')) map removeLayer('cluster-count');
-    if (map.getLayer('unclustered-photo')) map removeLayer('unclustered-photo');
-    if (map.getSource('photoMarkers')) map removeSource('photoMarkers');
+    if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
+    if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
+    if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
 }
