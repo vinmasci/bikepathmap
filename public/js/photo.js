@@ -22,7 +22,7 @@ async function loadPhotoMarkers() {
                 },
                 properties: {
                     originalName: photo.originalName,
-                    url: photo.url
+                    url: photo.url  // We'll use the URL as the marker icon for unclustered points
                 }
             }))
         };
@@ -78,17 +78,16 @@ async function loadPhotoMarkers() {
                 }
             });
 
-            // Add unclustered photo points with default black circles
+            // Add unclustered photo points with a default marker icon
             map.addLayer({
                 id: 'unclustered-photo',
-                type: 'circle',
+                type: 'symbol',
                 source: 'photoMarkers',
                 filter: ['!', ['has', 'point_count']],  // Show only unclustered points
-                paint: {
-                    'circle-color': '#000000',  // Black circle color
-                    'circle-radius': 5,  // Size of the unclustered photo points
-                    'circle-stroke-width': 1,
-                    'circle-stroke-color': '#fff'  // White border around black dots
+                layout: {
+                    'icon-image': 'marker-15',  // Use a default marker icon to ensure visibility
+                    'icon-size': 1.0,  // Adjust size as needed
+                    'icon-allow-overlap': true
                 }
             });
 
@@ -134,7 +133,7 @@ async function loadPhotoMarkers() {
 // Function to remove all photo markers and clusters from the map
 function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
-    if (map.getLayer('cluster-count')) map removeLayer('cluster-count');
-    if (map.getLayer('unclustered-photo')) map removeLayer('unclustered-photo');
-    if (map.getSource('photoMarkers')) map removeSource('photoMarkers');
+    if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
+    if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
+    if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
 }
