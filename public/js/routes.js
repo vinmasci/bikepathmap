@@ -210,45 +210,36 @@ function resetRoute() {
 // ============================
 function saveDrawnRoute() {
     if (segmentsGeoJSON.features.length > 0) {
-        // Open the modal for gravel/surface type selection
-        const modal = document.getElementById('routeSaveModal');
-        modal.style.display = 'block';
+        // Collect gravel and surface types from the modal
+        const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
+        const surfaceType = document.querySelector('input[name="surfaceType"]:checked').value;
 
-        // Set up the event listener for the save button
-        document.getElementById('saveRouteButton').addEventListener('click', function () {
-            // Collect data for saving
-            const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
-            const surfaceType = document.querySelector('input[name="surfaceType"]:checked').value;
+        // Add gravel and surface type information to each segment feature
+        segmentsGeoJSON.features.forEach(feature => {
+            feature.properties.gravelType = gravelTypes; // Store selected gravel types
+            feature.properties.surfaceType = surfaceType; // Store selected surface type
+        });
 
-            // Add gravel and surface type information to each segment feature
-            segmentsGeoJSON.features.forEach(feature => {
-                feature.properties.gravelType = gravelTypes; // Store selected gravel types
-                feature.properties.surfaceType = surfaceType; // Store selected surface type
-            });
-
-            // Save the updated GeoJSON data
-            fetch('/api/save-drawn-route', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ geojson: segmentsGeoJSON })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Route saved successfully!');
-                } else {
-                    alert('Error saving route: ' + data.error);
-                }
-                modal.style.display = 'none'; // Close the modal after saving
-            })
-            .catch(error => {
-                console.error('Error saving route:', error);
-                alert('An error occurred while saving the route.');
-                modal.style.display = 'none';
-            });
-        }, { once: true }); // Add the listener once to avoid multiple calls
+        // Send the drawn route data to the backend API
+        fetch('/api/save-drawn-route', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ geojson: segmentsGeoJSON })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Route saved successfully!');
+            } else {
+                alert('Error saving route: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving route:', error);
+            alert('An error occurred while saving the route.');
+        });
     } else {
-        console.log("No segments to save.");
         alert('No route to save.');
     }
 }
+
