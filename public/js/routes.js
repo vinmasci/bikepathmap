@@ -109,86 +109,52 @@ function createMarker(coords) {
     markers.push(marker);
 }
 
-// ============================
-// SECTION: Draw Individual Segment
-// ============================
+// ================================
+// SECTION: Draw Individual Segment (Handles drawing lines on the map)
+// ================================
 function drawSegment(start, end, color, lineStyle) {
-    const segmentId = `segment-${segmentCounter++}`;
-    const segmentLine = {
+    // Create a GeoJSON feature for the segment
+    const segmentFeature = {
         'type': 'Feature',
         'geometry': {
             'type': 'LineString',
             'coordinates': [start, end]
+        },
+        'properties': {
+            'color': color,
+            'lineStyle': lineStyle
         }
     };
-    segments.push({
-        id: segmentId,
-        start: start,
-        end: end,
-        snappedPoints: [start, end],
-        color: color,
-        lineStyle: lineStyle
-    });
-    map.addSource(segmentId, { 'type': 'geojson', 'data': segmentLine });
-    map.addLayer({
-        'id': segmentId,
-        'type': 'line',
-        'source': segmentId,
-        'layout': {
-            'line-join': 'round',
-            'line-cap': 'round'
-        },
-        'paint': {
-            'line-color': color,
-            'line-width': 4,
-            'line-dasharray': lineStyle === 'dashed' ? [2, 4] : [1]
-        }
-    });
+
+    // Add the segment to the existing GeoJSON source
+    const currentData = map.getSource('drawnSegments')._data;
+    currentData.features.push(segmentFeature);
+
+    // Update the source with the new data
+    map.getSource('drawnSegments').setData(currentData);
 }
 
+
 // ============================
-// SECTION: Undo Logic (Simplified to Remove Entire Segment and All Snapped Points)
+// SECTION: Undo Logic (Undo Last Segment)
 // ============================
-async function undoLastPoint() {
-    if (segments.length > 0) {
-        // Get the last segment
-        const lastSegment = segments.pop();
-        const lastSegmentId = lastSegment.id;
+async function undoLastSegment() {
+    const drawnSegmentsSource = map.getSource('drawnSegments');
 
-        // Remove the segment's markers and lines
-        if (markers.length > 0) {
-            const lastMarker = markers.pop();
-            if (lastMarker) lastMarker.remove(); // Remove the last marker from the map
-        }
+    // Retrieve the current GeoJSON data
+    const currentData = drawnSegmentsSource._data;
 
-        // Remove the last original pin
-        if (originalPins.length > 0) {
-            originalPins.pop();
-        }
+    if (currentData.features.length > 0) {
+        // Remove the last segment feature
+        currentData.features.pop();
 
-        // Remove the segment layer and source from the map
-        if (map.getLayer(lastSegmentId)) {
-            map.removeLayer(lastSegmentId);
-        }
-        if (map.getSource(lastSegmentId)) {
-            map.removeSource(lastSegmentId);
-        }
-
-        // Remove all snapped points associated with the last segment
-        if (lastSegment.snappedPoints && lastSegment.snappedPoints.length > 0) {
-            snappedPoints.splice(-lastSegment.snappedPoints.length);
-        }
-
-        // Remove from drawnPoints as well
-        if (drawnPoints.length >= 2) {
-            drawnPoints.pop();  // Remove the last point to keep drawnPoints consistent
-        }
-
-        console.log('Undo operation completed. Entire segment, markers, and snapped points removed.');
+        // Update the source with the new data
+        drawnSegmentsSource.setData(currentData);
     } else {
-        console.log('Nothing to undo.');
+        console.log('No segments to undo.');
     }
 }
+
 
 
 

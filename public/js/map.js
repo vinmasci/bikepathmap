@@ -19,13 +19,37 @@ function initMap() {
         initEventListeners(); // Set up event listeners
         loadSegments(); // Load segments on map load
         updateTabHighlight('segments-tab', true); // Highlight the segments tab
+
+        // Initialize GeoJSON Source for Drawn Segments
+        map.addSource('drawnSegments', {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: [] // Initially empty
+            }
+        });
+
+        // Add a layer to visualize these segments
+        map.addLayer({
+            id: 'drawnSegmentsLayer',
+            type: 'line',
+            source: 'drawnSegments',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#ff0000', // Default color for the segments
+                'line-width': 4
+            }
+        });
     });
-    
 
     map.on('error', (e) => {
         console.error("Map error:", e);
     });
 }
+
 
 // ============================
 // SECTION: Initialize Event Listeners
