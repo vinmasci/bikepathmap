@@ -68,7 +68,6 @@ function initEventListeners() {
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
     document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
-    document.getElementById('undo-btn').addEventListener('click', undoLastSegment); // Undo Last Segment
 }
 
 // ============================
@@ -123,15 +122,4 @@ function toggleAddDropdown() {
     const dropdown = document.getElementById('add-dropdown');
     dropdown.classList.toggle('show');
     updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
-}
-
-// ============================
-// SECTION: Toggle Drawing Mode
-// ============================
-function toggleDrawingMode() {
-    if (map.getCanvas().style.cursor === 'crosshair') {
-        disableDrawingMode();
-    } else {
-        enableDrawingMode();
-    }
 }
