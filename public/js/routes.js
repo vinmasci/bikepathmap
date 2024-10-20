@@ -7,7 +7,9 @@ let selectedLineStyle = 'solid'; // Default to solid line
 let segmentColorStyle = []; // Store the color and style of each segment
 let previousPoint = null; // Store the last drawn point to start new segments
 let segmentCounter = 0; // Counter for unique segment IDs
-let originalPins = [];  // Store user-added pins
+let originalPins = [];  // Store user-added pins (good)
+let segments = []; // New structure to store complete segment information
+
 
 
 // Gravel type color mapping (last GOOD)
@@ -180,11 +182,13 @@ async function drawPoint(e) {
     // If there's a previous marker, store the segment created between the two
     if (originalPins.length > 1) {
         const previousMarker = originalPins[originalPins.length - 2];
-        segmentColorStyle.push({
-            coordinates: [previousMarker, coords],
+        segments.push({
+            id: `segment-${segmentCounter++}`,
+            start: previousMarker,
+            end: coords,
+            snappedPoints: snappedSegment,
             color: selectedColor,
-            lineStyle: selectedLineStyle,
-            id: `segment-${segmentCounter++}`  // Create a unique segment ID
+            lineStyle: selectedLineStyle
         });
     }
 }
@@ -339,30 +343,25 @@ function resetRoute() {
 // SECTION: Undo Logic (Updated to Remove Entire Segment)
 // ============================
 async function undoLastPoint() {
-    if (originalPins.length > 1) {
-        // Remove the last user-added pin
-        originalPins.pop();
+    if (segments.length > 0) {
+        // Get the last segment
+        const lastSegment = segments.pop();
+        const lastSegmentId = lastSegment.id;
+
+        // Remove the segment's markers and lines
         const lastMarker = markers.pop();
         if (lastMarker) lastMarker.remove();
+        originalPins.pop();
 
-        // Remove the entire segment associated with the last pin
-        const lastSegment = segmentColorStyle.pop();
-        if (lastSegment) {
-            const lastSegmentId = lastSegment.id;
-            if (map.getLayer(lastSegmentId)) {
-                map.removeLayer(lastSegmentId); // Remove the segment layer
-                if (map.getSource(lastSegmentId)) {
-                    map.removeSource(lastSegmentId); // Remove the source
-                }
+        if (map.getLayer(lastSegmentId)) {
+            map.removeLayer(lastSegmentId);
+            if (map.getSource(lastSegmentId)) {
+                map.removeSource(lastSegmentId);
             }
         }
 
-        // Remove all snapped points related to the last segment
-        const pointsToRemoveCount = lastSegment ? 2 : 0; // Assuming each segment connects two points
-        snappedPoints = snappedPoints.slice(0, -pointsToRemoveCount); // Remove points belonging to the last segment
-    } else if (originalPins.length === 1) {
-        // If there's only one pin left, reset everything
-        resetRoute();
+        // Remove snapped points associated with the last segment
+        snappedPoints = snappedPoints.slice(0, -lastSegment.snappedPoints.length);
     } else {
         console.log('Nothing to undo.');
     }
