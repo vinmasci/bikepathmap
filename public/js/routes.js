@@ -336,7 +336,7 @@ function resetRoute() {
 }
 
 // ============================
-// SECTION: Undo Logic (Revised to Fix Redrawing Issue)
+// SECTION: Undo Logic (Updated to Remove Entire Segment)
 // ============================
 async function undoLastPoint() {
     if (originalPins.length > 1) {
@@ -345,7 +345,7 @@ async function undoLastPoint() {
         const lastMarker = markers.pop();
         if (lastMarker) lastMarker.remove();
 
-        // Get the last drawn segment and remove it
+        // Remove the entire segment associated with the last pin
         const lastSegment = segmentColorStyle.pop();
         if (lastSegment) {
             const lastSegmentId = lastSegment.id;
@@ -357,8 +357,9 @@ async function undoLastPoint() {
             }
         }
 
-        // Remove all snapped points that belong to the removed segment
-        snappedPoints = snappedPoints.slice(0, -2); // Remove the last two points from snappedPoints
+        // Remove all snapped points related to the last segment
+        const pointsToRemoveCount = lastSegment ? 2 : 0; // Assuming each segment connects two points
+        snappedPoints = snappedPoints.slice(0, -pointsToRemoveCount); // Remove points belonging to the last segment
     } else if (originalPins.length === 1) {
         // If there's only one pin left, reset everything
         resetRoute();
@@ -366,6 +367,7 @@ async function undoLastPoint() {
         console.log('Nothing to undo.');
     }
 }
+
 
 
 
