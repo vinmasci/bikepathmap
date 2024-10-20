@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add event listeners for the reset, undo, and save buttons
     document.getElementById('reset-btn').addEventListener('click', resetRoute);  // Reset button triggers resetRoute
-    document.getElementById('undo-btn').addEventListener('click', undoLastPoint); // Undo button triggers undoLastPoint
+    document.getElementById('undo-btn').addEventListener('click', undoLastSegment); // Undo button triggers undoLastPoint
     document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);  // Save button triggers saveDrawnRoute
 
     // Tab and modal interaction
