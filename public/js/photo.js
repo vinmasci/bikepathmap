@@ -6,6 +6,8 @@ async function loadPhotoMarkers() {
         const response = await fetch('/api/get-photos');
         const photos = await response.json();
 
+        console.log("Photos fetched:", photos);
+
         // Clear existing markers and source
         removePhotoMarkers();
 
@@ -25,14 +27,18 @@ async function loadPhotoMarkers() {
             }))
         };
 
+        console.log("GeoJSON formatted photos:", photoGeoJSON);
+
         // Add a GeoJSON source for photos with clustering enabled
         if (!map.getSource('photoMarkers')) {
+            console.log("Adding photoMarkers source to the map...");
+
             map.addSource('photoMarkers', {
                 type: 'geojson',
                 data: photoGeoJSON,
                 cluster: true,   // Enable clustering
-                clusterMaxZoom: 12,  // Max zoom to cluster points on (try lowering to 12)
-                clusterRadius: 40   // Radius of each cluster (adjust as needed)
+                clusterMaxZoom: 12,  // Max zoom to cluster points on
+                clusterRadius: 50   // Radius of each cluster (adjust as needed)
             });
 
             // Add cluster circles (for groups of photos)
@@ -69,10 +75,9 @@ async function loadPhotoMarkers() {
                 }
             });
 
-            // Add unclustered photo points with custom styling
+            // Add individual unclustered photo points with custom styling
             photos.forEach(photo => {
                 if (photo.latitude && photo.longitude) {
-                    // Create a custom div element for the marker
                     const markerElement = document.createElement('div');
                     markerElement.className = 'custom-photo-marker';
 
@@ -85,17 +90,15 @@ async function loadPhotoMarkers() {
                     markerElement.style.border = '2px solid white';  // Add a white border
                     markerElement.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.5)';  // Add shadow for better visibility
 
-                    // Create the marker and add it to the map
                     const marker = new mapboxgl.Marker(markerElement)
                         .setLngLat([photo.longitude, photo.latitude])
                         .addTo(map);
 
-                    // Add a popup with more information about the photo
                     const popup = new mapboxgl.Popup({ offset: 25 })
                         .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
 
                     marker.setPopup(popup);  // Bind the popup to the marker
-                    photoMarkers.push(marker);  // Add marker to the array for future cleanup
+                    photoMarkers.push(marker);
                 }
             });
 
@@ -115,8 +118,10 @@ async function loadPhotoMarkers() {
                 });
             });
 
+            console.log("Photo markers and clusters successfully added.");
+
         } else {
-            // Update existing source data if it already exists
+            console.log("Updating existing photoMarkers source...");
             map.getSource('photoMarkers').setData(photoGeoJSON);
         }
     } catch (error) {
@@ -128,7 +133,7 @@ async function loadPhotoMarkers() {
 function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
     if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
-    if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
     photoMarkers.forEach(marker => marker.remove());  // Remove individual markers
     photoMarkers = [];  // Clear the array
+    if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
 }
