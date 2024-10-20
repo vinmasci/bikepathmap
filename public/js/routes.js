@@ -147,11 +147,11 @@ function drawSegment(start, end, color, lineStyle) {
 }
 
 // ============================
-// SECTION: Undo Logic (Updated to Remove Entire Segment and All Snapped Points)
+// SECTION: Undo Logic (Simplified to Remove Entire Segment and All Snapped Points)
 // ============================
 async function undoLastPoint() {
     if (segments.length > 0) {
-        // Get the last segment from the segments array
+        // Get the last segment
         const lastSegment = segments.pop();
         const lastSegmentId = lastSegment.id;
 
@@ -168,34 +168,28 @@ async function undoLastPoint() {
 
         // Remove the segment layer and source from the map
         if (map.getLayer(lastSegmentId)) {
-            console.log(`Removing layer with ID: ${lastSegmentId}`);
-            map.removeLayer(lastSegmentId);  // Remove the segment layer
+            map.removeLayer(lastSegmentId);
         }
         if (map.getSource(lastSegmentId)) {
-            console.log(`Removing source with ID: ${lastSegmentId}`);
-            map.removeSource(lastSegmentId);  // Remove the source
+            map.removeSource(lastSegmentId);
         }
 
         // Remove all snapped points associated with the last segment
         if (lastSegment.snappedPoints && lastSegment.snappedPoints.length > 0) {
-            const snappedSegmentPointsCount = lastSegment.snappedPoints.length;
-
-            // Ensure the entire snapped segment is removed
-            snappedPoints = snappedPoints.slice(0, -snappedSegmentPointsCount);
-        } else {
-            console.warn('No snapped points found for the last segment.');
+            snappedPoints.splice(-lastSegment.snappedPoints.length);
         }
 
-        // Remove from drawnPoints as well to ensure consistency
+        // Remove from drawnPoints as well
         if (drawnPoints.length >= 2) {
-            drawnPoints = drawnPoints.slice(0, -1);  // Remove the last point to keep drawnPoints consistent
+            drawnPoints.pop();  // Remove the last point to keep drawnPoints consistent
         }
 
-        console.log('Undo operation completed. Segment, marker, and snapped points removed.');
+        console.log('Undo operation completed. Entire segment, markers, and snapped points removed.');
     } else {
         console.log('Nothing to undo.');
     }
 }
+
 
 
 // ============================
