@@ -82,23 +82,28 @@ map.on('load', () => {
             'paint': {
                 'line-color': ['get', 'color'],  // Dynamic color from properties
                 'line-width': 3,                 // Width of the colored line (slightly smaller than the white line)
-                'line-dasharray': ['case', ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], ['literal', [1]]]  // Dashed or solid
+                'line-dasharray': [
+                    'case',
+                    ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], // Dashed line
+                    ['literal', [1, 0]] // Solid line
+                ]
             }
         });
     } else {
         console.error("'drawn-segments-layer' already exists on the map");
     }
     
-        initEventListeners();
-        // loadSegments(); // Comment this out for now if not needed
-        updateTabHighlight('segments-tab', true); // Highlight the segments tab
-    });
-    
+    initEventListeners();
+    // loadSegments(); // Comment this out for now if not needed
+    updateTabHighlight('segments-tab', true); // Highlight the segments tab
+});
 
-    // Handle any errors that occur during the map initialization
-    map.on('error', (e) => {
-        console.error("Map error:", e);
-    });
+// Handle any errors that occur during the map initialization
+map.on('error', (e) => {
+    console.error("Map error:", e);
+});
+
+
 }
 
 

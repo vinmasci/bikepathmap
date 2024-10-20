@@ -136,13 +136,12 @@ function addSegment(snappedSegment) {
         },
         properties: {
             color: selectedColor,  // Use the selected color
-            lineStyle: selectedLineStyle,  // Use the selected line style
+            lineStyle: selectedLineStyle,  // Use the selected line style ('solid' or 'dashed')
             id: `segment-${segmentCounter++}`  // Unique ID for each segment
         }
     };
     segmentsGeoJSON.features.push(segmentFeature);
 }
-
 
 // ============================
 // SECTION: Draw Segments on Map
