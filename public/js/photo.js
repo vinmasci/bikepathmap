@@ -39,3 +39,11 @@ async function loadPhotoMarkers() {
         console.error('Error loading photo markers:', error);
     }
 }
+
+// Function to remove all photo markers from the map
+function removePhotoMarkers() {
+    if (photoMarkers.length > 0) {
+        photoMarkers.forEach(marker => marker.remove());  // Remove each marker from the map
+        photoMarkers = [];  // Clear the photoMarkers array
+    }
+}
