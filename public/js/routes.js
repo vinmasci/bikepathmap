@@ -374,12 +374,14 @@ async function undoLastPoint() {
             map.removeSource(lastSegmentId);  // Remove the source
         }
 
-        // Remove snapped points associated with the last segment
-        snappedPoints = snappedPoints.slice(0, -lastSegment.snappedPoints.length);
+        // Remove all snapped points associated with the last segment
+        const snappedSegmentPointsCount = lastSegment.snappedPoints.length;
+        snappedPoints = snappedPoints.slice(0, -snappedSegmentPointsCount);
     } else {
         console.log('Nothing to undo.');
     }
 }
+
 
 // ============================
 // SECTION: Load Segments
