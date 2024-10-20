@@ -1,15 +1,12 @@
 let photoMarkers = [];
 
-// Function to load and display clustered photo markers with custom styling for individual markers
+// SECTION 1: Loading and Formatting Data
 async function loadPhotoMarkers() {
     try {
         const response = await fetch('/api/get-photos');
         const photos = await response.json();
 
         console.log("Photos fetched:", photos);
-
-        // Clear existing markers and source
-        removePhotoMarkers();
 
         // Convert photos into GeoJSON format
         const photoGeoJSON = {
@@ -29,104 +26,125 @@ async function loadPhotoMarkers() {
 
         console.log("GeoJSON formatted photos:", photoGeoJSON);
 
-        // Add a GeoJSON source for photos with clustering enabled
-        if (!map.getSource('photoMarkers')) {
-            console.log("Adding photoMarkers source to the map...");
-
-            map.addSource('photoMarkers', {
-                type: 'geojson',
-                data: photoGeoJSON,
-                cluster: true,   // Enable clustering
-                clusterMaxZoom: 12,  // Max zoom to cluster points on
-                clusterRadius: 50   // Radius of each cluster (adjust as needed)
-            });
-
-            // Add cluster circles (for groups of photos)
-            map.addLayer({
-                id: 'clusters',
-                type: 'circle',
-                source: 'photoMarkers',
-                filter: ['has', 'point_count'],  // Only show clusters
-                paint: {
-                    'circle-color': '#51bbd6',  // Cluster circle color
-                    'circle-radius': [
-                        'step',
-                        ['get', 'point_count'],
-                        20,  // Cluster size for 1 point
-                        30,  // Cluster size for 100 points
-                        40   // Cluster size for 750 points
-                    ],
-                    'circle-stroke-width': 2,
-                    'circle-stroke-color': '#fff'  // White border around clusters
-                }
-            });
-
-            // Add cluster text (show the number of photos in the cluster)
-            map.addLayer({
-                id: 'cluster-count',
-                type: 'symbol',
-                source: 'photoMarkers',
-                filter: ['has', 'point_count'],
-                layout: {
-                    'text-field': '{point_count_abbreviated}',  // Show cluster count
-                    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-                    'text-size': 12,
-                    'text-allow-overlap': true
-                },
-                paint: {
-                    'text-color': '#ffffff'  // Make the text inside clusters white
-                }
-            });
-
-            // Add unclustered photo points using a camera icon
-            map.addLayer({
-                id: 'unclustered-photo',
-                type: 'symbol',
-                source: 'photoMarkers',
-                filter: ['!', ['has', 'point_count']],  // Show only unclustered points
-                layout: {
-                    'icon-image': 'camera-15',  // Replace black dots with Mapbox's camera icon
-                    'icon-size': 1.0,  // Adjust size as needed
-                    'icon-allow-overlap': true
-                }
-            });
-
-            // Add click event for clusters to zoom into them
-            map.on('click', 'clusters', (e) => {
-                const features = map.queryRenderedFeatures(e.point, {
-                    layers: ['clusters']
-                });
-                const clusterId = features[0].properties.cluster_id;
-                map.getSource('photoMarkers').getClusterExpansionZoom(clusterId, (err, zoom) => {
-                    if (err) return;
-
-                    map.easeTo({
-                        center: features[0].geometry.coordinates,
-                        zoom: zoom
-                    });
-                });
-            });
-
-            // Add click event for unclustered photos
-            map.on('click', 'unclustered-photo', (e) => {
-                const coordinates = e.features[0].geometry.coordinates.slice();
-                const { originalName, url } = e.features[0].properties;
-
-                // Create a popup with photo information
-                new mapboxgl.Popup()
-                    .setLngLat(coordinates)
-                    .setHTML(`<h3>${originalName}</h3><img src="${url}" style="width:200px;">`)
-                    .addTo(map);
-            });
-
-            console.log("Photo markers and clusters successfully added.");
-
-        } else {
-            console.log("Updating existing photoMarkers source...");
-            map.getSource('photoMarkers').setData(photoGeoJSON);
-        }
+        return photoGeoJSON; // Return the formatted GeoJSON
     } catch (error) {
         console.error('Error loading photo markers:', error);
+    }
+}
+
+// SECTION 2: Setting Up the Map Source
+function addPhotoMarkersSource(map, photoGeoJSON) {
+    if (!map.getSource('photoMarkers')) {
+        console.log("Adding photoMarkers source to the map...");
+        map.addSource('photoMarkers', {
+            type: 'geojson',
+            data: photoGeoJSON,
+            cluster: true,   // Enable clustering
+            clusterMaxZoom: 12,  // Max zoom to cluster points on
+            clusterRadius: 50   // Radius of each cluster (adjust as needed)
+        });
+    } else {
+        console.log("Updating existing photoMarkers source...");
+        map.getSource('photoMarkers').setData(photoGeoJSON);
+    }
+}
+
+// SECTION 3: Adding Map Layers
+function addPhotoMarkerLayers(map) {
+    // Add cluster circles (for groups of photos)
+    if (!map.getLayer('clusters')) {
+        map.addLayer({
+            id: 'clusters',
+            type: 'circle',
+            source: 'photoMarkers',
+            filter: ['has', 'point_count'],  // Only show clusters
+            paint: {
+                'circle-color': '#51bbd6',  // Cluster circle color
+                'circle-radius': [
+                    'step',
+                    ['get', 'point_count'],
+                    20,  // Cluster size for 1 point
+                    30,  // Cluster size for 100 points
+                    40   // Cluster size for 750 points
+                ],
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#fff'  // White border around clusters
+            }
+        });
+
+        // Add cluster text (show the number of photos in the cluster)
+        map.addLayer({
+            id: 'cluster-count',
+            type: 'symbol',
+            source: 'photoMarkers',
+            filter: ['has', 'point_count'],
+            layout: {
+                'text-field': '{point_count_abbreviated}',  // Show cluster count
+                'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                'text-size': 12,
+                'text-allow-overlap': true
+            },
+            paint: {
+                'text-color': '#ffffff'  // Make the text inside clusters white
+            }
+        });
+    }
+
+    // Add unclustered photo points using black dots
+    if (!map.getLayer('unclustered-photo')) {
+        map.addLayer({
+            id: 'unclustered-photo',
+            type: 'circle',
+            source: 'photoMarkers',
+            filter: ['!', ['has', 'point_count']],  // Show only unclustered points
+            paint: {
+                'circle-color': '#000000',  // Black circle color
+                'circle-radius': 5,  // Size of the unclustered photo points
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#fff'  // White border around black dots
+            }
+        });
+    }
+}
+
+// SECTION 4: Event Listeners
+function addPhotoMarkerEventListeners(map) {
+    // Add click event for clusters to zoom into them
+    map.on('click', 'clusters', (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+            layers: ['clusters']
+        });
+        const clusterId = features[0].properties.cluster_id;
+        map.getSource('photoMarkers').getClusterExpansionZoom(clusterId, (err, zoom) => {
+            if (err) return;
+
+            map.easeTo({
+                center: features[0].geometry.coordinates,
+                zoom: zoom
+            });
+        });
+    });
+
+    // Add click event for unclustered photos
+    map.on('click', 'unclustered-photo', (e) => {
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const { originalName, url } = e.features[0].properties;
+
+        // Create a popup with photo information
+        new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(`<h3>${originalName}</h3><img src="${url}" style="width:200px;">`)
+            .addTo(map);
+    });
+}
+
+// SECTION 5: Putting It All Together
+async function initializePhotoMarkers(map) {
+    const photoGeoJSON = await loadPhotoMarkers();
+    if (photoGeoJSON) {
+        addPhotoMarkersSource(map, photoGeoJSON);
+        addPhotoMarkerLayers(map);
+        addPhotoMarkerEventListeners(map);
     }
 }
 
