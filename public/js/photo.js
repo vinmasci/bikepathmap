@@ -48,17 +48,16 @@ async function loadPhotoMarkers() {
                 source: 'photoMarkers',
                 filter: ['has', 'point_count'],  // Cluster points only
                 paint: {
-                    'circle-color': '#51bbd6',
+                    'circle-color': '#51bbd6',  // Cluster circle color
                     'circle-radius': [
                         'step',
                         ['get', 'point_count'],
                         20,  // Cluster size at point_count = 0
-                        50,  // Cluster size at point_count = 100
-                        30,  // Cluster size at point_count = 750
-                        40   // Cluster size at point_count = 1500
+                        30,  // Cluster size at point_count = 100
+                        40   // Cluster size at point_count = 750
                     ],
                     'circle-stroke-width': 2,
-                    'circle-stroke-color': '#fff'
+                    'circle-stroke-color': '#fff'  // White border around clusters
                 }
             });
 
@@ -69,9 +68,13 @@ async function loadPhotoMarkers() {
                 source: 'photoMarkers',
                 filter: ['has', 'point_count'],
                 layout: {
-                    'text-field': '{point_count_abbreviated}',
+                    'text-field': '{point_count_abbreviated}',  // Show cluster count
                     'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-                    'text-size': 12
+                    'text-size': 12,
+                    'text-allow-overlap': true
+                },
+                paint: {
+                    'text-color': '#ffffff'  // Make the text inside clusters white
                 }
             });
 
@@ -82,7 +85,7 @@ async function loadPhotoMarkers() {
                 source: 'photoMarkers',
                 filter: ['!', ['has', 'point_count']],  // Show only unclustered points
                 layout: {
-                    'icon-image': ['concat', 'custom-marker-', ['get', 'originalName']], // Use the photo's original name or ID for custom icons
+                    'icon-image': 'custom-photo-marker',  // Replace with custom marker sprite if needed
                     'icon-size': 0.3,  // Adjust the size as needed
                     'icon-allow-overlap': true
                 }
