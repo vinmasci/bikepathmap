@@ -1,14 +1,15 @@
 // ============================
 // SECTION: Global Variables
 // ============================
-let drawnPoints = [];
-let snappedPoints = [];
+let segmentCounter = 0; // Counter for unique segment IDs
 let markers = [];
+let segmentsGeoJSON = {
+    type: 'FeatureCollection',
+    features: []
+};
 let selectedColor = '#FFFFFF'; // Default color
 let selectedLineStyle = 'solid'; // Default to solid line
-let segmentCounter = 0; // Counter for unique segment IDs
-let originalPins = [];  // Store user-added pins
-let segments = []; // Store complete segment information
+let originalPins = []; // Store user-added pins
 
 // Gravel type color mapping
 const gravelColors = {
@@ -17,13 +18,13 @@ const gravelColors = {
     2: '#fbc531', // Yellow for slightly technical
     3: '#f0932b', // Orange for technical
     4: '#c23616', // Dark Red for very technical
-    5: '#470002'  // Black Red for hike-a-bike
+    5: '#470002' // Black Red for hike-a-bike
 };
 
 // ============================
 // SECTION: Apply Drawing Options
 // ============================
-document.getElementById('applyDrawingOptionsButton').addEventListener('click', function() {
+document.getElementById('applyDrawingOptionsButton').addEventListener('click', function () {
     const selectedGravelType = document.querySelector('input[name="gravelType"]:checked').value;
     selectedColor = gravelColors[selectedGravelType];
     selectedLineStyle = document.querySelector('input[name="roadType"]:checked').value;
@@ -48,6 +49,24 @@ function disableDrawingMode() {
 }
 
 // ============================
+// SECTION: Draw Point
+// ============================
+async function drawPoint(e) {
+    const coords = [e.lngLat.lng, e.lngLat.lat];
+    originalPins.push(coords);
+
+    // If there are at least two points, draw the segment
+    if (originalPins.length > 1) {
+        const snappedSegment = await snapToRoads([originalPins[originalPins.length - 2], coords]);
+        if (snappedSegment) {
+            addSegment(snappedSegment);
+            drawSegmentsOnMap();
+        }
+    }
+    createMarker(coords);
+}
+
+// ============================
 // SECTION: Snap to Road Function
 // ============================
 async function snapToRoads(points) {
@@ -69,28 +88,31 @@ async function snapToRoads(points) {
 }
 
 // ============================
-// SECTION: Draw Point
+// SECTION: Add Segment
 // ============================
-async function drawPoint(e) {
-    const coords = [e.lngLat.lng, e.lngLat.lat];
-    drawnPoints.push(coords);
-    originalPins.push(coords);
-    const snappedSegment = await snapToRoads(drawnPoints);
-    if (snappedSegment) {
-        drawSegments(snappedSegment);
-    }
-    createMarker(coords);
+function addSegment(snappedSegment) {
+    const segmentFeature = {
+        type: 'Feature',
+        geometry: {
+            type: 'LineString',
+            coordinates: snappedSegment
+        },
+        properties: {
+            color: selectedColor,
+            lineStyle: selectedLineStyle,
+            id: `segment-${segmentCounter++}`
+        }
+    };
+    segmentsGeoJSON.features.push(segmentFeature);
 }
 
 // ============================
-// SECTION: Draw Segments
+// SECTION: Draw Segments on Map
 // ============================
-function drawSegments(snappedSegment) {
-    let lastIndex = snappedPoints.length > 0 ? snappedPoints.length - 1 : 0;
-    for (let i = lastIndex; i < snappedSegment.length - 1; i++) {
-        drawSegment(snappedSegment[i], snappedSegment[i + 1], selectedColor, selectedLineStyle);
+function drawSegmentsOnMap() {
+    if (map.getSource('drawnSegments')) {
+        map.getSource('drawnSegments').setData(segmentsGeoJSON);
     }
-    snappedPoints.push(...snappedSegment.slice(lastIndex + 1));
 }
 
 // ============================
@@ -110,102 +132,61 @@ function createMarker(coords) {
 }
 
 // ============================
-// SECTION: Draw Individual Segment (Handles drawing lines on the map)
-// ============================
-function drawSegment(start, end, color, lineStyle) {
-    const segmentFeature = {
-        type: 'Feature',
-        geometry: {
-            type: 'LineString',
-            coordinates: [start, end]
-        },
-        properties: {
-            color: color,
-            lineStyle: lineStyle
-        }
-    };
-
-    // Update the drawnSegments GeoJSON source
-    const drawnSegmentsSource = map.getSource('drawnSegments');
-    const currentData = { ...drawnSegmentsSource._data }; // Make a copy to avoid direct modification
-    currentData.features.push(segmentFeature);
-    drawnSegmentsSource.setData(currentData);
-}
-
-
-
-// ============================
-// SECTION: Undo Logic (Undo Last Segment)
+// SECTION: Undo Last Segment
 // ============================
 function undoLastSegment() {
-    const drawnSegmentsSource = map.getSource('drawnSegments');
-    const currentData = { ...drawnSegmentsSource._data }; // Make a copy to avoid direct modification
-
-    if (currentData.features.length > 0) {
-        currentData.features.pop(); // Remove the last segment
-        drawnSegmentsSource.setData(currentData);
+    if (segmentsGeoJSON.features.length > 0) {
+        segmentsGeoJSON.features.pop(); // Remove the last segment
+        drawSegmentsOnMap(); // Update the map
+        if (markers.length > 0) {
+            const lastMarker = markers.pop();
+            lastMarker.remove();
+            originalPins.pop();
+        }
     } else {
         console.log('No segments to undo.');
     }
 }
-
-
-
 
 // ============================
 // SECTION: Reset Route
 // ============================
 function resetRoute() {
     console.log("Resetting route...");
-
-    // Reset the GeoJSON source for all drawn segments
-    const drawnSegmentsSource = map.getSource('drawnSegments');
-    const emptyGeoJSON = {
-        type: 'FeatureCollection',
-        features: []
-    };
-    drawnSegmentsSource.setData(emptyGeoJSON);
-
-    // Clear markers and reset arrays
+    segmentsGeoJSON.features = [];
+    drawSegmentsOnMap();
     markers.forEach(marker => marker.remove());
     markers = [];
-    drawnPoints = [];
-    snappedPoints = [];
     originalPins = [];
     console.log("Route reset.");
 }
-
 
 // ============================
 // SECTION: Save Drawn Route
 // ============================
 function saveDrawnRoute() {
-    if (drawnPoints.length > 1) {
+    if (segmentsGeoJSON.features.length > 0) {
+        // Open the modal for gravel/surface type selection
         const modal = document.getElementById('routeSaveModal');
         modal.style.display = 'block';
-        document.getElementById('saveRouteButton').addEventListener('click', function() {
+
+        // Set up the event listener for the save button
+        document.getElementById('saveRouteButton').addEventListener('click', function () {
+            // Collect data for saving
             const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
             const surfaceType = document.querySelector('input[name="surfaceType"]:checked').value;
-            const geojsonData = {
-                'type': 'FeatureCollection',
-                'features': [
-                    {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'LineString',
-                            'coordinates': drawnPoints
-                        },
-                        'properties': {
-                            'gravelType': gravelTypes,
-                            'surfaceType': surfaceType
-                        }
-                    }
-                ]
-            };
+
+            // Add gravel and surface type information to each segment feature
+            segmentsGeoJSON.features.forEach(feature => {
+                feature.properties.gravelType = gravelTypes; // Store selected gravel types
+                feature.properties.surfaceType = surfaceType; // Store selected surface type
+            });
+
+            // Save the updated GeoJSON data
             fetch('/api/save-drawn-route', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ geojson: geojsonData })
+                body: JSON.stringify({ geojson: segmentsGeoJSON })
             })
             .then(response => response.json())
             .then(data => {
@@ -214,16 +195,16 @@ function saveDrawnRoute() {
                 } else {
                     alert('Error saving route: ' + data.error);
                 }
-                modal.style.display = 'none';
+                modal.style.display = 'none'; // Close the modal after saving
             })
             .catch(error => {
                 console.error('Error saving route:', error);
                 alert('An error occurred while saving the route.');
                 modal.style.display = 'none';
             });
-        });
+        }, { once: true }); // Add the listener once to avoid multiple calls
     } else {
-        console.log("No points to save.");
+        console.log("No segments to save.");
         alert('No route to save.');
     }
 }
