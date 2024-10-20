@@ -31,8 +31,8 @@ async function loadPhotoMarkers() {
                 type: 'geojson',
                 data: photoGeoJSON,
                 cluster: true,   // Enable clustering
-                clusterMaxZoom: 14,  // Max zoom to cluster points on
-                clusterRadius: 50   // Radius of each cluster (adjust as needed)
+                clusterMaxZoom: 12,  // Max zoom to cluster points on (try lowering to 12)
+                clusterRadius: 40   // Radius of each cluster (adjust as needed)
             });
 
             // Add cluster circles (for groups of photos)
@@ -43,7 +43,14 @@ async function loadPhotoMarkers() {
                 filter: ['has', 'point_count'],  // Cluster points only
                 paint: {
                     'circle-color': '#51bbd6',
-                    'circle-radius': 20,
+                    'circle-radius': [
+                        'step',
+                        ['get', 'point_count'],
+                        20,  // Cluster size at point_count = 0
+                        50,  // Cluster size at point_count = 100
+                        30,  // Cluster size at point_count = 750
+                        40   // Cluster size at point_count = 1500
+                    ],
                     'circle-stroke-width': 2,
                     'circle-stroke-color': '#fff'
                 }
@@ -62,7 +69,7 @@ async function loadPhotoMarkers() {
                 }
             });
 
-            // Add individual unclustered photo points with custom styling
+            // Add unclustered photo points with custom styling
             photos.forEach(photo => {
                 if (photo.latitude && photo.longitude) {
                     // Create a custom div element for the marker
@@ -107,6 +114,7 @@ async function loadPhotoMarkers() {
                     });
                 });
             });
+
         } else {
             // Update existing source data if it already exists
             map.getSource('photoMarkers').setData(photoGeoJSON);
@@ -120,6 +128,7 @@ async function loadPhotoMarkers() {
 function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
     if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
-    if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
     if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
+    photoMarkers.forEach(marker => marker.remove());  // Remove individual markers
+    photoMarkers = [];  // Clear the array
 }
