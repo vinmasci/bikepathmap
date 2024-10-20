@@ -141,11 +141,8 @@ function preserveColorsAndDrawSegments(snappedSegment) {
     snappedPoints.push(...snappedSegment.slice(lastIndex + 1));  // Append only the new points
 }
 
-
-
-
 // ============================
-// 1SECTION: Draw Point (Combines snapping and drawing with color preservation)
+// SECTION: Draw Point (Redefined Segment Storage)
 // ============================
 async function drawPoint(e) {
     const coords = [e.lngLat.lng, e.lngLat.lat];
@@ -158,7 +155,21 @@ async function drawPoint(e) {
     const snappedSegment = await snapToRoad();
 
     if (snappedSegment) {
-        preserveColorsAndDrawSegments(snappedSegment); // Handle the drawing and color preservation
+        // Draw the segment between the snapped points (first and last points in snappedSegment)
+        drawSegment(snappedSegment[0], snappedSegment[snappedSegment.length - 1], selectedColor, selectedLineStyle);
+
+        // Store the complete segment information in the segments array
+        if (originalPins.length > 1) {
+            const previousMarker = originalPins[originalPins.length - 2];
+            segments.push({
+                id: `segment-${segmentCounter++}`,
+                start: previousMarker,
+                end: coords,
+                snappedPoints: snappedSegment,  // Store all snapped points for the segment
+                color: selectedColor,
+                lineStyle: selectedLineStyle
+            });
+        }
     }
 
     // Update the previous point to the current one for future connections
@@ -178,20 +189,8 @@ async function drawPoint(e) {
 
     // Store the marker for future reference
     markers.push(marker);
-
-    // If there's a previous marker, store the segment created between the two
-    if (originalPins.length > 1) {
-        const previousMarker = originalPins[originalPins.length - 2];
-        segments.push({
-            id: `segment-${segmentCounter++}`,
-            start: previousMarker,
-            end: coords,
-            snappedPoints: snappedSegment,
-            color: selectedColor,
-            lineStyle: selectedLineStyle
-        });
-    }
 }
+
 
 // ============================
 // 1SECTION: Remove Previous Segments
@@ -359,28 +358,25 @@ async function undoLastPoint() {
         const lastSegment = segments.pop();
         const lastSegmentId = lastSegment.id;
 
-        // Remove the segment's markers and lines
-        const lastMarker = markers.pop();
-        if (lastMarker) lastMarker.remove();
+        // Remove associated markers
+        markers.pop().remove();
         originalPins.pop();
 
-        // Remove the segment layer and source from the map
+        // Remove the line from the map (source and layer)
         if (map.getLayer(lastSegmentId)) {
-            console.log(`Removing layer with ID: ${lastSegmentId}`);
-            map.removeLayer(lastSegmentId);  // Remove the segment layer
+            map.removeLayer(lastSegmentId);
         }
         if (map.getSource(lastSegmentId)) {
-            console.log(`Removing source with ID: ${lastSegmentId}`);
-            map.removeSource(lastSegmentId);  // Remove the source
+            map.removeSource(lastSegmentId);
         }
 
-        // Remove all snapped points associated with the last segment
-        const snappedSegmentPointsCount = lastSegment.snappedPoints.length;
-        snappedPoints = snappedPoints.slice(0, -snappedSegmentPointsCount);
+        // Remove snapped points associated with the last segment from `segments` only
+        console.log(`Removed segment with snapped points:`, lastSegment.snappedPoints);
     } else {
         console.log('Nothing to undo.');
     }
 }
+
 
 
 // ============================
