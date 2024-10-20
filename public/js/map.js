@@ -19,10 +19,7 @@ function initMap() {
 // ============================
 map.on('load', () => {
     console.log("Map loaded successfully.");
-    initEventListeners(); // Set up event listeners
-    loadSegments(); // Load segments on map load
-    updateTabHighlight('segments-tab', true); // Highlight the segments tab
-    
+
     // Add GeoJSON source for storing drawn segments
     map.addSource('drawnSegments', {
         'type': 'geojson',
@@ -47,7 +44,13 @@ map.on('load', () => {
             'line-dasharray': ['case', ['==', ['get', 'lineStyle'], 'dashed'], [2, 4], [1]]
         }
     });
+
+    // Set up event listeners after source and layer are added
+    initEventListeners();
+    loadSegments(); // Load segments on map load
+    updateTabHighlight('segments-tab', true); // Highlight the segments tab
 });
+
 
 
     map.on('error', (e) => {
