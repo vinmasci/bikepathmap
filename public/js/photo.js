@@ -75,30 +75,16 @@ async function loadPhotoMarkers() {
                 }
             });
 
-            // Add individual unclustered photo points with custom styling
-            photos.forEach(photo => {
-                if (photo.latitude && photo.longitude) {
-                    const markerElement = document.createElement('div');
-                    markerElement.className = 'custom-photo-marker';
-
-                    // Set the background image to the photo URL and style it
-                    markerElement.style.backgroundImage = `url(${photo.url})`;
-                    markerElement.style.width = '40px';  // Size of the thumbnail
-                    markerElement.style.height = '40px';
-                    markerElement.style.backgroundSize = 'cover';
-                    markerElement.style.borderRadius = '50%';  // Make it circular
-                    markerElement.style.border = '2px solid white';  // Add a white border
-                    markerElement.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.5)';  // Add shadow for better visibility
-
-                    const marker = new mapboxgl.Marker(markerElement)
-                        .setLngLat([photo.longitude, photo.latitude])
-                        .addTo(map);
-
-                    const popup = new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(`<h3>${photo.originalName}</h3><img src="${photo.url}" style="width:200px;">`);
-
-                    marker.setPopup(popup);  // Bind the popup to the marker
-                    photoMarkers.push(marker);
+            // Add unclustered photo points with custom styling
+            map.addLayer({
+                id: 'unclustered-photo',
+                type: 'symbol',
+                source: 'photoMarkers',
+                filter: ['!', ['has', 'point_count']],  // Show only unclustered points
+                layout: {
+                    'icon-image': ['concat', 'custom-marker-', ['get', 'originalName']], // Use the photo's original name or ID for custom icons
+                    'icon-size': 0.3,  // Adjust the size as needed
+                    'icon-allow-overlap': true
                 }
             });
 
@@ -118,6 +104,18 @@ async function loadPhotoMarkers() {
                 });
             });
 
+            // Add click event for unclustered photos
+            map.on('click', 'unclustered-photo', (e) => {
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const { originalName, url } = e.features[0].properties;
+
+                // Create a popup with photo information
+                new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(`<h3>${originalName}</h3><img src="${url}" style="width:200px;">`)
+                    .addTo(map);
+            });
+
             console.log("Photo markers and clusters successfully added.");
 
         } else {
@@ -133,7 +131,6 @@ async function loadPhotoMarkers() {
 function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
     if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
-    photoMarkers.forEach(marker => marker.remove());  // Remove individual markers
-    photoMarkers = [];  // Clear the array
+    if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
     if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
 }
