@@ -40,16 +40,16 @@ function initMap() {
                 },
                 'paint': {
                     'line-color': ['get', 'color'],  // Dynamic color from properties
-                    'line-width': 4,
-                    'line-dasharray': ['case', ['==', ['get', 'lineStyle'], 'dashed'], [2, 4], [1]]
+                    'line-width': 4,  // Width of the line
+                    'line-dasharray': ['case', ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], ['literal', [1]]]  // Use "literal" for arrays
                 }
             });
         } else {
             console.error("'drawn-segments-layer' already exists on the map");
         }
     
-        initEventListeners(); // Initialize event listeners
-        loadSegments(); // Load segments
+        initEventListeners();
+        // loadSegments(); // Comment this out for now if not needed
         updateTabHighlight('segments-tab', true); // Highlight the segments tab
     });
     

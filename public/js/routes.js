@@ -73,10 +73,13 @@ async function drawPoint(e) {
     // If there are at least two points, attempt to draw the segment
     if (originalPins.length > 1) {
         let snappedSegment = await snapToRoads([originalPins[originalPins.length - 2], coords]);
+        
+        // If snapping fails, use original coordinates as fallback
         if (!snappedSegment) {
             console.warn('Snapping failed, using original coordinates');
             snappedSegment = [originalPins[originalPins.length - 2], coords];  // Fallback to non-snapped
         }
+        
         console.log("Snapped or Fallback Segment:", snappedSegment);  // Log the segment to be drawn
         addSegment(snappedSegment);  // Add the segment to GeoJSON
         drawSegmentsOnMap();  // Draw the segment on the map
