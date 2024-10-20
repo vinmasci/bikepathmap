@@ -147,26 +147,56 @@ function drawSegment(start, end, color, lineStyle) {
 }
 
 // ============================
-// SECTION: Undo Last Segment
+// SECTION: Undo Logic (Updated to Remove Entire Segment and All Snapped Points)
 // ============================
 async function undoLastPoint() {
     if (segments.length > 0) {
+        // Get the last segment from the segments array
         const lastSegment = segments.pop();
         const lastSegmentId = lastSegment.id;
-        const lastMarker = markers.pop();
-        if (lastMarker) lastMarker.remove();
-        originalPins.pop();
+
+        // Remove the segment's markers and lines
+        if (markers.length > 0) {
+            const lastMarker = markers.pop();
+            if (lastMarker) lastMarker.remove(); // Remove the last marker from the map
+        }
+
+        // Remove the last original pin
+        if (originalPins.length > 0) {
+            originalPins.pop();
+        }
+
+        // Remove the segment layer and source from the map
         if (map.getLayer(lastSegmentId)) {
-            map.removeLayer(lastSegmentId);
+            console.log(`Removing layer with ID: ${lastSegmentId}`);
+            map.removeLayer(lastSegmentId);  // Remove the segment layer
         }
         if (map.getSource(lastSegmentId)) {
-            map.removeSource(lastSegmentId);
+            console.log(`Removing source with ID: ${lastSegmentId}`);
+            map.removeSource(lastSegmentId);  // Remove the source
         }
-        snappedPoints = snappedPoints.slice(0, -lastSegment.snappedPoints.length);
+
+        // Remove all snapped points associated with the last segment
+        if (lastSegment.snappedPoints && lastSegment.snappedPoints.length > 0) {
+            const snappedSegmentPointsCount = lastSegment.snappedPoints.length;
+
+            // Ensure the entire snapped segment is removed
+            snappedPoints = snappedPoints.slice(0, -snappedSegmentPointsCount);
+        } else {
+            console.warn('No snapped points found for the last segment.');
+        }
+
+        // Remove from drawnPoints as well to ensure consistency
+        if (drawnPoints.length >= 2) {
+            drawnPoints = drawnPoints.slice(0, -1);  // Remove the last point to keep drawnPoints consistent
+        }
+
+        console.log('Undo operation completed. Segment, marker, and snapped points removed.');
     } else {
         console.log('Nothing to undo.');
     }
 }
+
 
 // ============================
 // SECTION: Reset Route
