@@ -109,46 +109,40 @@ function createMarker(coords) {
     markers.push(marker);
 }
 
-// ================================
+// ============================
 // SECTION: Draw Individual Segment (Handles drawing lines on the map)
-// ================================
+// ============================
 function drawSegment(start, end, color, lineStyle) {
-    // Create a GeoJSON feature for the segment
     const segmentFeature = {
-        'type': 'Feature',
-        'geometry': {
-            'type': 'LineString',
-            'coordinates': [start, end]
+        type: 'Feature',
+        geometry: {
+            type: 'LineString',
+            coordinates: [start, end]
         },
-        'properties': {
-            'color': color,
-            'lineStyle': lineStyle
+        properties: {
+            color: color,
+            lineStyle: lineStyle
         }
     };
 
-    // Add the segment to the existing GeoJSON source
-    const currentData = map.getSource('drawnSegments')._data;
+    // Update the drawnSegments GeoJSON source
+    const drawnSegmentsSource = map.getSource('drawnSegments');
+    const currentData = { ...drawnSegmentsSource._data }; // Make a copy to avoid direct modification
     currentData.features.push(segmentFeature);
-
-    // Update the source with the new data
-    map.getSource('drawnSegments').setData(currentData);
+    drawnSegmentsSource.setData(currentData);
 }
+
 
 
 // ============================
 // SECTION: Undo Logic (Undo Last Segment)
 // ============================
-async function undoLastSegment() {
+function undoLastSegment() {
     const drawnSegmentsSource = map.getSource('drawnSegments');
-
-    // Retrieve the current GeoJSON data
-    const currentData = drawnSegmentsSource._data;
+    const currentData = { ...drawnSegmentsSource._data }; // Make a copy to avoid direct modification
 
     if (currentData.features.length > 0) {
-        // Remove the last segment feature
-        currentData.features.pop();
-
-        // Update the source with the new data
+        currentData.features.pop(); // Remove the last segment
         drawnSegmentsSource.setData(currentData);
     } else {
         console.log('No segments to undo.');
@@ -163,22 +157,24 @@ async function undoLastSegment() {
 // ============================
 function resetRoute() {
     console.log("Resetting route...");
-    map.getStyle().layers
-        .filter(layer => layer.id.startsWith('segment-'))
-        .forEach(layer => {
-            map.removeLayer(layer.id);
-            const sourceId = layer.id.replace('-layer', '');
-            if (map.getSource(sourceId)) {
-                map.removeSource(sourceId);
-            }
-        });
-    segments = [];
-    drawnPoints = [];
-    snappedPoints = [];
+
+    // Reset the GeoJSON source for all drawn segments
+    const drawnSegmentsSource = map.getSource('drawnSegments');
+    const emptyGeoJSON = {
+        type: 'FeatureCollection',
+        features: []
+    };
+    drawnSegmentsSource.setData(emptyGeoJSON);
+
+    // Clear markers and reset arrays
     markers.forEach(marker => marker.remove());
     markers = [];
+    drawnPoints = [];
+    snappedPoints = [];
+    originalPins = [];
     console.log("Route reset.");
 }
+
 
 // ============================
 // SECTION: Save Drawn Route

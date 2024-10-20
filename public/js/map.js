@@ -14,36 +14,35 @@ function initMap() {
         zoom: 10
     });
 
-    map.on('load', () => {
-        console.log("Map loaded successfully.");
-        initEventListeners(); // Set up event listeners
-        loadSegments(); // Load segments on map load
-        updateTabHighlight('segments-tab', true); // Highlight the segments tab
-
-        // Initialize GeoJSON Source for Drawn Segments
-        map.addSource('drawnSegments', {
-            type: 'geojson',
-            data: {
-                type: 'FeatureCollection',
-                features: [] // Initially empty
-            }
-        });
-
-        // Add a layer to visualize these segments
-        map.addLayer({
-            id: 'drawnSegmentsLayer',
-            type: 'line',
-            source: 'drawnSegments',
-            layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            paint: {
-                'line-color': '#ff0000', // Default color for the segments
-                'line-width': 4
-            }
-        });
+// ============================
+// SECTION: Initialize GeoJSON Source for Segments
+// ============================
+map.on('load', () => {
+    // Initialize a GeoJSON source for all drawn segments
+    map.addSource('drawnSegments', {
+        type: 'geojson',
+        data: {
+            type: 'FeatureCollection',
+            features: []
+        }
     });
+
+    // Add a layer to display the segments
+    map.addLayer({
+        id: 'drawnSegmentsLayer',
+        type: 'line',
+        source: 'drawnSegments',
+        layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        paint: {
+            'line-color': ['get', 'color'], // Use color property from feature
+            'line-width': 4,
+            'line-dasharray': ['case', ['==', ['get', 'lineStyle'], 'dashed'], [2, 4], [1]]
+        }
+    });
+});
 
     map.on('error', (e) => {
         console.error("Map error:", e);
