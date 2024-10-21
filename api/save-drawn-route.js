@@ -21,19 +21,18 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Invalid route data' });
     }
 
-    // Optional validation for gravelType and surfaceType
-    const { gravelType, surfaceType } = geojson.features[0].properties;
-    if (!gravelType || !surfaceType) {
-        console.error('Invalid gravelType or surfaceType:', gravelType, surfaceType);
-        return res.status(400).json({ error: 'Invalid gravel or surface type' });
+    // Optional validation for gravelType only (surfaceType is no longer required)
+    const { gravelType } = geojson.features[0].properties;
+    if (!gravelType) {
+        console.error('Invalid gravelType:', gravelType);
+        return res.status(400).json({ error: 'Invalid gravel type' });
     }
 
     try {
         const collection = await connectToMongo();
         const result = await collection.insertOne({
             geojson: geojson,
-            gravelType,
-            surfaceType,
+            gravelType,  // Save gravelType only
             createdAt: new Date()
         });
 
