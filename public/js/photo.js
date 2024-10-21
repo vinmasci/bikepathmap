@@ -83,11 +83,13 @@ map.addLayer({
     id: 'unclustered-photo',
     type: 'symbol',
     source: 'photoMarkers',
-    filter: ['!', ['has', 'point_count']],  // Show only unclustered points
+    filter: ['!', ['has', 'point_count']],
     layout: {
-        'icon-image': 'camera-icon',  // Reference to the image we will add below
-        'icon-size': 0.1,  // Adjust size as needed
-        'icon-allow-overlap': true  // Allow icons to overlap if needed
+        'icon-image': 'camera-icon',
+        'icon-size': 0.05,  // Adjust size to prevent stretching
+        'icon-allow-overlap': true,
+        'icon-pitch-alignment': 'map',  // Ensures icon faces the map correctly
+        'icon-rotation-alignment': 'map'  // Prevents upside-down icon issue
     }
 });
 
