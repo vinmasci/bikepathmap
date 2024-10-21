@@ -27,7 +27,6 @@ const gravelColors = {
 document.getElementById('applyDrawingOptionsButton').addEventListener('click', function () {
     const selectedGravelType = document.querySelector('input[name="gravelType"]:checked').value;
     selectedColor = gravelColors[selectedGravelType];
-    selectedLineStyle = document.querySelector('input[name="surfaceType"]:checked').value;
     document.getElementById('drawingOptionsModal').style.display = 'none';
 });
 
@@ -136,7 +135,6 @@ function addSegment(snappedSegment) {
         },
         properties: {
             color: selectedColor,  // Use the selected color
-            lineStyle: selectedLineStyle,  // Use the selected line style ('solid' or 'dashed')
             id: `segment-${segmentCounter++}`  // Unique ID for each segment
         }
     };
@@ -216,7 +214,6 @@ function saveDrawnRoute() {
         // Add gravel and surface type information to each segment feature
         segmentsGeoJSON.features.forEach(feature => {
             feature.properties.gravelType = gravelTypes; // Store selected gravel types
-            feature.properties.surfaceType = surfaceType; // Store selected surface type
         });
 
         // Send the drawn route data to the backend API
