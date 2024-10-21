@@ -153,8 +153,7 @@ async function loadSegments() {
         }
         
         const data = await response.json();
-        
-        // Ensure 'data' is defined and contains 'routes'
+
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
         }
@@ -166,11 +165,13 @@ async function loadSegments() {
                 'features': data.routes.map(route => route.geojson)  // Pass GeoJSON directly
             });
         }
+
+        console.log("Fetched GeoJSON routes:", data.routes); // Log the routes
     } catch (error) {
         console.error('Error loading drawn routes:', error);
     }
-    console.log("Fetched GeoJSON routes:", data?.routes); // Use optional chaining to prevent errors
 }
+
 
 
 
