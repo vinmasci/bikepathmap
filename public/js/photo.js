@@ -14,19 +14,20 @@ async function loadPhotoMarkers() {
         // Convert photos into GeoJSON format
         const photoGeoJSON = {
             type: 'FeatureCollection',
-            features: photos.map(photo => ({
+            features: photos.map((photo, index) => ({
                 type: 'Feature',
                 geometry: {
                     type: 'Point',
                     coordinates: [photo.longitude, photo.latitude]
                 },
                 properties: {
+                    id: `photo-${index}`,  // Add a unique id for each photo
                     originalName: photo.originalName,
-                    url: photo.url  // We'll use the URL in popups, but not as an icon
+                    url: photo.url  // We'll use the URL in popups and as an icon
                 }
             }))
         };
-
+        
         console.log("GeoJSON formatted photos:", photoGeoJSON);
 
         // Add a GeoJSON source for photos with clustering enabled
@@ -160,13 +161,16 @@ function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
     if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
 
-    // Loop through dynamically generated unclustered-photo layers
-    for (const [index, photo] of photos.entries()) {
-        const unclusteredPhotoLayerId = `unclustered-photo-${index}`;
-        if (map.getLayer(unclusteredPhotoLayerId)) {
-            map.removeLayer(unclusteredPhotoLayerId);
-        }
+    // Ensure that unclustered photo layers are removed dynamically
+    if (map.getSource('photoMarkers')) {
+        map.getSource('photoMarkers').setData({
+            type: 'FeatureCollection',
+            features: []
+        });
     }
-
-    if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
+    
+    // Loop through and remove dynamically generated unclustered-photo layers
+    for (let i = 0; map.getLayer(`unclustered-photo-${i}`); i++) {
+        map.removeLayer(`unclustered-photo-${i}`);
+    }
 }
