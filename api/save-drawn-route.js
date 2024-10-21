@@ -11,10 +11,21 @@ async function connectToMongo() {
     return client.db('roadApp').collection('drawnRoutes');
 }
 
+// Helper function to ensure coordinates are in the correct format
+function formatCoordinates(geojson) {
+    geojson.features.forEach(feature => {
+        feature.geometry.coordinates = feature.geometry.coordinates.map(coord => [
+            parseFloat(coord[0]), // Ensure longitude is a number
+            parseFloat(coord[1])  // Ensure latitude is a number
+        ]);
+    });
+    return geojson;
+}
+
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
 
-    const { geojson } = req.body;
+    let { geojson } = req.body;
 
     if (!geojson || geojson.type !== 'FeatureCollection') {
         console.error('Invalid route data:', geojson); // Log the error
@@ -27,6 +38,9 @@ module.exports = async (req, res) => {
         console.error('Invalid gravelType:', gravelType);
         return res.status(400).json({ error: 'Invalid gravel type' });
     }
+
+    // Format the coordinates before saving
+    geojson = formatCoordinates(geojson);
 
     try {
         const collection = await connectToMongo();
