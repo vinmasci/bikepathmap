@@ -124,9 +124,18 @@ async function snapToRoads(points) {
 
 
 // ============================
-// SECTION: Add Segment
+// SECTION: 2Add Segment
 // ============================
 function addSegment(snappedSegment) {
+    let lineColor = selectedColor;  // Default to the selected color
+    let lineDashArray = [1, 0];  // Default to solid line
+
+    // Check if the selected gravel type is 3 (technical), and apply the black/white dashed pattern
+    if (selectedColor === gravelColors[3]) {
+        lineColor = '#000000';  // Black color
+        lineDashArray = [2, 2];  // Dash pattern for black and white
+    }
+
     const segmentFeature = {
         type: 'Feature',
         geometry: {
@@ -134,12 +143,14 @@ function addSegment(snappedSegment) {
             coordinates: snappedSegment
         },
         properties: {
-            color: selectedColor,  // Use the selected color
+            color: lineColor,  // Use the selected color
+            dashArray: lineDashArray,  // Apply the dash pattern (solid or dashed)
             id: `segment-${segmentCounter++}`  // Unique ID for each segment
         }
     };
     segmentsGeoJSON.features.push(segmentFeature);
 }
+
 
 // ============================
 // SECTION: Draw Segments on Map
@@ -149,6 +160,10 @@ function drawSegmentsOnMap() {
     if (source) {
         console.log('GeoJSON Data before updating source:', JSON.stringify(segmentsGeoJSON, null, 2));  // Log the data to be set
         source.setData(segmentsGeoJSON);  // Ensure this is updating the map's source
+
+        // Update the line style based on the dash pattern
+        map.setPaintProperty('drawn-segments-layer', 'line-color', ['get', 'color']);
+        map.setPaintProperty('drawn-segments-layer', 'line-dasharray', ['get', 'dashArray']);
     } else {
         console.error('GeoJSON source "drawnSegments" not found on the map');
     }
