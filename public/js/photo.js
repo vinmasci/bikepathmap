@@ -63,29 +63,14 @@ map.loadImage('/cameraiconexpand.png', (error, image) => {
         filter: ['has', 'point_count'],  // Only show clusters
         layout: {
             'icon-image': 'camera-icon-cluster',  // Use the loaded camera icon for clusters
-            'icon-size': 0.3,  // Adjust size as needed for clusters
+            'icon-size': 0.4,  // Adjust size as needed for clusters
             'icon-allow-overlap': true,
             'icon-pitch-alignment': 'map',
             'icon-rotation-alignment': 'map'
         }
     });
 
-    // Add cluster text (show the number of photos in the cluster)
-    map.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'photoMarkers',
-        filter: ['has', 'point_count'],
-        layout: {
-            'text-field': '{point_count_abbreviated}',  // Show cluster count
-            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 12,
-            'text-allow-overlap': true
-        },
-        paint: {
-            'text-color': '#ffffff'  // Make the text inside clusters white
-        }
-    });
+
 });
 
 
