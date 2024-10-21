@@ -78,27 +78,19 @@ async function loadPhotoMarkers() {
                 }
             });
 
-// Add unclustered photo points using custom camera icon
+// Add unclustered photo points using the image itself as the icon
 map.addLayer({
     id: 'unclustered-photo',
     type: 'symbol',
     source: 'photoMarkers',
-    filter: ['!', ['has', 'point_count']],
+    filter: ['!', ['has', 'point_count']],  // Show only unclustered points
     layout: {
-        'icon-image': 'camera-icon',
-        'icon-size': 0.05,  // Adjust size to prevent stretching
+        // Use the URL from the photo data as the icon image
+        'icon-image': ['concat', ['get', 'url']],  // Concatenate image URL as icon
+        'icon-size': 0.1,  // Adjust the size to make the image smaller
         'icon-allow-overlap': true,
-        'icon-pitch-alignment': 'map', // Aligns icon with the map surface
-        'icon-rotation-alignment': 'map', // Prevents icon from rotating with the view
-        'icon-rotate': 0  // Ensure icon rotation is set to 0 degrees
-    }
-});
-
-// Load the custom camera icon for unclustered photo points
-map.loadImage('/cameraicon1.png', (error, image) => {
-    if (error) throw error;
-    if (!map.hasImage('camera-icon')) {
-        map.addImage('camera-icon', image);
+        'icon-pitch-alignment': 'map', // Ensure it aligns with the map correctly
+        'icon-rotation-alignment': 'map'  // Prevent rotation
     }
 });
 
