@@ -130,10 +130,16 @@ function addSegment(snappedSegment) {
     let lineColor = selectedColor;  // Default to the selected color
     let lineDashArray = [1, 0];  // Default to solid line
 
-    // Check if the selected gravel type is 3 (technical), and apply the black/white dashed pattern
+    // Gravel Type 2: Solid black
+    if (selectedColor === gravelColors[2]) {
+        lineColor = '#444444';  // Solid black line for gravel type 2
+        lineDashArray = [1, 0];  // Solid line
+    }
+
+    // Gravel Type 3: Dashed black and white
     if (selectedColor === gravelColors[3]) {
-        lineColor = '#000000';  // Black color
-        lineDashArray = [2, 2];  // Dash pattern for black and white
+        lineColor = '#444444';  // Black line
+        lineDashArray = [2, 2];  // Dashed line for black and white pattern
     }
 
     const segmentFeature = {
@@ -143,13 +149,14 @@ function addSegment(snappedSegment) {
             coordinates: snappedSegment
         },
         properties: {
-            color: lineColor,  // Use the selected color
-            dashArray: lineDashArray,  // Apply the dash pattern (solid or dashed)
+            color: lineColor,  // Use the selected color or black
+            dashArray: lineDashArray,  // Apply the dash pattern
             id: `segment-${segmentCounter++}`  // Unique ID for each segment
         }
     };
     segmentsGeoJSON.features.push(segmentFeature);
 }
+
 
 
 // ============================
