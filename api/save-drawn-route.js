@@ -33,11 +33,14 @@ module.exports = async (req, res) => {
     }
 
     // Optional validation for gravelType only (surfaceType is no longer required)
-    const { gravelType } = geojson.features[0].properties;
-    if (!gravelType) {
-        console.error('Invalid gravelType:', gravelType);
-        return res.status(400).json({ error: 'Invalid gravel type' });
+    const { gravelType, color } = geojson.features[0].properties;
+    if (!gravelType || !color) {
+        console.error('Missing gravelType or color:', gravelType, color);
+        return res.status(400).json({ error: 'Missing gravel type or color' });
     }
+    
+
+    console.log("GeoJSON being saved:", JSON.stringify(geojson, null, 2)); // Log full structure
 
     // Format the coordinates before saving
     geojson = formatCoordinates(geojson);
