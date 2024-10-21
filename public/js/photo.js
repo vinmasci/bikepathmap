@@ -39,7 +39,7 @@ async function loadPhotoMarkers() {
                 data: photoGeoJSON,
                 cluster: true,   // Enable clustering
                 clusterMaxZoom: 12,  // Max zoom to cluster points on
-                clusterRadius: 50   // Radius of each cluster (adjust as needed)
+                clusterRadius: 80   // Radius of each cluster (adjust as needed)
             });
 
             // Add cluster circles (for groups of photos)
@@ -161,12 +161,9 @@ function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
     if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
 
-    // Ensure that unclustered photo layers are removed dynamically
+    // Remove the photoMarkers source entirely
     if (map.getSource('photoMarkers')) {
-        map.getSource('photoMarkers').setData({
-            type: 'FeatureCollection',
-            features: []
-        });
+        map.removeSource('photoMarkers');
     }
     
     // Loop through and remove dynamically generated unclustered-photo layers
@@ -174,3 +171,4 @@ function removePhotoMarkers() {
         map.removeLayer(`unclustered-photo-${i}`);
     }
 }
+
