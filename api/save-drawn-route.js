@@ -1,59 +1,42 @@
-const { MongoClient } = require('mongodb');
-require('dotenv').config();
-
-// MongoDB connection setup
-const client = new MongoClient(process.env.MONGODB_URI);
-
-async function connectToMongo() {
-    if (!client.topology || !client.topology.isConnected()) {
-        await client.connect();
-    }
-    return client.db('roadApp').collection('drawnRoutes');
-}
-
-// Helper function to ensure coordinates are in the correct format
-function formatCoordinates(geojson) {
+// Helper function to ensure coordinates and properties are in the correct format
+function formatGeoJSON(geojson) {
     geojson.features.forEach(feature => {
+        // Convert coordinates to simple arrays of numbers
         feature.geometry.coordinates = feature.geometry.coordinates.map(coord => [
             parseFloat(coord[0]), // Ensure longitude is a number
             parseFloat(coord[1])  // Ensure latitude is a number
         ]);
+
+        // Ensure gravelType is a single value, not an array
+        feature.properties.gravelType = Array.isArray(feature.properties.gravelType) 
+            ? feature.properties.gravelType[0] 
+            : feature.properties.gravelType;
+
+        // Ensure dashArray is an array of integers
+        feature.properties.dashArray = feature.properties.dashArray.map(value => parseInt(value));
     });
+
     return geojson;
 }
 
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
 
-    let { geojson, lineStyle } = req.body;  // Expect lineStyle in the request
+    let { geojson } = req.body;
 
     if (!geojson || geojson.type !== 'FeatureCollection') {
         console.error('Invalid route data:', geojson); // Log the error
         return res.status(400).json({ error: 'Invalid route data' });
     }
 
-    // Optional validation for gravelType only (surfaceType is no longer required)
-    const { gravelType } = geojson.features[0].properties;
-    if (!gravelType) {
-        console.error('Invalid gravelType:', gravelType);
-        return res.status(400).json({ error: 'Invalid gravel type' });
-    }
-
-    // Add the lineStyle to each feature's properties
-    geojson.features.forEach(feature => {
-        feature.properties.lineStyle = lineStyle || 'solid'; // Default to solid if not provided
-    });
-
-    console.log("GeoJSON being saved:", JSON.stringify(geojson, null, 2)); // Log full structure
-
-    // Format the coordinates before saving
-    geojson = formatCoordinates(geojson);
+    // Format the GeoJSON (coordinates and properties)
+    geojson = formatGeoJSON(geojson);
 
     try {
         const collection = await connectToMongo();
         const result = await collection.insertOne({
             geojson: geojson,
-            gravelType,  // Save gravelType only
+            gravelType: geojson.features[0].properties.gravelType,  // Save gravelType only
             createdAt: new Date()
         });
 
