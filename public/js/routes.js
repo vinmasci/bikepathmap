@@ -130,12 +130,6 @@ function addSegment(snappedSegment) {
     let lineColor = selectedColor;  // Default to the selected color
     let lineDashArray = [1, 0];  // Default to solid line
 
-    // Gravel Type 2: Solid black
-    if (selectedColor === gravelColors[2]) {
-        lineColor = '#444444';  // Solid black line for gravel type 2
-        lineDashArray = [1, 0];  // Solid line
-    }
-
     // Gravel Type 3: Dashed black and white
     if (selectedColor === gravelColors[3]) {
         lineColor = '#444444';  // Black line
