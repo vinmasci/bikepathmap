@@ -158,17 +158,24 @@ for (const [index, photo] of photos.entries()) {
 
 // Function to remove all photo markers and clusters from the map
 function removePhotoMarkers() {
-    if (map.getLayer('clusters')) map.removeLayer('clusters');
-    if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
+    // Remove all unclustered photo layers dynamically
+    let i = 0;
+    while (map.getLayer(`unclustered-photo-${i}`)) {
+        map.removeLayer(`unclustered-photo-${i}`);
+        i++;
+    }
 
-    // Remove the photoMarkers source entirely
+    // Remove cluster layers
+    if (map.getLayer('clusters')) {
+        map.removeLayer('clusters');
+    }
+    if (map.getLayer('cluster-count')) {
+        map.removeLayer('cluster-count');
+    }
+
+    // Now it's safe to remove the source
     if (map.getSource('photoMarkers')) {
         map.removeSource('photoMarkers');
-    }
-    
-    // Loop through and remove dynamically generated unclustered-photo layers
-    for (let i = 0; map.getLayer(`unclustered-photo-${i}`); i++) {
-        map.removeLayer(`unclustered-photo-${i}`);
     }
 }
 
