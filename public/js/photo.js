@@ -159,6 +159,14 @@ for (const [index, photo] of photos.entries()) {
 function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
     if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
-    if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
+
+    // Loop through dynamically generated unclustered-photo layers
+    for (const [index, photo] of photos.entries()) {
+        const unclusteredPhotoLayerId = `unclustered-photo-${index}`;
+        if (map.getLayer(unclusteredPhotoLayerId)) {
+            map.removeLayer(unclusteredPhotoLayerId);
+        }
+    }
+
     if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
 }
