@@ -14,20 +14,19 @@ async function loadPhotoMarkers() {
         // Convert photos into GeoJSON format
         const photoGeoJSON = {
             type: 'FeatureCollection',
-            features: photos.map((photo, index) => ({
+            features: photos.map(photo => ({
                 type: 'Feature',
                 geometry: {
                     type: 'Point',
                     coordinates: [photo.longitude, photo.latitude]
                 },
                 properties: {
-                    id: `photo-${index}`,  // Add a unique id for each photo
                     originalName: photo.originalName,
-                    url: photo.url  // We'll use the URL in popups and as an icon
+                    url: photo.url  // We'll use the URL in popups, but not as an icon
                 }
             }))
         };
-        
+
         console.log("GeoJSON formatted photos:", photoGeoJSON);
 
         // Add a GeoJSON source for photos with clustering enabled
@@ -39,7 +38,7 @@ async function loadPhotoMarkers() {
                 data: photoGeoJSON,
                 cluster: true,   // Enable clustering
                 clusterMaxZoom: 12,  // Max zoom to cluster points on
-                clusterRadius: 80   // Radius of each cluster (adjust as needed)
+                clusterRadius: 50   // Radius of each cluster (adjust as needed)
             });
 
             // Add cluster circles (for groups of photos)
@@ -79,43 +78,19 @@ async function loadPhotoMarkers() {
                 }
             });
 
-// ================================
-// Load and Display Unclustered Photos Using the Image as an Icon
-// ================================
-for (const [index, photo] of photos.entries()) {
-    const imgUrl = photo.url;
-
-    // Load each image as a custom icon
-    map.loadImage(imgUrl, (error, image) => {
-        if (error) {
-            console.error(`Error loading image for ${photo.originalName}:`, error);
-            return;
-        }
-        const imageId = `photo-icon-${index}`;
-
-        // Add the image to the map if it doesn't exist already
-        if (!map.hasImage(imageId)) {
-            map.addImage(imageId, image);
-        }
-
-        // Add unclustered photo points using the image itself as the icon
-        map.addLayer({
-            id: `unclustered-photo-${index}`,
-            type: 'symbol',
-            source: 'photoMarkers',
-            filter: ['==', 'id', `photo-${index}`],  // Filter for individual photo
-            layout: {
-                'icon-image': imageId,
-                'icon-size': 0.1,  // Adjust size as needed
-                'icon-allow-overlap': true,
-                'icon-pitch-alignment': 'map',
-                'icon-rotation-alignment': 'map'
-            }
-        });
-    });
-}
-
-
+            // Add unclustered photo points using black dots
+            map.addLayer({
+                id: 'unclustered-photo',
+                type: 'circle',
+                source: 'photoMarkers',
+                filter: ['!', ['has', 'point_count']],  // Show only unclustered points
+                paint: {
+                    'circle-color': '#000000',  // Black circle color
+                    'circle-radius': 5,  // Size of the unclustered photo points
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': '#fff'  // White border around black dots
+                }
+            });
 
             // Add click event for clusters to zoom into them
             map.on('click', 'clusters', (e) => {
@@ -158,24 +133,8 @@ for (const [index, photo] of photos.entries()) {
 
 // Function to remove all photo markers and clusters from the map
 function removePhotoMarkers() {
-    // Remove all unclustered photo layers dynamically
-    let i = 0;
-    while (map.getLayer(`unclustered-photo-${i}`)) {
-        map.removeLayer(`unclustered-photo-${i}`);
-        i++;
-    }
-
-    // Remove cluster layers
-    if (map.getLayer('clusters')) {
-        map.removeLayer('clusters');
-    }
-    if (map.getLayer('cluster-count')) {
-        map.removeLayer('cluster-count');
-    }
-
-    // Now it's safe to remove the source
-    if (map.getSource('photoMarkers')) {
-        map.removeSource('photoMarkers');
-    }
+    if (map.getLayer('clusters')) map.removeLayer('clusters');
+    if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
+    if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
+    if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
 }
-
