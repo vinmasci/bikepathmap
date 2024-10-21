@@ -78,21 +78,42 @@ async function loadPhotoMarkers() {
                 }
             });
 
-// Add unclustered photo points using the image itself as the icon
-map.addLayer({
-    id: 'unclustered-photo',
-    type: 'symbol',
-    source: 'photoMarkers',
-    filter: ['!', ['has', 'point_count']],  // Show only unclustered points
-    layout: {
-        // Use the URL from the photo data as the icon image
-        'icon-image': ['concat', ['get', 'url']],  // Concatenate image URL as icon
-        'icon-size': 0.1,  // Adjust the size to make the image smaller
-        'icon-allow-overlap': true,
-        'icon-pitch-alignment': 'map', // Ensure it aligns with the map correctly
-        'icon-rotation-alignment': 'map'  // Prevent rotation
-    }
-});
+// ================================
+// Load and Display Unclustered Photos Using the Image as an Icon
+// ================================
+for (const [index, photo] of photos.entries()) {
+    const imgUrl = photo.url;
+
+    // Load each image as a custom icon
+    map.loadImage(imgUrl, (error, image) => {
+        if (error) {
+            console.error(`Error loading image for ${photo.originalName}:`, error);
+            return;
+        }
+        const imageId = `photo-icon-${index}`;
+
+        // Add the image to the map if it doesn't exist already
+        if (!map.hasImage(imageId)) {
+            map.addImage(imageId, image);
+        }
+
+        // Add unclustered photo points using the image itself as the icon
+        map.addLayer({
+            id: `unclustered-photo-${index}`,
+            type: 'symbol',
+            source: 'photoMarkers',
+            filter: ['==', 'id', `photo-${index}`],  // Filter for individual photo
+            layout: {
+                'icon-image': imageId,
+                'icon-size': 0.1,  // Adjust size as needed
+                'icon-allow-overlap': true,
+                'icon-pitch-alignment': 'map',
+                'icon-rotation-alignment': 'map'
+            }
+        });
+    });
+}
+
 
 
             // Add click event for clusters to zoom into them
