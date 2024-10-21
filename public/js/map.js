@@ -91,16 +91,6 @@ map.on('load', () => {
             
         });
 
-    // Add a condition to load unclustered photos only when zoom level is high enough
-    map.on('zoomend', () => {
-        const zoom = map.getZoom();
-        if (zoom > 12) {
-            loadPhotoMarkers();  // Load unclustered photo markers only at high zoom
-        } else {
-            removePhotoMarkers();  // Remove unclustered markers at lower zoom levels
-        }
-    });
-
     } else {
         console.error("'drawn-segments-layer' already exists on the map");
     }
