@@ -13,7 +13,7 @@ let originalPins = []; // Store user-added pins
 
 // Gravel type color mapping
 const gravelColors = {
-    0: '#00a8ff', // Blue for rough asphalt
+    0: '#01bf11', // Easiest // Green
     1: '#4cd137', // Green for smooth gravel
     2: '#fbc531', // Yellow for slightly technical
     3: '#f0932b', // Orange for technical
