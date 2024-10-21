@@ -227,11 +227,10 @@ function resetRoute() {
 // ============================
 function saveDrawnRoute() {
     if (segmentsGeoJSON.features.length > 0) {
-        // Collect gravel and surface types from the modal
+        // Collect gravel types from the modal
         const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
-        const surfaceType = document.querySelector('input[name="surfaceType"]:checked').value;
 
-        // Add gravel and surface type information to each segment feature
+        // Add gravel type information to each segment feature
         segmentsGeoJSON.features.forEach(feature => {
             feature.properties.gravelType = gravelTypes; // Store selected gravel types
         });
@@ -258,4 +257,5 @@ function saveDrawnRoute() {
         alert('No route to save.');
     }
 }
+
 
