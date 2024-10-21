@@ -78,19 +78,34 @@ async function loadPhotoMarkers() {
                 }
             });
 
-            // Add unclustered photo points using black dots
-            map.addLayer({
-                id: 'unclustered-photo',
-                type: 'circle',
-                source: 'photoMarkers',
-                filter: ['!', ['has', 'point_count']],  // Show only unclustered points
-                paint: {
-                    'circle-color': '#000000',  // Black circle color
-                    'circle-radius': 5,  // Size of the unclustered photo points
-                    'circle-stroke-width': 1,
-                    'circle-stroke-color': '#fff'  // White border around black dots
-                }
-            });
+// Load the camera icon from the public folder
+map.loadImage('/cameraicon1.png', (error, image) => {
+    if (error) {
+        console.error('Error loading camera icon:', error);
+        return;
+    }
+
+    // Add the camera icon to the map
+    if (!map.hasImage('camera-icon')) {
+        map.addImage('camera-icon', image);
+    }
+
+    // Add unclustered photo points using the camera icon
+    map.addLayer({
+        id: 'unclustered-photo',
+        type: 'symbol',
+        source: 'photoMarkers',
+        filter: ['!', ['has', 'point_count']],  // Show only unclustered points
+        layout: {
+            'icon-image': 'camera-icon',  // Use the loaded camera icon
+            'icon-size': 0.05,  // Adjust size as needed
+            'icon-allow-overlap': true,
+            'icon-pitch-alignment': 'map',  // Ensure icon faces the map
+            'icon-rotation-alignment': 'map'  // Prevent upside-down icons
+        }
+    });
+});
+
 
             // Add click event for clusters to zoom into them
             map.on('click', 'clusters', (e) => {
