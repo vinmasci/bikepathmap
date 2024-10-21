@@ -88,8 +88,9 @@ map.addLayer({
         'icon-image': 'camera-icon',
         'icon-size': 0.05,  // Adjust size to prevent stretching
         'icon-allow-overlap': true,
-        'icon-pitch-alignment': 'map',  // Ensures icon faces the map correctly
-        'icon-rotation-alignment': 'map'  // Prevents upside-down icon issue
+        'icon-pitch-alignment': 'map', // Aligns icon with the map surface
+        'icon-rotation-alignment': 'map', // Prevents icon from rotating with the view
+        'icon-rotate': 0  // Ensure icon rotation is set to 0 degrees
     }
 });
 
