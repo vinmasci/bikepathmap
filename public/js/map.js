@@ -147,7 +147,17 @@ function toggleSegmentsLayer() {
 async function loadSegments() {
     try {
         const response = await fetch('/api/get-drawn-routes');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        
+        // Ensure 'data' is defined and contains 'routes'
+        if (!data || !data.routes) {
+            throw new Error("No data or routes found in the API response");
+        }
 
         const source = map.getSource('drawnSegments');
         if (source) {
@@ -159,7 +169,7 @@ async function loadSegments() {
     } catch (error) {
         console.error('Error loading drawn routes:', error);
     }
-    console.log("Fetched GeoJSON routes:", data.routes);
+    console.log("Fetched GeoJSON routes:", data?.routes); // Use optional chaining to prevent errors
 }
 
 
