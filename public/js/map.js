@@ -98,8 +98,10 @@ map.on('load', () => {
     
     
     initEventListeners();
-    // loadSegments(); // Comment this out for now if not needed
-    updateTabHighlight('segments-tab', true); // Highlight the segments tab
+    // Load segments when the map is initialized
+    loadSegments();  // Automatically load segments when the page loads
+    updateTabHighlight('segments-tab', true);  // Highlight the segments tab by default
+    layerVisibility.segments = true;  // Set segments to visible by default
 });
 
 // Handle any errors that occur during the map initialization
@@ -131,13 +133,49 @@ function toggleSegmentsLayer() {
     layerVisibility.segments = !layerVisibility.segments;
 
     if (layerVisibility.segments) {
-        loadSegments(); // Load segments when toggled on
+        loadSegments();  // Load segments when toggled on
     } else {
-        removeSegments(); // Remove segments when toggled off
+        removeSegments();  // Remove segments when toggled off
     }
 
     updateTabHighlight('segments-tab', layerVisibility.segments);
 }
+
+// ============================
+// SECTION: Load Segments
+// ============================
+async function loadSegments() {
+    try {
+        const response = await fetch('/api/get-drawn-routes');  // Adjust the API endpoint if necessary
+        const data = await response.json();
+
+        const source = map.getSource('drawnSegments');
+        if (source) {
+            source.setData({
+                'type': 'FeatureCollection',
+                'features': data.routes.map(route => route.geojson)  // Assuming each route has a geojson property
+            });
+        } else {
+            console.error("drawnSegments source not found");
+        }
+    } catch (error) {
+        console.error('Error loading drawn routes:', error);
+    }
+}
+
+// ============================
+// SECTION: Remove Segments
+// ============================
+function removeSegments() {
+    const source = map.getSource('drawnSegments');
+    if (source) {
+        source.setData({
+            'type': 'FeatureCollection',
+            'features': []  // Clear the features from the source
+        });
+    }
+}
+
 
 // ============================
 // SECTION: Toggle Photo Layer
