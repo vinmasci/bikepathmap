@@ -169,21 +169,19 @@ function drawSegmentsOnMap() {
         console.log('GeoJSON Data before updating source:', JSON.stringify(segmentsGeoJSON, null, 2));  // Log the data to be set
         source.setData(segmentsGeoJSON);  // Ensure this is updating the map's source
 
-        // Check if the segment has a dash array (Gravel Type 3), otherwise set to solid
+        // Update the line style based on the dash pattern and color for each segment
         map.setPaintProperty('drawn-segments-layer', 'line-color', ['get', 'color']);
         
-        const hasDashArray = segmentsGeoJSON.features.some(f => f.properties.dashArray && f.properties.dashArray[1] !== 0);
-        
-        if (hasDashArray) {
-            map.setPaintProperty('drawn-segments-layer', 'line-dasharray', ['get', 'dashArray']);
-        } else {
-            map.setPaintProperty('drawn-segments-layer', 'line-dasharray', [1, 0]);  // Force solid line if no dash pattern is set
-        }
+        // Apply dash array directly based on feature properties
+        map.setPaintProperty('drawn-segments-layer', 'line-dasharray', [
+            'case',
+            ['==', ['get', 'dashArray'], [2, 2]], [2, 2],  // Dashed for Gravel Type 3
+            [1, 0]  // Solid line for other types
+        ]);
     } else {
         console.error('GeoJSON source "drawnSegments" not found on the map');
     }
 }
-
 
 
 
