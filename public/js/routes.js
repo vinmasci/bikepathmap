@@ -130,6 +130,12 @@ function addSegment(snappedSegment) {
     let lineColor = selectedColor;  // Default to the selected color
     let lineDashArray = [1, 0];  // Default to solid line
 
+    // Gravel Type 2: Solid black
+    if (selectedColor === gravelColors[2]) {
+        lineColor = '#444444';  // Black line for gravel type 2
+        lineDashArray = [1, 0];  // Solid line (ensure no dash array is applied)
+    }
+
     // Gravel Type 3: Dashed black and white
     if (selectedColor === gravelColors[3]) {
         lineColor = '#444444';  // Black line
@@ -153,6 +159,7 @@ function addSegment(snappedSegment) {
 
 
 
+
 // ============================
 // SECTION: Draw Segments on Map
 // ============================
@@ -162,13 +169,21 @@ function drawSegmentsOnMap() {
         console.log('GeoJSON Data before updating source:', JSON.stringify(segmentsGeoJSON, null, 2));  // Log the data to be set
         source.setData(segmentsGeoJSON);  // Ensure this is updating the map's source
 
-        // Update the line style based on the dash pattern
+        // Check if the segment has a dash array (Gravel Type 3), otherwise set to solid
         map.setPaintProperty('drawn-segments-layer', 'line-color', ['get', 'color']);
-        map.setPaintProperty('drawn-segments-layer', 'line-dasharray', ['get', 'dashArray']);
+        
+        const hasDashArray = segmentsGeoJSON.features.some(f => f.properties.dashArray && f.properties.dashArray[1] !== 0);
+        
+        if (hasDashArray) {
+            map.setPaintProperty('drawn-segments-layer', 'line-dasharray', ['get', 'dashArray']);
+        } else {
+            map.setPaintProperty('drawn-segments-layer', 'line-dasharray', [1, 0]);  // Force solid line if no dash pattern is set
+        }
     } else {
         console.error('GeoJSON source "drawnSegments" not found on the map');
     }
 }
+
 
 
 
