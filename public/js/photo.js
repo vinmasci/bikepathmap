@@ -41,43 +41,55 @@ async function loadPhotoMarkers() {
                 clusterRadius: 50   // Radius of each cluster (adjust as needed)
             });
 
-            // Add cluster circles (for groups of photos)
-            map.addLayer({
-                id: 'clusters',
-                type: 'circle',
-                source: 'photoMarkers',
-                filter: ['has', 'point_count'],  // Only show clusters
-                paint: {
-                    'circle-color': '#51bbd6',  // Cluster circle color
-                    'circle-radius': [
-                        'step',
-                        ['get', 'point_count'],
-                        20,  // Cluster size for 1 point
-                        30,  // Cluster size for 100 points
-                        40   // Cluster size for 750 points
-                    ],
-                    'circle-stroke-width': 2,
-                    'circle-stroke-color': '#fff'  // White border around clusters
-                }
-            });
 
-            // Add cluster text (show the number of photos in the cluster)
-            map.addLayer({
-                id: 'cluster-count',
-                type: 'symbol',
-                source: 'photoMarkers',
-                filter: ['has', 'point_count'],
-                layout: {
-                    'text-field': '{point_count_abbreviated}',  // Show cluster count
-                    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-                    'text-size': 12,
-                    'text-allow-overlap': true
-                },
-                paint: {
-                    'text-color': '#ffffff'  // Make the text inside clusters white
-                }
-            });
+// CLUSTER
+// Load the camera icon for the cluster expansion from the public folder
+map.loadImage('/cameraiconexpand.png', (error, image) => {
+    if (error) {
+        console.error('Error loading camera icon for clusters:', error);
+        return;
+    }
 
+    // Add the camera icon for clusters to the map
+    if (!map.hasImage('camera-icon-cluster')) {
+        map.addImage('camera-icon-cluster', image);
+    }
+
+    // Add cluster points using the camera icon
+    map.addLayer({
+        id: 'clusters',
+        type: 'symbol',
+        source: 'photoMarkers',
+        filter: ['has', 'point_count'],  // Only show clusters
+        layout: {
+            'icon-image': 'camera-icon-cluster',  // Use the loaded camera icon for clusters
+            'icon-size': 0.3,  // Adjust size as needed for clusters
+            'icon-allow-overlap': true,
+            'icon-pitch-alignment': 'map',
+            'icon-rotation-alignment': 'map'
+        }
+    });
+
+    // Add cluster text (show the number of photos in the cluster)
+    map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'photoMarkers',
+        filter: ['has', 'point_count'],
+        layout: {
+            'text-field': '{point_count_abbreviated}',  // Show cluster count
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12,
+            'text-allow-overlap': true
+        },
+        paint: {
+            'text-color': '#ffffff'  // Make the text inside clusters white
+        }
+    });
+});
+
+
+// UNCLUSTER
 // Load the camera icon from the public folder
 map.loadImage('/cameraicon1.png', (error, image) => {
     if (error) {
@@ -98,7 +110,7 @@ map.loadImage('/cameraicon1.png', (error, image) => {
         filter: ['!', ['has', 'point_count']],  // Show only unclustered points
         layout: {
             'icon-image': 'camera-icon',  // Use the loaded camera icon
-            'icon-size': 0.5,  // Adjust size as needed
+            'icon-size': 0.3,  // Adjust size as needed
             'icon-allow-overlap': true,
             'icon-pitch-alignment': 'map',  // Ensure icon faces the map
             'icon-rotation-alignment': 'map'  // Prevent upside-down icons
