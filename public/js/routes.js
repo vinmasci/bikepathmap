@@ -14,11 +14,11 @@ let originalPins = []; // Store user-added pins
 // Gravel type color mapping
 const gravelColors = {
     0: '#01bf11', // Easiest // Green
-    1: '#4cd137', // Green for smooth gravel
-    2: '#fbc531', // Yellow for slightly technical
-    3: '#f0932b', // Orange for technical
-    4: '#c23616', // Dark Red for very technical
-    5: '#470002' // Black Red for hike-a-bike
+    1: '#0050c1', // Blue // Intermediate
+    2: '#232323', // Diamond // Black
+    3: '#f0932b', // White // Expert 
+    4: '#FFD43B', // Rail trail // yellow
+    5: '#831100' // Red // Closed or Private
 };
 
 // ============================
