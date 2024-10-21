@@ -82,8 +82,7 @@ map.on('load', () => {
             'paint': {
                 'line-color': ['get', 'color'],  // Dynamic color from properties
                 'line-width': 3,                 // Width of the colored line (slightly smaller than the white line)
-                'line-dasharray': ['get', 'dashArray']  // Use dashArray from properties 
-                [
+                'line-dasharray': [
                     'case',
                     ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], // Dashed line
                     ['literal', [1, 0]] // Solid line
