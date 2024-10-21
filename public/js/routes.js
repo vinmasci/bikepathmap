@@ -15,7 +15,7 @@ let originalPins = []; // Store user-added pins
 const gravelColors = {
     0: '#01bf11', // Easiest // Green
     1: '#0050c1', // Blue // Intermediate
-    2: '#444444', // Diamond // Black
+    2: '#000000', // Diamond // Black
     3: '#444444', // White // Expert 
     4: '#FFD43B', // Rail trail // yellow
     5: '#831100' // Red // Closed or Private
@@ -128,12 +128,12 @@ async function snapToRoads(points) {
 // ============================
 function addSegment(snappedSegment) {
     let lineColor = selectedColor;  // Default to the selected color
-    let lineDashArray = [1, 0];  // Default to solid line (Gravel Type 2)
+    let lineDashArray = [1, 0];  // Default to solid line
 
     // Gravel Type 3: Dashed black and white
     if (selectedColor === gravelColors[3]) {
         lineColor = '#444444';  // Black line for Gravel Type 3
-        lineDashArray = [2, 2];  // Dashed pattern for black and white
+        lineDashArray = [2, 2];  // Dashed pattern
     }
 
     const segmentFeature = {
@@ -152,6 +152,7 @@ function addSegment(snappedSegment) {
 }
 
 
+
 // ============================
 // SECTION: Draw Segments on Map
 // ============================
@@ -164,16 +165,13 @@ function drawSegmentsOnMap() {
         // Apply the line color
         map.setPaintProperty('drawn-segments-layer', 'line-color', ['get', 'color']);
         
-        // Apply the dash array based on the feature properties
-        map.setPaintProperty('drawn-segments-layer', 'line-dasharray', [
-            'case',
-            ['==', ['get', 'dashArray'], [2, 2]], [2, 2],  // Dashed line for Gravel Type 3
-            [1, 0]  // Solid line for other gravel types
-        ]);
+        // Directly use the 'line-dasharray' property from the feature
+        map.setPaintProperty('drawn-segments-layer', 'line-dasharray', ['get', 'dashArray']);
     } else {
         console.error('GeoJSON source "drawnSegments" not found on the map');
     }
 }
+
 
 
 
