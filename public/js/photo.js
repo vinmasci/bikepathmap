@@ -98,7 +98,7 @@ map.loadImage('/cameraicon1.png', (error, image) => {
         filter: ['!', ['has', 'point_count']],  // Show only unclustered points
         layout: {
             'icon-image': 'camera-icon',  // Use the loaded camera icon
-            'icon-size': 0.05,  // Adjust size as needed
+            'icon-size': 0.5,  // Adjust size as needed
             'icon-allow-overlap': true,
             'icon-pitch-alignment': 'map',  // Ensure icon faces the map
             'icon-rotation-alignment': 'map'  // Prevent upside-down icons
