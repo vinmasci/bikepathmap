@@ -69,31 +69,30 @@ map.on('load', () => {
         console.error("'drawn-segments-layer-background' already exists on the map");
     }
 
-    // Add a dashed colored line layer (drawn on top of both the black stroke and white background)
-    if (!map.getLayer('drawn-segments-layer')) {
-        map.addLayer({
-            'id': 'drawn-segments-layer',
-            'type': 'line',
-            'source': 'drawnSegments',
-            'layout': {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            'paint': {
-                'line-color': ['get', 'color'],  // Dynamic color from properties
-                'line-width': 3,                 // Width of the colored line (slightly smaller than the white line)
-                'line-dasharray': [
-                    'case',
-                    ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], // Dashed line
-                    ['literal', [1, 0]] // Solid line
-                ]
-            }
-            
-        });
+// Add a dashed colored line layer (drawn on top of both the black stroke and white background)
+if (!map.getLayer('drawn-segments-layer')) {
+    map.addLayer({
+        'id': 'drawn-segments-layer',
+        'type': 'line',
+        'source': 'drawnSegments',
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': ['get', 'color'],  // Dynamic color from properties
+            'line-width': 3,                 // Width of the colored line (slightly smaller than the white line)
+            'line-dasharray': [
+                'case',
+                ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], // Dashed line
+                ['literal', [1, 0]] // Solid line if no lineStyle or lineStyle is 'solid'
+            ]
+        }
+    });
+} else {
+    console.error("'drawn-segments-layer' already exists on the map");
+}
 
-    } else {
-        console.error("'drawn-segments-layer' already exists on the map");
-    }
 
     
     

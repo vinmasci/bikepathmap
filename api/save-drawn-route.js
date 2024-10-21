@@ -25,7 +25,7 @@ function formatCoordinates(geojson) {
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
 
-    let { geojson } = req.body;
+    let { geojson, lineStyle } = req.body;  // Expect lineStyle in the request
 
     if (!geojson || geojson.type !== 'FeatureCollection') {
         console.error('Invalid route data:', geojson); // Log the error
@@ -33,12 +33,16 @@ module.exports = async (req, res) => {
     }
 
     // Optional validation for gravelType only (surfaceType is no longer required)
-    const { gravelType, color } = geojson.features[0].properties;
-    if (!gravelType || !color) {
-        console.error('Missing gravelType or color:', gravelType, color);
-        return res.status(400).json({ error: 'Missing gravel type or color' });
+    const { gravelType } = geojson.features[0].properties;
+    if (!gravelType) {
+        console.error('Invalid gravelType:', gravelType);
+        return res.status(400).json({ error: 'Invalid gravel type' });
     }
-    
+
+    // Add the lineStyle to each feature's properties
+    geojson.features.forEach(feature => {
+        feature.properties.lineStyle = lineStyle || 'solid'; // Default to solid if not provided
+    });
 
     console.log("GeoJSON being saved:", JSON.stringify(geojson, null, 2)); // Log full structure
 

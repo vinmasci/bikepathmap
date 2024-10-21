@@ -1,4 +1,4 @@
-export function parseTrackPoints(gpxDoc, trackColor, trackGravelType) {
+export function parseTrackPoints(gpxDoc, trackColor, trackGravelType, trackLineStyle) {
     const trackPoints = [];
 
     // Loop through GPX track points and extract coordinates
@@ -12,7 +12,7 @@ export function parseTrackPoints(gpxDoc, trackColor, trackGravelType) {
         }
     }
 
-    // Return a FeatureCollection with dynamic color and gravelType properties
+    // Return a FeatureCollection with dynamic color, gravelType, and lineStyle properties
     return {
         type: 'FeatureCollection',
         features: [
@@ -24,7 +24,8 @@ export function parseTrackPoints(gpxDoc, trackColor, trackGravelType) {
                 },
                 properties: {
                     color: trackColor || "#ff0000",        // Pass dynamic color or default to red
-                    gravelType: trackGravelType || 2       // Pass dynamic gravelType or default to 2
+                    gravelType: trackGravelType || 2,      // Pass dynamic gravelType or default to 2
+                    lineStyle: trackLineStyle || 'solid'   // Pass dynamic lineStyle or default to 'solid'
                 }
             }
         ]
