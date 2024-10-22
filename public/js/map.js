@@ -15,13 +15,10 @@ function initMap() {
         zoom: 10                        // Zoom level
     });
 
-    // ============================
-    // SECTION: Initialize GeoJSON Source for Segments
-    // ============================
     map.on('load', () => {
         console.log("Map loaded successfully.");
 
-        // Add GeoJSON source for storing drawn segments
+        // Initialize the GeoJSON source for segments
         if (!map.getSource('drawnSegments')) {
             map.addSource('drawnSegments', {
                 'type': 'geojson',
@@ -30,15 +27,16 @@ function initMap() {
                     'features': []  // Initially empty
                 }
             });
+            console.log("drawnSegments source added.");
         }
 
-        // Ensure layers are added after the source is ready
-        addSegmentLayers(); // Call a function to add layers once the source is loaded
+        // Add segment layers after the source is ready
+        addSegmentLayers();
 
-        // Automatically load segments when the page loads
-        loadSegments(); 
+        // Load segments when the page loads
+        loadSegments();
 
-        // Set segments to visible by default
+        // Set default visibility for segments
         layerVisibility.segments = true;
 
         // Initialize event listeners
@@ -53,6 +51,7 @@ function initMap() {
 // SECTION: Add Segment Layers
 // ============================
 function addSegmentLayers() {
+    // Add stroke layer if not already added
     if (!map.getLayer('drawn-segments-layer-stroke')) {
         map.addLayer({
             'id': 'drawn-segments-layer-stroke',
@@ -67,8 +66,10 @@ function addSegmentLayers() {
                 'line-width': 6           
             }
         });
+        console.log("drawn-segments-layer-stroke added.");
     }
 
+    // Add background layer
     if (!map.getLayer('drawn-segments-layer-background')) {
         map.addLayer({
             'id': 'drawn-segments-layer-background',
@@ -83,8 +84,10 @@ function addSegmentLayers() {
                 'line-width': 5           
             }
         });
+        console.log("drawn-segments-layer-background added.");
     }
 
+    // Add the main drawn segment layer
     if (!map.getLayer('drawn-segments-layer')) {
         map.addLayer({
             'id': 'drawn-segments-layer',
@@ -95,7 +98,7 @@ function addSegmentLayers() {
                 'line-cap': 'round'
             },
             'paint': {
-                'line-color': ['get', 'color'],  
+                'line-color': ['get', 'color'],  // Using the color from properties
                 'line-width': 3,                
                 'line-dasharray': [
                     'case',
@@ -104,6 +107,7 @@ function addSegmentLayers() {
                 ]
             }
         });
+        console.log("drawn-segments-layer added.");
     }
 }
 
@@ -125,7 +129,7 @@ async function loadSegments() {
             throw new Error("No data or routes found in the API response");
         }
 
-        // Prepare GeoJSON data
+        // Prepare GeoJSON data for setting the map source
         const geojsonData = {
             'type': 'FeatureCollection',
             'features': data.routes.map(route => route.geojson)
@@ -146,7 +150,35 @@ async function loadSegments() {
     }
 }
 
+// ============================
+// SECTION: Event Listeners Initialization
+// ============================
+function initEventListeners() {
+    document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer);
+    document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode); // Toggle Drawing Mode
+    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
+    document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
+    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
+    console.log("Event listeners initialized.");
+}
 
+// ============================
+// SECTION: Toggle Segments Layer
+// ============================
+function toggleSegmentsLayer() {
+    layerVisibility.segments = !layerVisibility.segments;
+
+    if (layerVisibility.segments) {
+        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');
+        loadSegments();  // Reload segments when the layer is turned on
+    } else {
+        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'none');
+        removeSegments();  // Remove segments when the layer is turned off
+    }
+
+    updateTabHighlight('segments-tab', layerVisibility.segments);
+    console.log(`Segments layer visibility set to: ${layerVisibility.segments}`);
+}
 
 // ============================
 // SECTION: Remove Segments
@@ -158,35 +190,8 @@ function removeSegments() {
             'type': 'FeatureCollection',
             'features': []  // Clear the features from the source
         });
+        console.log("Segments removed from drawnSegments source.");
     }
-}
-
-// ============================
-// SECTION: Initialize Event Listeners
-// ============================
-function initEventListeners() {
-    document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer);
-    document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode); // Toggle Drawing Mode
-    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
-    document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
-    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
-}
-
-// ============================
-// SECTION: Toggle Segments Layer
-// ============================
-function toggleSegmentsLayer() {
-    layerVisibility.segments = !layerVisibility.segments;
-
-    if (layerVisibility.segments) {
-        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');
-        loadSegments();
-    } else {
-        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'none');
-        removeSegments();
-    }
-
-    updateTabHighlight('segments-tab', layerVisibility.segments);
 }
 
 // ============================
@@ -202,6 +207,7 @@ function togglePhotoLayer() {
     }
 
     updateTabHighlight('photos-tab', layerVisibility.photos);
+    console.log(`Photo layer visibility set to: ${layerVisibility.photos}`);
 }
 
 // ============================
@@ -217,6 +223,7 @@ function togglePOILayer() {
     }
 
     updateTabHighlight('pois-tab', layerVisibility.pois);
+    console.log(`POI layer visibility set to: ${layerVisibility.pois}`);
 }
 
 // ============================
@@ -226,6 +233,7 @@ function toggleAddDropdown() {
     const dropdown = document.getElementById('add-dropdown');
     dropdown.classList.toggle('show');
     updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
+    console.log(`Add dropdown visibility toggled: ${dropdown.classList.contains('show')}`);
 }
 
 // ============================
