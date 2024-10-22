@@ -16,24 +16,25 @@ module.exports = async (req, res) => {
         
         // Fetch all routes from the MongoDB collection
         const routes = await collection.find({}).toArray();
-        
+
+        // Format the routes and convert $numberDouble/$numberInt into regular numbers
         const formattedRoutes = routes.map(route => {
-            // Fix coordinates on retrieval
+            // Fix coordinates for each feature
             route.geojson.features.forEach(feature => {
-                feature.geometry.coordinates = feature.geometry.coordinates.map(coord => [
-                    parseFloat(coord[0]?.$numberDouble || coord[0]), // Convert $numberDouble to float if present
-                    parseFloat(coord[1]?.$numberDouble || coord[1])  // Convert $numberDouble to float if present
+                feature.geometry.coordinates = feature.geometry.coordinates.map(coordPair => [
+                    parseFloat(coordPair[0]?.$numberDouble || coordPair[0]), // Handle $numberDouble and convert to float
+                    parseFloat(coordPair[1]?.$numberDouble || coordPair[1])  // Handle $numberDouble and convert to float
                 ]);
             });
-            
+    
             return {
                 routeId: route._id.toString(),
-                geojson: route.geojson,  // GeoJSON data for the route
-                gravelType: route.gravelType  // Gravel type classification only
+                geojson: route.geojson,  // Return the properly formatted GeoJSON
+                gravelType: route.gravelType  // Return the gravel type
             };
         });
 
-        // Send the formatted routes in the response
+        // Send the formatted routes to the client
         res.status(200).json({ routes: formattedRoutes });
     } catch (error) {
         console.error('Error retrieving routes:', error);
@@ -43,4 +44,3 @@ module.exports = async (req, res) => {
         // await client.close(); // Uncomment if you prefer closing the connection after each request
     }
 };
-//
