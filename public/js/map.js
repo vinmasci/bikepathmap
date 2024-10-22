@@ -50,7 +50,6 @@ map.on('load', () => {
 // SECTION: Add Segment Layers
 // ============================
 function addSegmentLayers() {
-    // Add the black stroke line layer (drawn below both the white and colored lines)
     if (!map.getLayer('drawn-segments-layer-stroke')) {
         map.addLayer({
             'id': 'drawn-segments-layer-stroke',
@@ -61,15 +60,12 @@ function addSegmentLayers() {
                 'line-cap': 'round'
             },
             'paint': {
-                'line-color': '#000000',  // Black stroke
-                'line-width': 6           // Width of the black stroke (adjust as needed)
+                'line-color': '#000000',  
+                'line-width': 6           
             }
         });
-    } else {
-        console.error("'drawn-segments-layer-stroke' already exists on the map");
     }
 
-    // Add a solid white background line layer (drawn above the black stroke)
     if (!map.getLayer('drawn-segments-layer-background')) {
         map.addLayer({
             'id': 'drawn-segments-layer-background',
@@ -80,15 +76,12 @@ function addSegmentLayers() {
                 'line-cap': 'round'
             },
             'paint': {
-                'line-color': '#FFFFFF',  // Solid white color
-                'line-width': 5           // Width of the white line (adjust as needed)
+                'line-color': '#FFFFFF',  
+                'line-width': 5           
             }
         });
-    } else {
-        console.error("'drawn-segments-layer-background' already exists on the map");
     }
 
-    // Add a dashed colored line layer (drawn on top of both the black stroke and white background)
     if (!map.getLayer('drawn-segments-layer')) {
         map.addLayer({
             'id': 'drawn-segments-layer',
@@ -99,19 +92,16 @@ function addSegmentLayers() {
                 'line-cap': 'round'
             },
             'paint': {
-                'line-color': ['get', 'color'],  // Dynamic color from properties
-                'line-width': 3,                 // Width of the colored line (slightly smaller than the white line)
+                'line-color': ['get', 'color'],  
+                'line-width': 3,                
                 'line-dasharray': [
                     'case',
-                    ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], // Dashed line
-                    ['literal', [1, 0]] // Solid line if no lineStyle or lineStyle is 'solid'
+                    ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], 
+                    ['literal', [1, 0]] 
                 ]
             }
         });
-    } else {
-        console.error("'drawn-segments-layer' already exists on the map");
     }
-}
 }
 
 // ============================
@@ -121,7 +111,7 @@ map.on('error', (e) => {
     console.error("Map error:", e);
 });
 
-
+}
 
 // ============================
 // SECTION: Initialize Event Listeners
@@ -142,9 +132,11 @@ function toggleSegmentsLayer() {
     layerVisibility.segments = !layerVisibility.segments;
 
     if (layerVisibility.segments) {
-        loadSegments();  // Load segments when toggled on
+        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');
+        loadSegments();  
     } else {
-        removeSegments();  // Remove segments when toggled off
+        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'none');
+        removeSegments();  
     }
 
     updateTabHighlight('segments-tab', layerVisibility.segments);
@@ -169,19 +161,19 @@ async function loadSegments() {
 
         const source = map.getSource('drawnSegments');
         if (source) {
-            source.setData({
+            const geojsonData = {
                 'type': 'FeatureCollection',
-                'features': data.routes.map(route => route.geojson)  // Pass GeoJSON directly
-            });
+                'features': data.routes.map(route => route.geojson)
+            };
+            console.log("Setting GeoJSON data to source:", geojsonData);
+            source.setData(geojsonData);
         }
 
-        console.log("Fetched GeoJSON routes:", data.routes); // Log the routes
+        console.log("Fetched GeoJSON routes:", data.routes); 
     } catch (error) {
         console.error('Error loading drawn routes:', error);
     }
 }
-
-
 
 
 // ============================
