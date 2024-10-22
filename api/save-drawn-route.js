@@ -25,7 +25,7 @@ function formatCoordinates(geojson) {
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
 
-    let { geojson, lineStyle } = req.body;  // Expect lineStyle in the request
+    let { geojson, lineStyle, color } = req.body;  // Expect lineStyle and color in the request
 
     if (!geojson || geojson.type !== 'FeatureCollection') {
         console.error('Invalid route data:', geojson); // Log the error
@@ -39,9 +39,10 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Invalid gravel type' });
     }
 
-    // Add the lineStyle to each feature's properties
+    // Add the lineStyle and color to each feature's properties
     geojson.features.forEach(feature => {
         feature.properties.lineStyle = lineStyle || 'solid'; // Default to solid if not provided
+        feature.properties.color = color || '#0050c1';  // Default color if not provided
     });
 
     // Format the coordinates before saving
