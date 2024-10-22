@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
         // Log the raw routes before processing them
         console.log("Raw routes from MongoDB:", JSON.stringify(routes, null, 2));
 
-        // Convert $numberDouble/$numberInt into regular numbers
+        // Convert $numberDouble/$numberInt into regular numbers without altering existing color
         const formattedRoutes = routes.map(route => {
             // Fix coordinates for each feature
             route.geojson.features.forEach(feature => {
@@ -35,12 +35,14 @@ module.exports = async (req, res) => {
                     });
                 });
 
-                // Ensure properties like color and lineStyle are added if they don't exist
+                // Preserve existing properties like color and lineStyle if they exist
                 if (!feature.properties) {
                     feature.properties = {};
                 }
-                feature.properties.color = feature.properties.color || "#000000";  // Default color
-                feature.properties.lineStyle = feature.properties.lineStyle || "solid";  // Default line style
+
+                // No changes to color or lineStyle properties if they already exist
+                feature.properties.color = feature.properties.color || "#000000";  // Default color if not set
+                feature.properties.lineStyle = feature.properties.lineStyle || "solid";  // Default line style if not set
 
                 // Log the fixed coordinates after conversion
                 console.log("Fixed coordinates after conversion:", feature.geometry.coordinates);
