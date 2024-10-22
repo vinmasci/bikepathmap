@@ -10,7 +10,7 @@ function initMap() {
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your Mapbox token
     map = new mapboxgl.Map({
         container: 'map',               // Specify the ID of the div element where the map should appear
-        style: 'mapbox://styles/mapbox/streets-v11',  // Style URL
+        style: 'mapbox://styles/mapbox/light-v10',  // Style URL
         center: [144.9631, -37.8136],   // Map center (longitude, latitude)
         zoom: 10                        // Zoom level
     });
