@@ -36,6 +36,7 @@ map.on('load', () => {
     map.on('sourcedata', (event) => {
         if (event.sourceId === 'drawnSegments' && event.isSourceLoaded) {
             addSegmentLayers(); // Call a function to add layers once the source is loaded
+            map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');  // Make the layer visible when map loads
         }
     });
 
