@@ -35,17 +35,13 @@ function initMap() {
         // Ensure layers are added after the source is ready
         addSegmentLayers(); // Call a function to add layers once the source is loaded
 
-        // Automatically load segments when the page loads
-        loadSegments(); 
 
-        // Set segments to visible by default
-        layerVisibility.segments = true;
 
         // Initialize event listeners
         initEventListeners();
 
         // Highlight the segments tab by default
-        updateTabHighlight('segments-tab', true);
+        updateTabHighlight('segments-tab', false);
     });
 }
 
