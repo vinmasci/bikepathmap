@@ -30,13 +30,14 @@ function initMap() {
                     'features': []  // Initially empty
                 }
             });
+            console.log("drawnSegments source added.");
         }
 
-        // Ensure layers are added after the source is ready
-        addSegmentLayers(); // Call a function to add layers once the source is loaded
+        // Add segment layers after the source is ready
+        addSegmentLayers();
 
         // Automatically load segments when the page loads
-        loadSegments(); 
+        loadSegments();
 
         // Set segments to visible by default
         layerVisibility.segments = true;
@@ -67,6 +68,7 @@ function addSegmentLayers() {
                 'line-width': 6           
             }
         });
+        console.log("drawn-segments-layer-stroke added.");
     }
 
     if (!map.getLayer('drawn-segments-layer-background')) {
@@ -83,6 +85,7 @@ function addSegmentLayers() {
                 'line-width': 5           
             }
         });
+        console.log("drawn-segments-layer-background added.");
     }
 
     if (!map.getLayer('drawn-segments-layer')) {
@@ -104,6 +107,7 @@ function addSegmentLayers() {
                 ]
             }
         });
+        console.log("drawn-segments-layer added.");
     }
 }
 
@@ -146,9 +150,6 @@ async function loadSegments() {
     }
 }
 
-
-
-
 // ============================
 // SECTION: Remove Segments
 // ============================
@@ -159,6 +160,7 @@ function removeSegments() {
             'type': 'FeatureCollection',
             'features': []  // Clear the features from the source
         });
+        console.log("Segments removed from drawnSegments source.");
     }
 }
 
@@ -171,6 +173,7 @@ function initEventListeners() {
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
     document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
+    console.log("Event listeners initialized.");
 }
 
 // ============================
@@ -181,13 +184,14 @@ function toggleSegmentsLayer() {
 
     if (layerVisibility.segments) {
         map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');
-        loadSegments();
+        loadSegments();  // Load segments when the layer is turned on
     } else {
         map.setLayoutProperty('drawn-segments-layer', 'visibility', 'none');
-        removeSegments();
+        removeSegments();  // Remove segments when the layer is turned off
     }
 
     updateTabHighlight('segments-tab', layerVisibility.segments);
+    console.log(`Segments layer visibility set to: ${layerVisibility.segments}`);
 }
 
 // ============================
@@ -203,6 +207,7 @@ function togglePhotoLayer() {
     }
 
     updateTabHighlight('photos-tab', layerVisibility.photos);
+    console.log(`Photo layer visibility set to: ${layerVisibility.photos}`);
 }
 
 // ============================
@@ -218,6 +223,7 @@ function togglePOILayer() {
     }
 
     updateTabHighlight('pois-tab', layerVisibility.pois);
+    console.log(`POI layer visibility set to: ${layerVisibility.pois}`);
 }
 
 // ============================
@@ -227,6 +233,7 @@ function toggleAddDropdown() {
     const dropdown = document.getElementById('add-dropdown');
     dropdown.classList.toggle('show');
     updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
+    console.log(`Add dropdown visibility toggled: ${dropdown.classList.contains('show')}`);
 }
 
 // ============================
