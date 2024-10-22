@@ -10,6 +10,16 @@ async function connectToMongo() {
     return client.db('roadApp').collection('drawnRoutes');
 }
 
+// Helper function to validate coordinates
+function validateCoordinates(coord) {
+    const [lon, lat] = coord;
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+        console.warn(`Invalid coordinates found: [${lon}, ${lat}]`);
+        return false;
+    }
+    return true;
+}
+
 module.exports = async (req, res) => {
     try {
         const collection = await connectToMongo();
@@ -19,11 +29,10 @@ module.exports = async (req, res) => {
 
         // Format the routes and convert $numberDouble/$numberInt into regular numbers
         const formattedRoutes = routes.map(route => {
-            // Fix coordinates for each feature
+            // Fix coordinates for each feature and validate them
             route.geojson.features.forEach(feature => {
                 feature.geometry.coordinates = feature.geometry.coordinates.map(coordPair => {
-                    // Ensure each coordinate pair is a plain number, without $numberDouble wrappers
-                    return coordPair.map(coord => {
+                    const formattedCoord = coordPair.map(coord => {
                         if (typeof coord === 'object' && coord.$numberDouble) {
                             return parseFloat(coord.$numberDouble);
                         } else if (typeof coord === 'object' && coord.$numberInt) {
@@ -31,7 +40,15 @@ module.exports = async (req, res) => {
                         }
                         return coord;  // Return if it's already a plain number
                     });
-                });
+
+                    // Validate the coordinate pair
+                    if (validateCoordinates(formattedCoord)) {
+                        return formattedCoord;
+                    } else {
+                        // If invalid, return an empty array or handle as needed
+                        return null;
+                    }
+                }).filter(coord => coord !== null);  // Filter out invalid coordinates
             });
     
             return {
