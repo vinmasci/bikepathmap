@@ -119,23 +119,20 @@ async function loadSegments() {
         }
         
         const data = await response.json();
-
+        console.log("API Response:", data); // Log the entire response
+        
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
         }
 
-        // Log the route data, including color and gravelType for each feature
-        data.routes.forEach(route => {
-            console.log("Route properties:", route.geojson.features.map(f => f.properties));
-        });
-
+        const geojsonData = {
+            'type': 'FeatureCollection',
+            'features': data.routes.map(route => route.geojson)
+        };
+        console.log("GeoJSON Data being set:", geojsonData); // Log the GeoJSON data to ensure it's correct
+        
         const source = map.getSource('drawnSegments');
         if (source) {
-            const geojsonData = {
-                'type': 'FeatureCollection',
-                'features': data.routes.map(route => route.geojson)
-            };
-            console.log("Setting GeoJSON data to source:", geojsonData);
             source.setData(geojsonData);
         }
 
@@ -144,6 +141,7 @@ async function loadSegments() {
         console.error('Error loading drawn routes:', error);
     }
 }
+
 
 
 // ============================
