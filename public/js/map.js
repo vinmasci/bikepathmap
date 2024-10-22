@@ -113,14 +113,21 @@ function addSegmentLayers() {
 async function loadSegments() {
     try {
         const response = await fetch('/api/get-drawn-routes');
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
         const data = await response.json();
+
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
         }
+
+        // Log the route data, including color and gravelType for each feature
+        data.routes.forEach(route => {
+            console.log("Route properties:", route.geojson.features.map(f => f.properties));
+        });
 
         const source = map.getSource('drawnSegments');
         if (source) {
@@ -132,11 +139,12 @@ async function loadSegments() {
             source.setData(geojsonData);
         }
 
-        console.log("Fetched GeoJSON routes:", data.routes);
+        console.log("Fetched GeoJSON routes:", data.routes); 
     } catch (error) {
         console.error('Error loading drawn routes:', error);
     }
 }
+
 
 // ============================
 // SECTION: Remove Segments
