@@ -1,10 +1,17 @@
 let map;
+let mapInitialized = false;  // Flag to prevent multiple initializations
 let layerVisibility = { segments: false, gravel: false, photos: false, pois: false };
 
 // ===========================
 // SECTION: Map Initialization
 // ===========================
 function initMap() {
+    if (mapInitialized) {
+        console.warn("Map already initialized, skipping...");
+        return;  // Exit if the map is already initialized
+    }
+    mapInitialized = true;  // Set the flag to prevent re-initialization
+
     console.log("Initializing map...");
     
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your Mapbox token
@@ -48,6 +55,7 @@ function initMap() {
         updateTabHighlight('segments-tab', true);
     });
 }
+
 
 // ============================
 // SECTION: Add Segment Layers
