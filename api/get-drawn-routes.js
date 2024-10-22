@@ -17,12 +17,21 @@ module.exports = async (req, res) => {
         // Fetch all routes from the MongoDB collection
         const routes = await collection.find({}).toArray();
         
-        // Format routes including necessary fields
-        const formattedRoutes = routes.map(route => ({
-            routeId: route._id.toString(),
-            geojson: route.geojson,            // GeoJSON data for the route
-            gravelType: route.gravelType       // Gravel type classification only
-        }));
+        const formattedRoutes = routes.map(route => {
+            // Fix coordinates on retrieval
+            route.geojson.features.forEach(feature => {
+                feature.geometry.coordinates = feature.geometry.coordinates.map(coord => [
+                    parseFloat(coord[0]?.$numberDouble || coord[0]), // Convert $numberDouble to float if present
+                    parseFloat(coord[1]?.$numberDouble || coord[1])  // Convert $numberDouble to float if present
+                ]);
+            });
+            
+            return {
+                routeId: route._id.toString(),
+                geojson: route.geojson,  // GeoJSON data for the route
+                gravelType: route.gravelType  // Gravel type classification only
+            };
+        });
 
         // Send the formatted routes in the response
         res.status(200).json({ routes: formattedRoutes });

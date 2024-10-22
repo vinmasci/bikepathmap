@@ -15,12 +15,13 @@ async function connectToMongo() {
 function formatCoordinates(geojson) {
     geojson.features.forEach(feature => {
         feature.geometry.coordinates = feature.geometry.coordinates.map(coord => [
-            parseFloat(coord[0]), // Ensure longitude is a number
-            parseFloat(coord[1])  // Ensure latitude is a number
+            parseFloat(coord[0]?.$numberDouble || coord[0]), // Convert $numberDouble to float if present
+            parseFloat(coord[1]?.$numberDouble || coord[1])  // Convert $numberDouble to float if present
         ]);
     });
     return geojson;
 }
+
 
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
@@ -43,6 +44,9 @@ module.exports = async (req, res) => {
     geojson.features.forEach(feature => {
         feature.properties.lineStyle = lineStyle || 'solid'; // Default to solid if not provided
     });
+
+        // Format the coordinates before saving
+        geojson = formatCoordinates(geojson);  // <<< PLACE THIS LINE HERE >>>
 
     console.log("GeoJSON being saved:", JSON.stringify(geojson, null, 2)); // Log full structure
 
