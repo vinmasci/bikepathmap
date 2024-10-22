@@ -15,67 +15,39 @@ function initMap() {
         zoom: 10                        // Zoom level
     });
 
-// ============================
-// SECTION: Initialize GeoJSON Source for Segments
-// ============================
-map.on('load', () => {
-    console.log("Map loaded successfully.");
+    // ============================
+    // SECTION: Initialize GeoJSON Source for Segments
+    // ============================
+    map.on('load', () => {
+        console.log("Map loaded successfully.");
 
-    // Add GeoJSON source for storing drawn segments
-    if (!map.getSource('drawnSegments')) {
-        map.addSource('drawnSegments', {
-            'type': 'geojson',
-            'data': {
-                'type': 'FeatureCollection',
-                'features': []  // Initially empty
-            }
-        });
-    }
-
-        // Add the test line layer here for debugging purposes
-        map.addLayer({
-            'id': 'test-line',
-            'type': 'line',
-            'source': {
-              'type': 'geojson',
-              'data': {
-                'type': 'FeatureCollection',
-                'features': [{
-                  'type': 'Feature',
-                  'geometry': {
-                    'type': 'LineString',
-                    'coordinates': [
-                      [144.9631, -37.8136],  // Coordinates in Melbourne for testing
-                      [144.9632, -37.8140]
-                    ]
-                  }
-                }]
-              }
-            },
-            'layout': {
-              'line-join': 'round',
-              'line-cap': 'round'
-            },
-            'paint': {
-              'line-color': '#ff0000',  // Red for easy visibility
-              'line-width': 5
-            }
-          });
-
-    // Ensure the layers are added after the source is ready
-    map.on('sourcedata', (event) => {
-        if (event.sourceId === 'drawnSegments' && event.isSourceLoaded) {
-            addSegmentLayers(); // Call a function to add layers once the source is loaded
-            map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');  // Make the layer visible when map loads
+        // Add GeoJSON source for storing drawn segments
+        if (!map.getSource('drawnSegments')) {
+            map.addSource('drawnSegments', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'FeatureCollection',
+                    'features': []  // Initially empty
+                }
+            });
         }
-    });
 
-    // Initialize event listeners and other map-related actions
-    initEventListeners();
-    loadSegments();  // Automatically load segments when the page loads
-    updateTabHighlight('segments-tab', true);  // Highlight the segments tab by default
-    layerVisibility.segments = true;  // Set segments to visible by default
-});
+        // Ensure layers are added after the source is ready
+        addSegmentLayers(); // Call a function to add layers once the source is loaded
+
+        // Automatically load segments when the page loads
+        loadSegments(); 
+
+        // Set segments to visible by default
+        layerVisibility.segments = true;
+
+        // Initialize event listeners
+        initEventListeners();
+
+        // Highlight the segments tab by default
+        updateTabHighlight('segments-tab', true);
+    });
+}
 
 // ============================
 // SECTION: Add Segment Layers
@@ -128,49 +100,11 @@ function addSegmentLayers() {
                 'line-dasharray': [
                     'case',
                     ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], 
-                    ['literal', [1, 0]] 
+                    ['literal', [1, 0]]  // Solid line by default
                 ]
             }
         });
     }
-}
-
-// ============================
-// SECTION: Error Handling
-// ============================
-map.on('error', (e) => {
-    console.error("Map error:", e);
-});
-
-}
-
-// ============================
-// SECTION: Initialize Event Listeners
-// ============================
-function initEventListeners() {
-    document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer);
-    document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode); // Toggle Drawing Mode
-    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
-    document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
-    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
-
-}
-
-// ============================
-// SECTION: Toggle Segments Layer
-// ============================
-function toggleSegmentsLayer() {
-    layerVisibility.segments = !layerVisibility.segments;
-
-    if (layerVisibility.segments) {
-        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');
-        loadSegments();  
-    } else {
-        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'none');
-        removeSegments();  
-    }
-
-    updateTabHighlight('segments-tab', layerVisibility.segments);
 }
 
 // ============================
@@ -179,13 +113,11 @@ function toggleSegmentsLayer() {
 async function loadSegments() {
     try {
         const response = await fetch('/api/get-drawn-routes');
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
-        const data = await response.json();
 
+        const data = await response.json();
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
         }
@@ -200,12 +132,11 @@ async function loadSegments() {
             source.setData(geojsonData);
         }
 
-        console.log("Fetched GeoJSON routes:", data.routes); 
+        console.log("Fetched GeoJSON routes:", data.routes);
     } catch (error) {
         console.error('Error loading drawn routes:', error);
     }
 }
-
 
 // ============================
 // SECTION: Remove Segments
@@ -220,6 +151,33 @@ function removeSegments() {
     }
 }
 
+// ============================
+// SECTION: Initialize Event Listeners
+// ============================
+function initEventListeners() {
+    document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer);
+    document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode); // Toggle Drawing Mode
+    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
+    document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
+    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
+}
+
+// ============================
+// SECTION: Toggle Segments Layer
+// ============================
+function toggleSegmentsLayer() {
+    layerVisibility.segments = !layerVisibility.segments;
+
+    if (layerVisibility.segments) {
+        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');
+        loadSegments();
+    } else {
+        map.setLayoutProperty('drawn-segments-layer', 'visibility', 'none');
+        removeSegments();
+    }
+
+    updateTabHighlight('segments-tab', layerVisibility.segments);
+}
 
 // ============================
 // SECTION: Toggle Photo Layer
@@ -259,3 +217,10 @@ function toggleAddDropdown() {
     dropdown.classList.toggle('show');
     updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
 }
+
+// ============================
+// SECTION: Error Handling
+// ============================
+map.on('error', (e) => {
+    console.error("Map error:", e);
+});
