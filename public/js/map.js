@@ -6,12 +6,13 @@ let layerVisibility = { segments: false, gravel: false, photos: false, pois: fal
 // ===========================
 function initMap() {
     console.log("Initializing map...");
+    
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA'; // Replace with your Mapbox token
     map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [144.9631, -37.8136],  // Replace with your coordinates
-        zoom: 10
+        container: 'map',               // Specify the ID of the div element where the map should appear
+        style: 'mapbox://styles/mapbox/streets-v11',  // Style URL
+        center: [144.9631, -37.8136],   // Map center (longitude, latitude)
+        zoom: 10                        // Zoom level
     });
 
 // ============================
@@ -31,7 +32,25 @@ map.on('load', () => {
         });
     }
 
-    // Add a black stroke line layer (drawn below both the white and colored lines)
+    // Ensure the layers are added after the source is ready
+    map.on('sourcedata', (event) => {
+        if (event.sourceId === 'drawnSegments' && event.isSourceLoaded) {
+            addSegmentLayers(); // Call a function to add layers once the source is loaded
+        }
+    });
+
+    // Initialize event listeners and other map-related actions
+    initEventListeners();
+    loadSegments();  // Automatically load segments when the page loads
+    updateTabHighlight('segments-tab', true);  // Highlight the segments tab by default
+    layerVisibility.segments = true;  // Set segments to visible by default
+});
+
+// ============================
+// SECTION: Add Segment Layers
+// ============================
+function addSegmentLayers() {
+    // Add the black stroke line layer (drawn below both the white and colored lines)
     if (!map.getLayer('drawn-segments-layer-stroke')) {
         map.addLayer({
             'id': 'drawn-segments-layer-stroke',
@@ -69,47 +88,38 @@ map.on('load', () => {
         console.error("'drawn-segments-layer-background' already exists on the map");
     }
 
-// Add a dashed colored line layer (drawn on top of both the black stroke and white background)
-if (!map.getLayer('drawn-segments-layer')) {
-    map.addLayer({
-        'id': 'drawn-segments-layer',
-        'type': 'line',
-        'source': 'drawnSegments',
-        'layout': {
-            'line-join': 'round',
-            'line-cap': 'round'
-        },
-        'paint': {
-            'line-color': ['get', 'color'],  // Dynamic color from properties
-            'line-width': 3,                 // Width of the colored line (slightly smaller than the white line)
-            'line-dasharray': [
-                'case',
-                ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], // Dashed line
-                ['literal', [1, 0]] // Solid line if no lineStyle or lineStyle is 'solid'
-            ]
-        }
-    });
-} else {
-    console.error("'drawn-segments-layer' already exists on the map");
+    // Add a dashed colored line layer (drawn on top of both the black stroke and white background)
+    if (!map.getLayer('drawn-segments-layer')) {
+        map.addLayer({
+            'id': 'drawn-segments-layer',
+            'type': 'line',
+            'source': 'drawnSegments',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': ['get', 'color'],  // Dynamic color from properties
+                'line-width': 3,                 // Width of the colored line (slightly smaller than the white line)
+                'line-dasharray': [
+                    'case',
+                    ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], // Dashed line
+                    ['literal', [1, 0]] // Solid line if no lineStyle or lineStyle is 'solid'
+                ]
+            }
+        });
+    } else {
+        console.error("'drawn-segments-layer' already exists on the map");
+    }
+}
 }
 
-
-    
-    
-    initEventListeners();
-    // Load segments when the map is initialized
-    loadSegments();  // Automatically load segments when the page loads
-    updateTabHighlight('segments-tab', true);  // Highlight the segments tab by default
-    layerVisibility.segments = true;  // Set segments to visible by default
-});
-
-// Handle any errors that occur during the map initialization
+// ============================
+// SECTION: Error Handling
+// ============================
 map.on('error', (e) => {
     console.error("Map error:", e);
 });
-
-
-}
 
 
 
