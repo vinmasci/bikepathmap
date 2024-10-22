@@ -116,39 +116,44 @@ function addSegmentLayers() {
 async function loadSegments() {
     try {
         const response = await fetch('/api/get-drawn-routes');
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json(); // Fetch the data and assign it to 'data'
-        console.log("API Response:", data); // Log the raw API response for debugging
+        const data = await response.json();
+        console.log("API Response:", data);
 
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
         }
 
-        // Prepare GeoJSON data after ensuring 'data.routes' is available
+        // Prepare GeoJSON data
         const geojsonData = {
             'type': 'FeatureCollection',
-            'features': data.routes.map(route => route.geojson)  // Map 'routes' to GeoJSON features
+            'features': data.routes.map(route => {
+                // Log the coordinates of each feature
+                route.geojson.features.forEach((feature, index) => {
+                    console.log(`Route ${index} coordinates:`, feature.geometry.coordinates);
+                });
+
+                return route.geojson;
+            })
         };
 
-        console.log("GeoJSON Data being set:", geojsonData); // Log the GeoJSON data to ensure it's properly formed
-        
+        console.log("GeoJSON Data being set:", geojsonData);  // Log the entire GeoJSON data
+
         const source = map.getSource('drawnSegments');
         if (source) {
-            console.log("Updating drawnSegments source with new data.");
+            console.log("Setting data for drawnSegments.");
             source.setData(geojsonData);  // Update the source with the new GeoJSON data
         } else {
             console.error('drawnSegments source not found.');
         }
-
-        console.log("Fetched GeoJSON routes:", data.routes); // Log the routes for further verification
     } catch (error) {
         console.error('Error loading drawn routes:', error);
     }
 }
+
 
 // ============================
 // SECTION: Remove Segments
