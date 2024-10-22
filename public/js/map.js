@@ -118,8 +118,8 @@ async function loadSegments() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json();
-        console.log("API Response:", data); // Log the entire response for debugging
+        const data = await response.json(); // Ensure this is the line where data is defined
+        console.log("API Response:", data); // Log data here to verify the fetched API response
         
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
@@ -145,6 +145,7 @@ async function loadSegments() {
         console.error('Error loading drawn routes:', error);
     }
 }
+
 
 
 
