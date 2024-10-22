@@ -22,6 +22,40 @@ function formatCoordinates(geojson) {
     return geojson;
 }
 
+// Helper function to assign colors based on gravelType
+function assignColors(geojson) {
+    geojson.features.forEach(feature => {
+        const gravelType = feature.properties.gravelType || '0';
+        let color;
+
+        // Assign color based on gravelType
+        switch (gravelType) {
+            case '0':
+                color = '#01bf11';  // Green
+                break;
+            case '1':
+                color = '#0050c1';  // Blue
+                break;
+            case '2':
+                color = '#000000';  // Black
+                break;
+            case '3':
+                color = '#FF0000';  // Red
+                break;
+            case '4':
+                color = '#FFD43B';  // Yellow
+                break;
+            default:
+                color = '#888888';  // Default gray
+                break;
+        }
+
+        feature.properties.color = color;  // Assign color
+        feature.properties.lineStyle = feature.properties.lineStyle || 'solid';  // Default to solid line style
+    });
+    return geojson;
+}
+
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
 
@@ -39,12 +73,8 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Invalid gravel type' });
     }
 
-    // Add the lineStyle to each feature's properties
-    geojson.features.forEach(feature => {
-        feature.properties.lineStyle = lineStyle || 'solid'; // Default to solid if not provided
-    });
-
-    // Format the coordinates before saving
+    // Assign colors and format coordinates before saving
+    geojson = assignColors(geojson);
     geojson = formatCoordinates(geojson);
 
     console.log("GeoJSON being saved:", JSON.stringify(geojson, null, 2)); // Log full structure
