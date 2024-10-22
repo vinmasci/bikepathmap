@@ -25,10 +25,6 @@ module.exports = async (req, res) => {
             // Fix coordinates for each feature
             route.geojson.features.forEach(feature => {
                 feature.geometry.coordinates = feature.geometry.coordinates.map(coordPair => {
-                    // Log the raw coordinate pair before conversion
-                    console.log("Raw coordinate pair:", coordPair);
-                    
-                    // Ensure each coordinate is a plain number
                     return coordPair.map(coord => {
                         if (typeof coord === 'object' && coord.$numberDouble) {
                             return parseFloat(coord.$numberDouble);
@@ -38,6 +34,13 @@ module.exports = async (req, res) => {
                         return coord;  // Return as is if it's already a plain number
                     });
                 });
+
+                // Ensure properties like color and lineStyle are added if they don't exist
+                if (!feature.properties) {
+                    feature.properties = {};
+                }
+                feature.properties.color = feature.properties.color || "#000000";  // Default color
+                feature.properties.lineStyle = feature.properties.lineStyle || "solid";  // Default line style
 
                 // Log the fixed coordinates after conversion
                 console.log("Fixed coordinates after conversion:", feature.geometry.coordinates);

@@ -22,7 +22,6 @@ function formatCoordinates(geojson) {
     return geojson;
 }
 
-
 module.exports = async (req, res) => {
     console.log("Received request to save drawn route:", req.body); // Log incoming request data
 
@@ -45,13 +44,10 @@ module.exports = async (req, res) => {
         feature.properties.lineStyle = lineStyle || 'solid'; // Default to solid if not provided
     });
 
-        // Format the coordinates before saving
-        geojson = formatCoordinates(geojson);  // <<< PLACE THIS LINE HERE >>>
-
-    console.log("GeoJSON being saved:", JSON.stringify(geojson, null, 2)); // Log full structure
-
     // Format the coordinates before saving
     geojson = formatCoordinates(geojson);
+
+    console.log("GeoJSON being saved:", JSON.stringify(geojson, null, 2)); // Log full structure
 
     try {
         const collection = await connectToMongo();
