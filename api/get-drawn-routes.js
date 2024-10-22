@@ -21,15 +21,22 @@ module.exports = async (req, res) => {
         const formattedRoutes = routes.map(route => {
             // Fix coordinates for each feature
             route.geojson.features.forEach(feature => {
-                feature.geometry.coordinates = feature.geometry.coordinates.map(coordPair => [
-                    parseFloat(coordPair[0]?.$numberDouble || coordPair[0]), // Handle $numberDouble and convert to float
-                    parseFloat(coordPair[1]?.$numberDouble || coordPair[1])  // Handle $numberDouble and convert to float
-                ]);
+                feature.geometry.coordinates = feature.geometry.coordinates.map(coordPair => {
+                    // Ensure each coordinate pair is a plain number, without $numberDouble wrappers
+                    return coordPair.map(coord => {
+                        if (typeof coord === 'object' && coord.$numberDouble) {
+                            return parseFloat(coord.$numberDouble);
+                        } else if (typeof coord === 'object' && coord.$numberInt) {
+                            return parseInt(coord.$numberInt);
+                        }
+                        return coord;  // Return if it's already a plain number
+                    });
+                });
             });
     
             return {
                 routeId: route._id.toString(),
-                geojson: route.geojson,  // Return the properly formatted GeoJSON
+                geojson: route.geojson,  // Properly formatted GeoJSON
                 gravelType: route.gravelType  // Return the gravel type
             };
         });
