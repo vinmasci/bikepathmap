@@ -53,22 +53,7 @@ function initMap() {
 // SECTION: Add Segment Layers
 // ============================
 function addSegmentLayers() {
-    if (!map.getLayer('drawn-segments-layer-stroke')) {
-        map.addLayer({
-            'id': 'drawn-segments-layer-stroke',
-            'type': 'line',
-            'source': 'drawnSegments',
-            'layout': {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            'paint': {
-                'line-color': '#000000',  
-                'line-width': 6           
-            }
-        });
-    }
-
+    // Add the background layer first
     if (!map.getLayer('drawn-segments-layer-background')) {
         map.addLayer({
             'id': 'drawn-segments-layer-background',
@@ -79,12 +64,30 @@ function addSegmentLayers() {
                 'line-cap': 'round'
             },
             'paint': {
-                'line-color': '#FFFFFF',  
-                'line-width': 5           
+                'line-color': '#FFFFFF',  // White background
+                'line-width': 5           // Slightly wider than the main line
             }
         });
     }
 
+    // Add the stroke layer next (to provide an outline)
+    if (!map.getLayer('drawn-segments-layer-stroke')) {
+        map.addLayer({
+            'id': 'drawn-segments-layer-stroke',
+            'type': 'line',
+            'source': 'drawnSegments',
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': '#000000',  // Black stroke
+                'line-width': 6           // Thick stroke
+            }
+        });
+    }
+
+    // Add the actual segments layer (with dynamic color and line style)
     if (!map.getLayer('drawn-segments-layer')) {
         map.addLayer({
             'id': 'drawn-segments-layer',
@@ -95,8 +98,8 @@ function addSegmentLayers() {
                 'line-cap': 'round'
             },
             'paint': {
-                'line-color': ['get', 'color'],  
-                'line-width': 3,                
+                'line-color': ['get', 'color'],  // Dynamic color from GeoJSON
+                'line-width': 3,                 // Thinner than stroke and background
                 'line-dasharray': [
                     'case',
                     ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], 
@@ -146,10 +149,6 @@ async function loadSegments() {
         console.error('Error loading drawn routes:', error);
     }
 }
-
-
-
-
 
 // ============================
 // SECTION: Remove Segments
