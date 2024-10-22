@@ -119,28 +119,33 @@ async function loadSegments() {
         }
         
         const data = await response.json();
-        console.log("API Response:", data); // Log the entire response
+        console.log("API Response:", data); // Log the entire response for debugging
         
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
         }
 
+        // Prepare GeoJSON data
         const geojsonData = {
             'type': 'FeatureCollection',
             'features': data.routes.map(route => route.geojson)
         };
-        console.log("GeoJSON Data being set:", geojsonData); // Log the GeoJSON data to ensure it's correct
+        console.log("GeoJSON Data being set:", geojsonData); // Log the GeoJSON data for verification
         
         const source = map.getSource('drawnSegments');
         if (source) {
-            source.setData(geojsonData);
+            console.log("Updating drawnSegments source with new data.");
+            source.setData(geojsonData);  // Update the source with the new GeoJSON data
+        } else {
+            console.error('drawnSegments source not found.');
         }
 
-        console.log("Fetched GeoJSON routes:", data.routes); 
+        console.log("Fetched GeoJSON routes:", data.routes); // Log the fetched routes for confirmation
     } catch (error) {
         console.error('Error loading drawn routes:', error);
     }
 }
+
 
 
 

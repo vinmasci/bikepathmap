@@ -40,6 +40,9 @@ module.exports = async (req, res) => {
                     feature.properties = {};
                 }
 
+                // Log original properties for debugging
+                console.log("Original properties for feature:", feature.properties);
+
                 // No changes to color or lineStyle properties if they already exist
                 feature.properties.color = feature.properties.color || "#000000";  // Default color if not set
                 feature.properties.lineStyle = feature.properties.lineStyle || "solid";  // Default line style if not set
