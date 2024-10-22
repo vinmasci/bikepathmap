@@ -32,6 +32,36 @@ map.on('load', () => {
         });
     }
 
+        // Add the test line layer here for debugging purposes
+        map.addLayer({
+            'id': 'test-line',
+            'type': 'line',
+            'source': {
+              'type': 'geojson',
+              'data': {
+                'type': 'FeatureCollection',
+                'features': [{
+                  'type': 'Feature',
+                  'geometry': {
+                    'type': 'LineString',
+                    'coordinates': [
+                      [144.9631, -37.8136],  // Coordinates in Melbourne for testing
+                      [144.9632, -37.8140]
+                    ]
+                  }
+                }]
+              }
+            },
+            'layout': {
+              'line-join': 'round',
+              'line-cap': 'round'
+            },
+            'paint': {
+              'line-color': '#ff0000',  // Red for easy visibility
+              'line-width': 5
+            }
+          });
+
     // Ensure the layers are added after the source is ready
     map.on('sourcedata', (event) => {
         if (event.sourceId === 'drawnSegments' && event.isSourceLoaded) {
