@@ -152,20 +152,23 @@ function addSegment(snappedSegment) {
 }
 
 
-
 // ============================
 // SECTION: Draw Segments on Map
 // ============================
 function drawSegmentsOnMap() {
     const source = map.getSource('drawnSegments');
     if (source) {
-        console.log('GeoJSON Data before updating source:', JSON.stringify(segmentsGeoJSON, null, 2));  // Log the data to be set
-        source.setData(segmentsGeoJSON);  // Ensure this is updating the map's source
+        // Flatten the GeoJSON data before setting it
+        const flattenedGeoJSON = {
+            type: 'FeatureCollection',
+            features: flattenFeatureCollection(segmentsGeoJSON)  // Use the helper function
+        };
 
-        // Apply the line color
+        // Set the source with the flattened data
+        source.setData(flattenedGeoJSON);
+
+        // Apply the line color and dash array
         map.setPaintProperty('drawn-segments-layer', 'line-color', ['get', 'color']);
-        
-        // Directly use the 'line-dasharray' property from the feature
         map.setPaintProperty('drawn-segments-layer', 'line-dasharray', ['get', 'dashArray']);
     } else {
         console.error('GeoJSON source "drawnSegments" not found on the map');
@@ -232,11 +235,15 @@ function saveDrawnRoute() {
 
         // Add gravel type information to each segment feature
         segmentsGeoJSON.features.forEach(feature => {
-            feature.properties.gravelType = gravelTypes; // Store selected gravel types
+            feature.properties.gravelType = gravelTypes;  // Store selected gravel types
         });
 
-        // Convert GeoJSON to GPX
-        const gpxData = togpx(segmentsGeoJSON);  // Ensure this function works correctly
+        // Convert GeoJSON to GPX, ensure togpx is correctly imported
+        const gpxData = togpx ? togpx(segmentsGeoJSON) : null;
+        if (!gpxData) {
+            console.error("GPX conversion failed. 'togpx' is not defined.");
+            return;
+        }
 
         // Send the drawn route data to the backend API
         fetch('/api/save-drawn-route', {
@@ -248,7 +255,7 @@ function saveDrawnRoute() {
                 metadata: {
                     color: selectedColor,
                     lineStyle: selectedLineStyle,
-                    gravelType: gravelTypes  // Or however you are managing gravel types
+                    gravelType: gravelTypes  // Send gravel types metadata
                 }
             })
         })
@@ -269,4 +276,19 @@ function saveDrawnRoute() {
     }
 }
 
+// ============================
+// Helper function to flatten FeatureCollection
+// ============================
+function flattenFeatureCollection(featureCollection) {
+    if (featureCollection.type === 'FeatureCollection') {
+        return featureCollection.features.flatMap(feature => {
+            // If the feature is a FeatureCollection, flatten its features
+            if (feature.type === 'FeatureCollection') {
+                return flattenFeatureCollection(feature);  // Recursive call
+            }
+            return feature;  // Return individual feature
+        });
+    }
+    return featureCollection;  // Return as-is if not a FeatureCollection
+}
 
