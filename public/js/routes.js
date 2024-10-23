@@ -1,4 +1,9 @@
 // ============================
+// Import the togpx library at the top
+// ============================
+const togpx = require('togpx');  // For CommonJS (Node.js)
+
+// ============================
 // SECTION: Global Variables
 // ============================
 let segmentCounter = 0; // Counter for unique segment IDs
