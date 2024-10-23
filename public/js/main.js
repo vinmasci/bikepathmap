@@ -10,10 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('undo-btn').addEventListener('click', undoLastSegment); // Undo button triggers undoLastPoint
     document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);  // Save button triggers saveDrawnRoute
 
-    // Tab and modal interaction
-    document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer); // Updated to toggle segments layer
-    document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
-    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
+
 
     // Open modals for adding GPX files and photos
     document.getElementById('add-road-gpx').addEventListener('click', function() {
