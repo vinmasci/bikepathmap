@@ -21,6 +21,11 @@ function initMap() {
     map.on('load', () => {
         console.log("Map loaded successfully.");
 
+        map.on('error', (e) => {
+            console.error("Map error:", e);
+        });
+        
+
         // Add GeoJSON source for storing drawn segments
         if (!map.getSource('drawnSegments')) {
             map.addSource('drawnSegments', {
@@ -224,10 +229,3 @@ function toggleAddDropdown() {
     dropdown.classList.toggle('show');
     updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
 }
-
-// ============================
-// SECTION: Error Handling
-// ============================
-map.on('error', (e) => {
-    console.error("Map error:", e);
-});
