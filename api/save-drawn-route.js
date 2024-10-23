@@ -1,8 +1,7 @@
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
-// MongoDB connection setup
-const client = new MongoClient(process.env.MONGODB_URI);
+const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function connectToMongo() {
     if (!client.topology || !client.topology.isConnected()) {
@@ -11,62 +10,46 @@ async function connectToMongo() {
     return client.db('roadApp').collection('drawnRoutes');
 }
 
-// Helper function to ensure coordinates are in the correct format
-function formatCoordinates(geojson) {
-    geojson.features.forEach(feature => {
-        feature.geometry.coordinates = feature.geometry.coordinates.map(coord => [
-            parseFloat(coord[0]?.$numberDouble || coord[0]), // Convert $numberDouble to float if present
-            parseFloat(coord[1]?.$numberDouble || coord[1])  // Convert $numberDouble to float if present
-        ]);
-    });
-    return geojson;
-}
-
 module.exports = async (req, res) => {
-    console.log("Received request to save drawn route:", req.body); // Log incoming request data
-
-    let { geojson, lineStyle, color } = req.body;  // Expect lineStyle and color in the request
-
-    if (!geojson || geojson.type !== 'FeatureCollection') {
-        console.error('Invalid route data:', geojson); // Log the error
-        return res.status(400).json({ error: 'Invalid route data' });
-    }
-
-    // Optional validation for gravelType only (surfaceType is no longer required)
-    const { gravelType } = geojson.features[0].properties;
-    if (!gravelType) {
-        console.error('Invalid gravelType:', gravelType);
-        return res.status(400).json({ error: 'Invalid gravel type' });
-    }
-
-    // Add the lineStyle and color to each feature's properties
-    geojson.features.forEach(feature => {
-        feature.properties.lineStyle = lineStyle || 'solid'; // Default to solid if not provided
-        feature.properties.color = color || '#0050c1';  // Default color if not provided
-    });
-
-    // Format the coordinates before saving
-    geojson = formatCoordinates(geojson);
-
-    console.log("GeoJSON being saved:", JSON.stringify(geojson, null, 2)); // Log full structure
-
     try {
         const collection = await connectToMongo();
-        const result = await collection.insertOne({
-            geojson: geojson,
-            gravelType,  // Save gravelType only
-            createdAt: new Date()
+        
+        // Fetch all routes from the MongoDB collection
+        const routes = await collection.find({}).toArray();
+
+        // Log the raw routes before processing them
+        console.log("Raw routes from MongoDB:", JSON.stringify(routes, null, 2));
+
+        // Simplify route formatting
+        const formattedRoutes = routes.map(route => {
+            const formattedFeatures = route.routeData.features.map(feature => {
+                return {
+                    ...feature,
+                    properties: {
+                        ...feature.properties,
+                        color: feature.properties.color || "#000000",  // Default color if not set
+                        lineStyle: feature.properties.lineStyle || "solid"  // Default line style if not set
+                    }
+                };
+            });
+
+            return {
+                routeId: route._id.toString(),
+                geojson: {
+                    type: "FeatureCollection",
+                    features: formattedFeatures
+                },
+                gravelType: route.gravelType  // Return the gravel type
+            };
         });
 
-        console.log('Route saved successfully with ID:', result.insertedId); // Log successful save
+        // Log the formatted routes before sending them to the client
+        console.log("Formatted routes being sent:", JSON.stringify(formattedRoutes, null, 2));
 
-        return res.status(200).json({
-            success: true,
-            message: 'Route saved successfully!',
-            routeId: result.insertedId
-        });
+        // Send the formatted routes to the client
+        res.status(200).json({ routes: formattedRoutes });
     } catch (error) {
-        console.error('Error saving drawn route:', error); // Log the error.
-        return res.status(500).json({ error: 'Failed to save route' });
+        console.error('Error retrieving routes:', error);
+        res.status(500).json({ error: 'Failed to retrieve routes' });
     }
 };

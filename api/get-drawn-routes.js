@@ -20,40 +20,25 @@ module.exports = async (req, res) => {
         // Log the raw routes before processing them
         console.log("Raw routes from MongoDB:", JSON.stringify(routes, null, 2));
 
-        // Convert $numberDouble/$numberInt into regular numbers without altering existing color
+        // Simplify route formatting
         const formattedRoutes = routes.map(route => {
-            // Fix coordinates for each feature
-            route.geojson.features.forEach(feature => {
-                feature.geometry.coordinates = feature.geometry.coordinates.map(coordPair => {
-                    return coordPair.map(coord => {
-                        if (typeof coord === 'object' && coord.$numberDouble) {
-                            return parseFloat(coord.$numberDouble);
-                        } else if (typeof coord === 'object' && coord.$numberInt) {
-                            return parseInt(coord.$numberInt);
-                        }
-                        return coord;  // Return as is if it's already a plain number
-                    });
-                });
-
-                // Preserve existing properties like color and lineStyle if they exist
-                if (!feature.properties) {
-                    feature.properties = {};
-                }
-
-                // Log original properties for debugging
-                console.log("Original properties for feature:", feature.properties);
-
-                // No changes to color or lineStyle properties if they already exist
-                feature.properties.color = feature.properties.color || "#000000";  // Default color if not set
-                feature.properties.lineStyle = feature.properties.lineStyle || "solid";  // Default line style if not set
-
-                // Log the fixed coordinates after conversion
-                console.log("Fixed coordinates after conversion:", feature.geometry.coordinates);
+            const formattedFeatures = route.geojson.features.map(feature => {
+                return {
+                    ...feature,
+                    properties: {
+                        ...feature.properties,
+                        color: feature.properties.color || "#000000",  // Default color if not set
+                        lineStyle: feature.properties.lineStyle || "solid"  // Default line style if not set
+                    }
+                };
             });
 
             return {
                 routeId: route._id.toString(),
-                geojson: route.geojson,  // Return the formatted GeoJSON
+                geojson: {
+                    type: "FeatureCollection",
+                    features: formattedFeatures
+                },
                 gravelType: route.gravelType  // Return the gravel type
             };
         });

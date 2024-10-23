@@ -126,15 +126,9 @@ async function loadSegments() {
         // Prepare GeoJSON data
         const geojsonData = {
             'type': 'FeatureCollection',
-            'features': data.routes.map(route => {
-                // Log the coordinates of each feature
-                route.geojson.features.forEach((feature, index) => {
-                    console.log(`Route ${index} coordinates:`, feature.geometry.coordinates);
-                });
-
-                return route.geojson;
-            })
+            'features': data.routes.map(route => route.geojson) // Directly map the geojson from MongoDB
         };
+        
 
         console.log("GeoJSON Data being set:", geojsonData);  // Log the entire GeoJSON data
 
