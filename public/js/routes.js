@@ -235,11 +235,22 @@ function saveDrawnRoute() {
             feature.properties.gravelType = gravelTypes; // Store selected gravel types
         });
 
+        // Convert GeoJSON to GPX
+        const gpxData = togpx(segmentsGeoJSON);  // Ensure this function works correctly
+
         // Send the drawn route data to the backend API
         fetch('/api/save-drawn-route', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ geojson: segmentsGeoJSON })
+            body: JSON.stringify({
+                gpxData: gpxData,  // Converted GPX data
+                geojson: segmentsGeoJSON,  // GeoJSON data
+                metadata: {
+                    color: selectedColor,
+                    lineStyle: selectedLineStyle,
+                    gravelType: gravelTypes  // Or however you are managing gravel types
+                }
+            })
         })
         .then(response => response.json())
         .then(data => {

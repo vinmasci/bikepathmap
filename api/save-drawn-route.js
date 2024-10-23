@@ -12,44 +12,36 @@ async function connectToMongo() {
 
 module.exports = async (req, res) => {
     try {
+        // Destructure the incoming data from the frontend
+        const { gpxData, geojson, metadata } = req.body;
+
+        // Log the incoming data for debugging
+        console.log("Received GPX Data:", gpxData);
+        console.log("Received GeoJSON Data:", geojson);
+        console.log("Received Metadata:", metadata);
+
+        // Check if required data is missing
+        if (!gpxData || !geojson || !metadata) {
+            return res.status(400).json({ error: 'Missing required data (gpxData, geojson, or metadata)' });
+        }
+
         const collection = await connectToMongo();
-        
-        // Fetch all routes from the MongoDB collection
-        const routes = await collection.find({}).toArray();
 
-        // Log the raw routes before processing them
-        console.log("Raw routes from MongoDB:", JSON.stringify(routes, null, 2));
-
-        // Simplify route formatting
-        const formattedRoutes = routes.map(route => {
-            const formattedFeatures = route.routeData.features.map(feature => {
-                return {
-                    ...feature,
-                    properties: {
-                        ...feature.properties,
-                        color: feature.properties.color || "#000000",  // Default color if not set
-                        lineStyle: feature.properties.lineStyle || "solid"  // Default line style if not set
-                    }
-                };
-            });
-
-            return {
-                routeId: route._id.toString(),
-                geojson: {
-                    type: "FeatureCollection",
-                    features: formattedFeatures
-                },
-                gravelType: route.gravelType  // Return the gravel type
-            };
+        // Insert the route data into the MongoDB collection
+        const result = await collection.insertOne({
+            gpxData: gpxData,        // GPX data as a string
+            geojson: geojson,        // GeoJSON data for rendering
+            metadata: metadata,      // Route metadata (colors, line styles, etc.)
+            createdAt: new Date()    // Timestamp for when the route is created
         });
 
-        // Log the formatted routes before sending them to the client
-        console.log("Formatted routes being sent:", JSON.stringify(formattedRoutes, null, 2));
+        // Log the result of the insert operation
+        console.log('Route saved with ID:', result.insertedId);
 
-        // Send the formatted routes to the client
-        res.status(200).json({ routes: formattedRoutes });
+        // Respond to the frontend with a success message and route ID
+        res.status(200).json({ success: true, routeId: result.insertedId });
     } catch (error) {
-        console.error('Error retrieving routes:', error);
-        res.status(500).json({ error: 'Failed to retrieve routes' });
+        console.error('Error saving route:', error);
+        res.status(500).json({ error: 'Failed to save route' });
     }
 };
