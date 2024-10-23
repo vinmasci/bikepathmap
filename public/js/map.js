@@ -46,21 +46,6 @@ function initMap() {
 }
 
 // ============================
-// SECTION: Draw route functionality for "Draw Route" tab
-// ============================
-    let drawingEnabled = false;
-    document.getElementById('draw-route-tab').addEventListener('click', function() {
-        drawingEnabled = !drawingEnabled;
-        if (drawingEnabled) {
-            enableDrawingMode();  // Function should be defined in map.js
-            updateTabHighlight('draw-route-tab', true);  // Highlight the active tab
-        } else {
-            disableDrawingMode(); // Function should be defined in map.js
-            updateTabHighlight('draw-route-tab', false); // Remove highlight
-        }
-    });
-
-// ============================
 // SECTION: Add Segment Layers
 // ============================
 function addSegmentLayers() {
