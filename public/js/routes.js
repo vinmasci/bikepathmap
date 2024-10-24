@@ -31,10 +31,24 @@ document.getElementById('applyDrawingOptionsButton').addEventListener('click', f
 });
 
 // ============================
-// SECTION: Enable/Disable Drawing Mode
+// SECTION: Toggle Drawing Mode with Tab Highlight
 // ============================
-let drawingEnabled = false; // Track whether drawing mode is enabled
+function toggleDrawingMode() {
+    const drawRouteTab = document.getElementById('draw-route-tab');
+    
+    if (drawingEnabled) {
+        disableDrawingMode();  // Disable drawing if it’s enabled
+        updateTabHighlight('draw-route-tab', false);  // Remove highlight
+    } else {
+        enableDrawingMode();  // Enable drawing if it’s disabled
+        updateTabHighlight('draw-route-tab', true);  // Highlight the tab
+    }
+    drawingEnabled = !drawingEnabled;  // Toggle the drawing state
+}
 
+// ============================
+// SECTION: Enable Drawing Mode
+// ============================
 function enableDrawingMode() {
     console.log("Drawing mode enabled.");
     document.getElementById('control-panel').style.display = 'block';
@@ -42,6 +56,9 @@ function enableDrawingMode() {
     map.getCanvas().style.cursor = 'crosshair';  // Change cursor to crosshair
 }
 
+// ============================
+// SECTION: Disable Drawing Mode
+// ============================
 function disableDrawingMode() {
     console.log("Drawing mode disabled.");
     map.off('click', drawPoint);  // Stop capturing clicks
@@ -49,17 +66,6 @@ function disableDrawingMode() {
     document.getElementById('control-panel').style.display = 'none';  // Hide the control panel
 }
 
-// ============================
-// SECTION: Toggle Drawing Mode
-// ============================
-function toggleDrawingMode() {
-    if (drawingEnabled) {
-        disableDrawingMode();  // Disable drawing if it’s enabled
-    } else {
-        enableDrawingMode();  // Enable drawing if it’s disabled
-    }
-    drawingEnabled = !drawingEnabled;  // Toggle the drawing state
-}
 
 // ============================
 // SECTION: Draw Point
