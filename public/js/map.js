@@ -122,27 +122,28 @@ async function loadSegments() {
         }
         
         const data = await response.json();
-        console.log("Raw routes data from API:", data.routes);  // Check raw data
+        console.log("Raw routes data from API:", data.routes);  // New: Log raw data from API
 
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
         }
 
-        // Debugging individual routes to see each geojson
+        // New: Log each route's geojson individually
         data.routes.forEach((route, index) => {
-            console.log(`Route ${index} geojson:`, route.geojson);  // Log each route's geojson
+            console.log(`Route ${index} geojson:`, route.geojson);  // New: Log geojson for each route
         });
 
-        // Prepare GeoJSON data and filter invalid features
+        // New: Prepare GeoJSON data with a filter to exclude invalid features
         const geojsonData = {
             'type': 'FeatureCollection',
             'features': data.routes
                 .map(route => route.geojson)
-                .filter(feature => feature && feature.geometry && feature.geometry.coordinates)  // Filter out invalid features
+                .filter(feature => feature && feature.geometry && feature.geometry.coordinates)  // New: Filter invalid features
         };
 
-        console.log("GeoJSON Data being set:", geojsonData);  // Log the GeoJSON after filtering
+        console.log("GeoJSON Data being set:", geojsonData);  // New: Log the entire GeoJSON data after filtering
 
+        // Original logic: Set the filtered GeoJSON data to the map
         const source = map.getSource('drawnSegments');
         if (source) {
             console.log("Setting data for drawnSegments.");
@@ -154,6 +155,7 @@ async function loadSegments() {
         console.error('Error loading drawn routes:', error);
     }
 }
+
 
 
 
