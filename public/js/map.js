@@ -134,6 +134,8 @@ async function loadSegments() {
             'features': data.routes.map(route => route.geojson) // Directly map the geojson from MongoDB
         };
         
+        // Log the coordinates to ensure they're correctly formatted
+        console.log("Coordinates in GeoJSON:", geojsonData.features.map(f => f.geometry.coordinates));
 
         console.log("GeoJSON Data being set:", geojsonData);  // Log the entire GeoJSON data
 
@@ -148,6 +150,7 @@ async function loadSegments() {
         console.error('Error loading drawn routes:', error);
     }
 }
+
 
 
 // ============================
