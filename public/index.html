@@ -154,6 +154,17 @@
     margin-top: 10px;
 }
 
+/* Custom style for the Draw Route tab */
+.draw-route-tab {
+    background-color: #ff7f50; /* Coral background for the Draw Route tab */
+    color: black;              /* White text */
+}
+
+/* Highlight when the Draw Route tab is active */
+.draw-route-tab.active {
+    background-color: #ff6348; /* Darker green when active */
+}
+
 
     </style>
 </head>
@@ -183,8 +194,8 @@
 </div>
 
 <div class="tabs">
-    <div class="tab" id="segments-tab">Segments</div>
     <div class="tab" id="draw-route-tab" onclick="enableDrawingMode()">Draw Route</div>
+    <div class="tab" id="segments-tab">Segments</div>
     <div class="tab" id="photos-tab">Photos</div>
     <div class="tab" id="pois-tab">POIs</div>
     <div class="tab" id="add-tab" onclick="toggleAddDropdown()">Add</div>
