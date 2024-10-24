@@ -54,8 +54,13 @@
         }
 
         .tab.active {
-            background-color: #555;
-        }
+    background-color: #555;
+}
+
+.draw-route-tab.active {
+    background-color: #ff6348; /* Custom active color for Draw Route tab */
+    color: white;  /* Ensures text color changes to white when active */
+}
 
         .dropdown-content {
             display: none;
@@ -193,7 +198,7 @@
 </div>
 
 <div class="tabs">
-    <div class="tab" id="draw-route-tab" onclick="enableDrawingMode()">Draw Route</div>
+    <div class="tab draw-route-tab" id="draw-route-tab" onclick="enableDrawingMode()">Draw Route</div>
     <div class="tab" id="segments-tab">Segments</div>
     <div class="tab" id="photos-tab">Photos</div>
     <div class="tab" id="pois-tab">POIs</div>
