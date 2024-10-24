@@ -30,4 +30,3 @@
             updateTabHighlight('draw-route-tab', false); // Remove highlight
         }
     });
-});
