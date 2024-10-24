@@ -16,7 +16,7 @@ const gravelColors = {
     0: '#01bf11', // Easiest // Green
     1: '#0050c1', // Blue // Intermediate
     2: '#000000', // Diamond // Black
-    3: '#FFFFFF', // White // Expert 
+    3: '#444444', // White // Expert 
     4: '#FFD43B', // Rail trail // yellow
     5: '#831100' // Red // Closed or Private
 };
@@ -143,7 +143,7 @@ function addSegment(snappedSegment) {
 
     // Gravel Type 3: Dashed black and white
     if (selectedColor === gravelColors[3]) {
-        lineColor = '#444444';  // Black line for Gravel Type 3
+        lineColor = '#FFFFFF';  // Black line for Gravel Type 3
         lineDashArray = [2, 2];  // Dashed pattern
     }
 
