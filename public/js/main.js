@@ -1,6 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Initialize the map
-    initMap();
+
 
     // Initialize modals
     initModals(); // Ensure this function is defined in ui.js
