@@ -120,30 +120,34 @@ async function loadSegments() {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        console.log("Raw routes data from API:", data.routes);  // New: Log raw data from API
+        console.log("Raw routes data from API:", data.routes);  // Log raw data from API
 
         if (!data || !data.routes) {
             throw new Error("No data or routes found in the API response");
         }
 
-        // New: Log each route's geojson individually
+        // Log each route's geojson individually
         data.routes.forEach((route, index) => {
-            console.log(`Route ${index} geojson:`, route.geojson);  // New: Log geojson for each route
+            console.log(`Route ${index} geojson:`, route.geojson);
         });
 
-        // New: Prepare GeoJSON data with a filter to exclude invalid features
+        // Map over routes to get their geojson features and filter valid ones
         const geojsonData = {
             'type': 'FeatureCollection',
-            'features': data.routes
-                .map(route => route.geojson)
-                .filter(feature => feature && feature.geometry && feature.geometry.coordinates)  // New: Filter invalid features
+            'features': data.routes.flatMap(route => {
+                if (route.geojson && route.geojson.features) {
+                    // Ensure each geojson has valid features
+                    return route.geojson.features.filter(feature => 
+                        feature && feature.geometry && feature.geometry.coordinates);
+                }
+                return [];  // Return an empty array if there are no valid features
+            })
         };
 
-        console.log("GeoJSON Data being set:", geojsonData);  // New: Log the entire GeoJSON data after filtering
+        console.log("GeoJSON Data being set:", geojsonData);  // Log the entire GeoJSON data after filtering
 
-        // Original logic: Set the filtered GeoJSON data to the map
         const source = map.getSource('drawnSegments');
         if (source) {
             console.log("Setting data for drawnSegments.");
@@ -155,6 +159,7 @@ async function loadSegments() {
         console.error('Error loading drawn routes:', error);
     }
 }
+
 
 
 
