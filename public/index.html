@@ -25,6 +25,17 @@
             z-index: 0; 
         }
 
+        /* Custom style for the Draw Route tab */
+.draw-route-tab {
+    background-color: #ff7f50; /* Coral background for the Draw Route tab */
+    color: black;              /* White text */
+}
+
+/* Highlight when the Draw Route tab is active */
+.draw-route-tab.active {
+    background-color: #ff6348; /* Darker green when active */
+}
+
         .tabs {
             position: fixed; 
             bottom: 0; 
@@ -153,18 +164,6 @@
 #applyDrawingOptionsButton {
     margin-top: 10px;
 }
-
-/* Custom style for the Draw Route tab */
-.draw-route-tab {
-    background-color: #ff7f50; /* Coral background for the Draw Route tab */
-    color: black;              /* White text */
-}
-
-/* Highlight when the Draw Route tab is active */
-.draw-route-tab.active {
-    background-color: #ff6348; /* Darker green when active */
-}
-
 
     </style>
 </head>
