@@ -168,7 +168,7 @@ function removeSegments() {
 // ============================
 function initEventListeners() {
     document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer);
-
+    document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode);
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
     document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
