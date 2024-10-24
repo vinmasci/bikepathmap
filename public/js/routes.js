@@ -30,15 +30,16 @@ document.getElementById('applyDrawingOptionsButton').addEventListener('click', f
     document.getElementById('drawingOptionsModal').style.display = 'none';
 });
 
+// Global flag to track if drawing mode is enabled
+let drawingEnabled = false;
+
 // ============================
-// SECTION: Toggle Drawing Mode with Tab Highlight
+// SECTION: Toggle Drawing Mode
 // ============================
 function toggleDrawingMode() {
-    const drawRouteTab = document.getElementById('draw-route-tab');
-    
     if (drawingEnabled) {
         disableDrawingMode();  // Disable drawing if it’s enabled
-        updateTabHighlight('draw-route-tab', false);  // Remove highlight
+        updateTabHighlight('draw-route-tab', false);  // Remove highlight from tab
     } else {
         enableDrawingMode();  // Enable drawing if it’s disabled
         updateTabHighlight('draw-route-tab', true);  // Highlight the tab
@@ -51,7 +52,7 @@ function toggleDrawingMode() {
 // ============================
 function enableDrawingMode() {
     console.log("Drawing mode enabled.");
-    document.getElementById('control-panel').style.display = 'block';
+    document.getElementById('control-panel').style.display = 'block';  // Show the control panel
     map.on('click', drawPoint);  // Start capturing clicks to draw points
     map.getCanvas().style.cursor = 'crosshair';  // Change cursor to crosshair
 }
