@@ -2,27 +2,24 @@
 
 // Function to handle drag-and-drop for photo uploads
 function setupDragAndDrop() {
-    const dropArea = document.getElementById('drag-drop-area');
+    const dropArea = document.getElementById('drag-drop-area');  // Ensure you match this with the correct ID in your HTML
     const fileInput = document.getElementById('photoFiles');
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const dropArea = document.getElementById('dropArea');
-        if (!dropArea) {
-            console.error('dropArea element not found');
-            return;  // Exit if the dropArea doesn't exist
-        }
-    
-        // Prevent default behavior (Prevent file from being opened)
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
-    
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+    if (!dropArea) {
+        console.error('dropArea element not found');
+        return;  // Exit if the dropArea doesn't exist
+    }
+
+    // Prevent default behavior (Prevent file from being opened)
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
     });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
     // Highlight area when a file is dragged over
     ['dragenter', 'dragover'].forEach(eventName => {
@@ -45,6 +42,7 @@ function setupDragAndDrop() {
         handleFileUpload(fileInput.files);
     });
 }
+
 
 // Handle file uploads from input or drag-and-drop
 function handleFileUpload(files) {
