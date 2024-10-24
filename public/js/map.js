@@ -172,7 +172,12 @@ function initEventListeners() {
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
     document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
-}
+
+    // Add event listeners for the reset, undo, and save buttons
+    document.getElementById('reset-btn').addEventListener('click', resetRoute);  // Reset button triggers resetRoute
+    document.getElementById('undo-btn').addEventListener('click', undoLastSegment); // Undo button triggers undoLastSegment
+    document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);  // Save button triggers saveDrawnRoute
+    }
 
 // ============================
 // SECTION: Toggle Segments Layer
