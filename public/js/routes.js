@@ -15,7 +15,7 @@ let originalPins = []; // Store user-added pins
 const gravelColors = {
     0: '#01bf11', // Easiest // Green
     1: '#0050c1', // Blue // Intermediate
-    2: '#2c3e50', // Diamond // Midnight Blue
+    2: '#2c2c54', // Diamond // Midnight Blue
     3: '#444444', // White // Expert 
     4: '#FFD43B', // Rail trail // yellow
     5: '#831100' // Red // Closed or Private
@@ -59,6 +59,12 @@ function enableDrawingMode() {
     document.getElementById('control-panel').style.display = 'block';  // Show the control panel
     map.on('click', drawPoint);  // Start capturing clicks to draw points
     map.getCanvas().style.cursor = 'crosshair';  // Change cursor to crosshair
+
+    // Set the default route color to 'easy' (gravel type 0, green)
+    selectedColor = gravelColors[0];  // Set to the color defined for gravel type 0 (easy, green)
+    selectedLineStyle = 'solid';  // Ensure the line style is set to solid for easy
+
+    console.log("Default color set to 'easy' (green) for drawing mode.");
 }
 
 // ============================
@@ -135,7 +141,7 @@ async function snapToRoads(points) {
 
 
 // ============================
-// SECTION: 2Add Segment
+// SECTION: Add Segment
 // ============================
 function addSegment(snappedSegment) {
     let lineColor = selectedColor;  // Default to the selected color
@@ -199,7 +205,7 @@ function createMarker(coords) {
     markerElement.style.height = '16px';
     markerElement.style.backgroundColor = selectedColor;
     markerElement.style.borderRadius = '50%';
-    markerElement.style.border = '1px solid white';
+    markerElement.style.border = '2px solid white';
     const marker = new mapboxgl.Marker({ element: markerElement })
         .setLngLat(coords)
         .addTo(map);
