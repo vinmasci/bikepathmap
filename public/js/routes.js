@@ -40,16 +40,19 @@ function toggleDrawingMode() {
     const drawRouteTab = document.getElementById('draw-route-tab');
     
     if (drawingEnabled) {
-        disableDrawingMode();  // Disable drawing if it’s enabled
-        updateTabHighlight('draw-route-tab', false);  // Remove tab highlight
-        document.getElementById('control-panel').style.display = 'none';  // Hide the drawing control panel (reset, undo, save)
+        // Disable drawing mode
+        disableDrawingMode();  
+        updateTabHighlight('draw-route-tab', false);  // Remove tab highlight (deactivate)
+        document.getElementById('control-panel').style.display = 'none';  // Hide control panel
     } else {
-        enableDrawingMode();  // Enable drawing if it’s disabled
-        updateTabHighlight('draw-route-tab', true);  // Highlight the tab
-        document.getElementById('control-panel').style.display = 'block';  // Show the drawing control panel
+        // Enable drawing mode
+        enableDrawingMode();  
+        updateTabHighlight('draw-route-tab', true);  // Highlight the tab (activate)
+        document.getElementById('control-panel').style.display = 'block';  // Show control panel
     }
     drawingEnabled = !drawingEnabled;  // Toggle the drawing state
 }
+
 
 // ============================
 // SECTION: Enable Drawing Mode
