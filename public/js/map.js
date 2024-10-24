@@ -189,6 +189,15 @@ function initEventListeners() {
     document.getElementById('reset-btn').addEventListener('click', resetRoute);  // Reset button triggers resetRoute
     document.getElementById('undo-btn').addEventListener('click', undoLastSegment); // Undo button triggers undoLastSegment
     document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);  // Save button triggers saveDrawnRoute
+
+        // Add event listeners to the gravel type radio buttons to change route color instantly
+        document.querySelectorAll('input[name="gravelType"]').forEach((radio) => {
+            radio.addEventListener('change', function () {
+                const selectedGravelType = this.value;
+                selectedColor = gravelColors[selectedGravelType];  // Update selectedColor based on chosen gravel type
+                console.log("Route color updated to:", selectedColor);
+            });
+        });
     }
 
 // ============================
