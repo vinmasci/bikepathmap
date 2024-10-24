@@ -33,7 +33,7 @@
 
 /* Highlight when the Draw Route tab is active */
 .draw-route-tab.active {
-    background-color: #ff6348; /* Darker green when active */
+    background-color: #e74c3c; /* Darker green when active */
 }
 
         .tabs {
@@ -58,7 +58,7 @@
 }
 
 .draw-route-tab.active {
-    background-color: #ff6348; /* Custom active color for Draw Route tab */
+    background-color: #e74c3c; /* Custom active color for Draw Route tab */
     color: white;  /* Ensures text color changes to white when active */
 }
 
@@ -181,7 +181,7 @@
 <!-- Control Panel -->
 <div id="control-panel" class="btn-group">
     <button id="undo-btn" class="btn btn-primary" style="border-top-left-radius: 8px; border-bottom-left-radius: 8px;">Undo</button>
-    <button id="reset-btn" class="btn btn-danger">Reset</button>
+    <button id="reset-btn" class="btn btn-warning">Reset</button>
     <button id="save-btn" class="btn btn-success" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px;">Save</button>
     
     <!-- Drawing Options -->
@@ -238,6 +238,16 @@
       </div>
       
       <button id="applyDrawingOptionsButton">Apply</button>
+    </div>
+</div>
+
+<!-- Modal for Route Name -->
+<div id="routeNameModal" class="modal">
+    <div class="modal-content">
+        <h4>Add a Name for Your Route</h4>
+        <input type="text" id="routeNameInput" placeholder="Enter road/path name" class="form-control" />
+        <button id="confirmSaveBtn" class="btn btn-success">Save Route</button>
+        <button onclick="closeRouteNameModal()" class="btn btn-secondary">Cancel</button>
     </div>
 </div>
 
