@@ -33,23 +33,7 @@ function setupSegmentInteraction() {
         }
     });
 
-    // Hide popup and reset cursor on mouse leave
-    map.on('mouseleave', 'drawn-segments-layer', () => {
-        map.getCanvas().style.cursor = '';
-        segmentPopup.remove();
-    });
 
-    // Show persistent popup on click
-    map.on('click', 'drawn-segments-layer', (e) => {
-        const title = e.features[0].properties.title;
-        if (title) {
-            new mapboxgl.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML(`<strong>${title}</strong>`)
-                .addTo(map);
-        }
-    });
-}
 
 // ===========================
 // SECTION: Map Initialization
