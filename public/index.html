@@ -299,7 +299,12 @@
 <script src="/js/photo.js"></script>
 <script src="/js/main.js"></script>
 
-
+<script>
+    // Ensure the map is initialized after the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        initMap();  // This will call your initMap() function in map.js
+    });
+</script>
 
 
 </body>
