@@ -226,36 +226,36 @@ function removeSegments() {
 // SECTION: Initialize Event Listeners
 // ============================
 function initEventListeners() {
+    // Tabs and control buttons
     document.getElementById('segments-tab').addEventListener('click', toggleSegmentsLayer);
     document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode);
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
     document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
+    document.getElementById('reset-btn').addEventListener('click', resetRoute);
+    document.getElementById('undo-btn').addEventListener('click', undoLastSegment);
+    document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);
 
-    // Add event listeners for the reset, undo, and save buttons
-    document.getElementById('reset-btn').addEventListener('click', resetRoute);  // Reset button triggers resetRoute
-    document.getElementById('undo-btn').addEventListener('click', undoLastSegment); // Undo button triggers undoLastSegment
-    document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);  // Save button triggers saveDrawnRoute
-
-        // Add event listeners to the gravel type radio buttons to change route color instantly
-        document.querySelectorAll('input[name="gravelType"]').forEach((radio) => {
-            radio.addEventListener('change', function () {
-                const selectedGravelType = this.value;
-                selectedColor = gravelColors[selectedGravelType];  // Update selectedColor based on chosen gravel type
-                console.log("Route color updated to:", selectedColor);
-
-                // Event listener for tile layer selection dropdown
-document.getElementById('tileLayerSelect').addEventListener('change', function (event) {
-    const selectedLayer = event.target.value;
-    if (selectedLayer === 'reset') {
-        resetToOriginalStyle();  // Reset to original Mapbox style
-    } else if (tileLayers[selectedLayer]) {
-        setTileLayer(tileLayers[selectedLayer]);  // Apply selected tile layer
-    }
-});
-            });
+    // Gravel type radio buttons for updating route color
+    document.querySelectorAll('input[name="gravelType"]').forEach((radio) => {
+        radio.addEventListener('change', function () {
+            const selectedGravelType = this.value;
+            selectedColor = gravelColors[selectedGravelType];
+            console.log("Route color updated to:", selectedColor);
         });
-    }
+    });
+
+    // Tile layer selection dropdown listener
+    document.getElementById('tileLayerSelect').addEventListener('change', function (event) {
+        const selectedLayer = event.target.value;
+        if (selectedLayer === 'reset') {
+            resetToOriginalStyle();  // Reset to original Mapbox style
+        } else if (tileLayers[selectedLayer]) {
+            setTileLayer(tileLayers[selectedLayer]);  // Apply selected tile layer
+        }
+    });
+}
+
 
 // ============================
 // SECTION: Toggle Segments Layer
