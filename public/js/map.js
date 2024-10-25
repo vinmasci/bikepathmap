@@ -1,6 +1,14 @@
 let map;
 let layerVisibility = { segments: false, gravel: false, photos: false, pois: false };
 
+// Tile URLs for different map layers
+const tileLayers = {
+    googleMap: 'https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}',
+    googleSatellite: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+    googleHybrid: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    osmCycle: 'https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=7724ff4746164f39b35fadb342b13a50',
+};
+
 // ===========================
 // SECTION: Map Initialization
 // ===========================
@@ -14,6 +22,37 @@ function initMap() {
         center: [144.9631, -37.8136],   // Map center (longitude, latitude)
         zoom: 10                        // Zoom level
     });
+
+// Function to dynamically switch between tile layers
+function setTileLayer(tileUrl) {
+    // Check if the map has already been initialized
+    if (map.isStyleLoaded()) {
+        // Remove existing tile layer if present
+        if (map.getSource('custom-tiles')) {
+            map.removeLayer('custom-tiles-layer');
+            map.removeSource('custom-tiles');
+        }
+
+        // Add new tile layer
+        map.addSource('custom-tiles', {
+            'type': 'raster',
+            'tiles': [tileUrl],
+            'tileSize': 256
+        });
+
+        map.addLayer({
+            'id': 'custom-tiles-layer',
+            'type': 'raster',
+            'source': 'custom-tiles'
+        });
+    } else {
+        // Wait for the style to load before adding the tile layer
+        map.on('load', () => {
+            setTileLayer(tileUrl); // Call this function again after load
+        });
+    }
+}
+
 
     // ============================
     // SECTION: Initialize GeoJSON Source for Segments

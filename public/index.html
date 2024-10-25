@@ -178,6 +178,14 @@
 
 <div id="dropArea"></div> <!-- Make sure this is present in your HTML -->
 
+ <!-- Map Layers -->
+<div class="map-layer-options">
+    <button onclick="setTileLayer(tileLayers.googleMap)">Google Map</button>
+    <button onclick="setTileLayer(tileLayers.googleSatellite)">Google Satellite</button>
+    <button onclick="setTileLayer(tileLayers.googleHybrid)">Google Hybrid</button>
+    <button onclick="setTileLayer(tileLayers.osmCycle)">OSM Cycle</button>
+</div>
+
 <!-- Control Panel -->
 <div id="control-panel" class="btn-group">
     <button id="undo-btn" class="btn btn-primary" style="border-top-left-radius: 8px; border-bottom-left-radius: 8px;">Undo</button>
