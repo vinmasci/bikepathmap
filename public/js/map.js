@@ -23,34 +23,40 @@ function initMap() {
         zoom: 10                        // Zoom level
     });
 
-// Function to dynamically switch between tile layers
-function setTileLayer(tileUrl) {
-    // Check if the map has already been initialized
-    if (map.isStyleLoaded()) {
-        // Remove existing tile layer if present
-        if (map.getSource('custom-tiles')) {
-            map.removeLayer('custom-tiles-layer');
-            map.removeSource('custom-tiles');
-        }
-
-        // Add new tile layer
-        map.addSource('custom-tiles', {
-            'type': 'raster',
-            'tiles': [tileUrl],
-            'tileSize': 256
-        });
-
-        map.addLayer({
-            'id': 'custom-tiles-layer',
-            'type': 'raster',
-            'source': 'custom-tiles'
-        });
-    } else {
-        // Wait for the style to load before adding the tile layer
-        map.on('load', () => {
-            setTileLayer(tileUrl); // Call this function again after load
+        // Wait for the map to fully load before interacting with layers
+        map.on('load', function () {
+            console.log("Map is fully loaded");
         });
     }
+
+// ===========================
+// Function to dynamically switch between tile layers
+// ===========================
+function setTileLayer(tileUrl) {
+    // Ensure the map has fully loaded before making changes
+    if (!map.isStyleLoaded()) {
+        console.error('Map is not fully loaded yet.');
+        return;
+    }
+
+    // Check if the 'custom-tiles' source already exists and remove it if so
+    if (map.getSource('custom-tiles')) {
+        map.removeLayer('custom-tiles-layer');
+        map.removeSource('custom-tiles');
+    }
+
+    // Add the new tile layer source and layer
+    map.addSource('custom-tiles', {
+        'type': 'raster',
+        'tiles': [tileUrl],
+        'tileSize': 256
+    });
+
+    map.addLayer({
+        'id': 'custom-tiles-layer',
+        'type': 'raster',
+        'source': 'custom-tiles'
+    });
 }
 
 
