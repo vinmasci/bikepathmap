@@ -12,6 +12,44 @@ const tileLayers = {
 // Original Mapbox style URL for reset function
 const originalMapboxStyle = 'mapbox://styles/mapbox/streets-v11';
 
+// Initialize popup for segment interaction
+const segmentPopup = new mapboxgl.Popup({
+    closeButton: false,
+    closeOnClick: false // Removed extra comma if any
+});
+
+// ============================
+// SECTION: Segment Interaction (Hover & Click)
+// ============================
+
+function setupSegmentInteraction() {
+    // Hover interaction for showing segment title
+    map.on('mouseenter', 'drawn-segments-layer', (e) => {
+        map.getCanvas().style.cursor = 'pointer';
+
+        const title = e.features[0].properties.title;
+        if (title) {
+            segmentPopup.setLngLat(e.lngLat).setHTML(`<strong>${title}</strong>`).addTo(map);
+        }
+    });
+
+    // Hide popup and reset cursor on mouse leave
+    map.on('mouseleave', 'drawn-segments-layer', () => {
+        map.getCanvas().style.cursor = '';
+        segmentPopup.remove();
+    });
+
+    // Show persistent popup on click
+    map.on('click', 'drawn-segments-layer', (e) => {
+        const title = e.features[0].properties.title;
+        if (title) {
+            new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(`<strong>${title}</strong>`)
+                .addTo(map);
+        }
+    });
+}
 
 // ===========================
 // SECTION: Map Initialization
@@ -33,6 +71,7 @@ function initMap() {
         addSegmentLayers();
         initEventListeners();      // Initialize other event listeners
         updateTabHighlight('segments-tab', false);  // Highlight the segments tab by default
+        setupSegmentInteraction(); // Ensures interaction setup is complete
 
                 // Add hover and click events for segment labels
                 setupSegmentInteraction();
@@ -104,12 +143,6 @@ function initGeoJSONSource() {
 // ============================
 // SECTION: Add Segment Layers
 // ============================
-// Initialize a popup but keep it hidden initially
-const segmentPopup = new mapboxgl.Popup({
-    closeButton: false,
-    closeOnClick: false
-});
-
 function addSegmentLayers() {
     // Add the background layer first
     if (!map.getLayer('drawn-segments-layer-background')) {
