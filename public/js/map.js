@@ -221,18 +221,28 @@ map.on('mouseleave', 'drawn-segments-layer', () => {
 
 map.on('click', 'drawn-segments-layer', (e) => {
     const title = e.features[0].properties.title;
-    console.log("Clicked segment properties:", e.features[0].properties);  // Debug log
+    const segmentId = e.features[0].properties.id; // Ensure each feature has a unique `id`
 
-    if (title) {
-        // Create the popup and add it to the map
-        new mapboxgl.Popup()
-            .setLngLat(e.lngLat)
-            .setHTML(`<strong>${title}</strong>`)
-            .addTo(map); // Mapbox's default behavior should handle the close button
+    // Construct the popup content with a delete button
+    const popupContent = `
+        <strong>${title}</strong>
+        <button id="deleteSegmentBtn" style="display: block; margin-top: 8px; background-color: red; color: white; padding: 5px; border: none; border-radius: 4px; cursor: pointer;">
+            Delete Segment
+        </button>
+    `;
 
-        // No need to add additional event listeners for the close button
-    }
+    const popup = new mapboxgl.Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(popupContent)
+        .addTo(map);
+
+    // Add an event listener to the delete button inside the popup
+    popup.getElement().querySelector('#deleteSegmentBtn').addEventListener('click', () => {
+        deleteSegment(segmentId);  // Call the delete function with the segment ID
+        popup.remove();  // Close the popup after deletion
+    });
 });
+
 
 
 
