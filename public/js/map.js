@@ -9,37 +9,77 @@ const tileLayers = {
     osmCycle: 'https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=7724ff4746164f39b35fadb342b13a50',
 };
 
+// Original Mapbox style URL for reset function
+const originalMapboxStyle = 'mapbox://styles/mapbox/streets-v11';
+
 // ===========================
 // SECTION: Map Initialization
 // ===========================
 function initMap() {
     console.log("Initializing map...");
-    
+
     mapboxgl.accessToken = 'pk.eyJ1IjoidmlubWFzY2kiLCJhIjoiY20xY3B1ZmdzMHp5eDJwcHBtMmptOG8zOSJ9.Ayn_YEjOCCqujIYhY9PiiA';  // Replace with your Mapbox token
     map = new mapboxgl.Map({
-        container: 'map',               // Specify the ID of the div element where the map should appear
-        style: 'mapbox://styles/mapbox/streets-v11',  // Default Mapbox style
-        center: [144.9631, -37.8136],   // Map center (longitude, latitude)
-        zoom: 10                        // Zoom level
+        container: 'map',
+        style: originalMapboxStyle,   // Use original style by default
+        center: [144.9631, -37.8136],
+        zoom: 10
     });
 
-    // Load event for setting up layers, sources, and event listeners
     map.on('load', function () {
         console.log("Map loaded successfully.");
-        
-        // Initialize GeoJSON source for segments
-        initGeoJSONSource();
-        
-        // Initialize any event listeners needed
-        initEventListeners();
-
-        // Highlight the segments tab by default
-        updateTabHighlight('segments-tab', false);
+        initGeoJSONSource();       // Load GeoJSON source for segments
+        initEventListeners();      // Initialize other event listeners
+        updateTabHighlight('segments-tab', false);  // Highlight the segments tab by default
     });
 
-    // Error handling for map loading issues
     map.on('error', (e) => {
         console.error("Map error:", e);
+    });
+}
+
+// ===========================
+// Function to reset to original Mapbox style
+// ===========================
+function resetToOriginalStyle() {
+    map.setStyle(originalMapboxStyle);
+
+    // Re-add the GeoJSON source and segments layer after style reset
+    map.once('style.load', () => {
+        initGeoJSONSource();
+    });
+}
+
+// ===========================
+// Function to dynamically switch between tile layers
+// ===========================
+function setTileLayer(tileUrl) {
+    if (!map || !map.isStyleLoaded()) {
+        console.error('Map is not fully loaded yet.');
+        return;
+    }
+
+    if (map.getSource('custom-tiles')) {
+        map.removeLayer('custom-tiles-layer');
+        map.removeSource('custom-tiles');
+    }
+
+    // Add the new tile layer
+    map.addSource('custom-tiles', {
+        'type': 'raster',
+        'tiles': [tileUrl],
+        'tileSize': 256
+    });
+
+    map.addLayer({
+        'id': 'custom-tiles-layer',
+        'type': 'raster',
+        'source': 'custom-tiles'
+    });
+
+    // Reload the segments layer to ensure it overlays correctly
+    map.once('style.load', () => {
+        initGeoJSONSource();
     });
 }
 
@@ -59,38 +99,9 @@ function initGeoJSONSource() {
     addSegmentLayers();  // Call function to add layers once the source is ready
 }
 
-// ===========================
-// Function to dynamically switch between tile layers
-// ===========================
-function setTileLayer(tileUrl) {
-    // Ensure the map is fully loaded before making changes
-    if (!map || !map.isStyleLoaded()) {
-        console.error('Map is not fully loaded yet.');
-        return;
-    }
-
-    // Check if the 'custom-tiles' source already exists and remove it if so
-    if (map.getSource('custom-tiles')) {
-        map.removeLayer('custom-tiles-layer');
-        map.removeSource('custom-tiles');
-    }
-
-    // Add the new tile layer source and layer
-    map.addSource('custom-tiles', {
-        'type': 'raster',
-        'tiles': [tileUrl],
-        'tileSize': 256
-    });
-
-    map.addLayer({
-        'id': 'custom-tiles-layer',
-        'type': 'raster',
-        'source': 'custom-tiles'
-    });
-}
-
-// Initialize map when DOM is ready
+// Initialize map on DOM ready
 document.addEventListener('DOMContentLoaded', initMap);
+
 
 
 // ============================
