@@ -228,17 +228,12 @@ map.on('click', 'drawn-segments-layer', (e) => {
         new mapboxgl.Popup()
             .setLngLat(e.lngLat)
             .setHTML(`<strong>${title}</strong>`)
-            .addTo(map);
+            .addTo(map); // Mapbox's default behavior should handle the close button
 
-        // Add the custom event listener to handle the close button behavior
-        document.querySelectorAll('.mapboxgl-popup-close-button').forEach(button => {
-            button.addEventListener('mousedown', (event) => {
-                event.preventDefault(); // Prevent default focus behavior
-                event.target.click();   // Trigger the click immediately
-            });
-        });
+        // No need to add additional event listeners for the close button
     }
 });
+
 
 
 // ============================
