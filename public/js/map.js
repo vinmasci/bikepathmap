@@ -32,8 +32,7 @@ function setupSegmentInteraction() {
             segmentPopup.setLngLat(e.lngLat).setHTML(`<strong>${title}</strong>`).addTo(map);
         }
     });
-
-
+}
 
 // ===========================
 // SECTION: Map Initialization
