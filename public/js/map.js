@@ -93,7 +93,6 @@ function setTileLayer(tileUrl) {
         // Highlight the segments tab by default
         updateTabHighlight('segments-tab', false);
     });
-}
 
 // ============================
 // SECTION: Add Segment Layers
