@@ -194,7 +194,6 @@ function addSegmentLayers() {
                 .addTo(map);
         }
     });
-}
 
 // ============================
 // SECTION: Load Segments
