@@ -32,6 +32,14 @@ function setupSegmentInteraction() {
             segmentPopup.setLngLat(e.lngLat).setHTML(`<strong>${title}</strong>`).addTo(map);
         }
     });
+
+    // Hide popup and reset cursor on mouse leave
+    map.on('mouseleave', 'drawn-segments-layer', () => {
+        map.getCanvas().style.cursor = '';
+        segmentPopup.remove();
+    });
+
+
 }
 
 // ===========================
