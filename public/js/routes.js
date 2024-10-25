@@ -277,9 +277,9 @@ function saveDrawnRoute() {
                 return;
             }
 
-            // Add the route name to each segment feature's properties
+            // Add the route name to each segment feature's properties as "title"
             segmentsGeoJSON.features.forEach(feature => {
-                feature.properties.routeName = routeName;  // Store the route name
+                feature.properties.title = routeName;  // Store the route name as "title"
             });
 
             // Send the drawn route data to the backend API
@@ -288,12 +288,12 @@ function saveDrawnRoute() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     gpxData: gpxData,  // Converted GPX data
-                    geojson: segmentsGeoJSON,  // GeoJSON data with the route name
+                    geojson: segmentsGeoJSON,  // GeoJSON data with the route title
                     metadata: {
                         color: selectedColor,
                         lineStyle: selectedLineStyle,
                         gravelType: gravelTypes,  // Send gravel types metadata
-                        routeName: routeName  // Include the route name in the metadata
+                        title: routeName  // Include the route title in the metadata
                     }
                 })
             })
@@ -311,11 +311,11 @@ function saveDrawnRoute() {
                 alert('An error occurred while saving the route.');
             });
         });
-
     } else {
         alert('No route to save.');
     }
 }
+
 
 
 // ============================
