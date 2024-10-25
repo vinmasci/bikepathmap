@@ -27,6 +27,17 @@ module.exports = async (req, res) => {
 
         const collection = await connectToMongo();
 
+        // Add title to each feature in the geojson data
+        if (metadata.title) {
+            geojson.features = geojson.features.map(feature => ({
+                ...feature,
+                properties: {
+                    ...feature.properties,
+                    title: metadata.title  // Add title from metadata
+                }
+            }));
+        }
+
         // Insert the route data into the MongoDB collection
         const result = await collection.insertOne({
             gpxData: gpxData,        // GPX data as a string

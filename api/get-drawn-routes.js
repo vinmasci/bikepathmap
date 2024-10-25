@@ -27,6 +27,7 @@ module.exports = async (req, res) => {
                     ...feature,
                     properties: {
                         ...feature.properties,
+                        title: feature.properties.title || "Untitled Route",  // Default title if not set
                         color: feature.properties.color || "#000000",  // Default color if not set
                         lineStyle: feature.properties.lineStyle || "solid"  // Default line style if not set
                     }

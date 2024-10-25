@@ -204,35 +204,32 @@ function addSegmentLayers() {
     }
 }
 
-    // Hover and click interaction for segment labels
-    map.on('mouseenter', 'drawn-segments-layer', (e) => {
-        map.getCanvas().style.cursor = 'pointer';
+// Event listeners for hover and click interactions
+map.on('mouseenter', 'drawn-segments-layer', (e) => {
+    map.getCanvas().style.cursor = 'pointer';
+    const title = e.features[0].properties.title;
 
-        // Get the title of the hovered segment
-        const title = e.features[0].properties.title;
+    if (title) {
+        segmentPopup.setLngLat(e.lngLat).setHTML(`<strong>${title}</strong>`).addTo(map);
+    }
+});
 
-        // Display popup with title if it exists
-        if (title) {
-            segmentPopup.setLngLat(e.lngLat).setHTML(`<strong>${title}</strong>`).addTo(map);
-        }
-    });
+map.on('mouseleave', 'drawn-segments-layer', () => {
+    map.getCanvas().style.cursor = '';
+    segmentPopup.remove();
+});
 
-    map.on('mouseleave', 'drawn-segments-layer', () => {
-        map.getCanvas().style.cursor = '';
-        segmentPopup.remove();  // Hide the popup when mouse leaves
-    });
+map.on('click', 'drawn-segments-layer', (e) => {
+    const title = e.features[0].properties.title;
+    console.log("Clicked segment properties:", e.features[0].properties);  // Debug log
 
-    map.on('click', 'drawn-segments-layer', (e) => {
-        const title = e.features[0].properties.title;
-        
-        // Show a popup that stays open on click
-        if (title) {
-            new mapboxgl.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML(`<strong>${title}</strong>`)
-                .addTo(map);
-        }
-    });
+    if (title) {
+        new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(`<strong>${title}</strong>`)
+            .addTo(map);
+    }
+});
 
 // ============================
 // SECTION: Load Segments
