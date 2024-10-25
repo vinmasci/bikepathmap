@@ -224,12 +224,22 @@ map.on('click', 'drawn-segments-layer', (e) => {
     console.log("Clicked segment properties:", e.features[0].properties);  // Debug log
 
     if (title) {
+        // Create the popup and add it to the map
         new mapboxgl.Popup()
             .setLngLat(e.lngLat)
             .setHTML(`<strong>${title}</strong>`)
             .addTo(map);
+
+        // Add the custom event listener to handle the close button behavior
+        document.querySelectorAll('.mapboxgl-popup-close-button').forEach(button => {
+            button.addEventListener('mousedown', (event) => {
+                event.preventDefault(); // Prevent default focus behavior
+                event.target.click();   // Trigger the click immediately
+            });
+        });
     }
 });
+
 
 // ============================
 // SECTION: Load Segments

@@ -47,8 +47,13 @@
 }
 
 .mapboxgl-popup-close-button {
-    outline: none;   /* Remove the focus outline */
-    box-shadow: none; /* Remove any additional box shadow */
+    outline: none;      /* Remove the focus outline */
+    box-shadow: none;   /* Remove any box shadow */
+}
+
+.mapboxgl-popup-close-button:focus {
+    outline: none;      /* Ensure no outline appears when focused */
+    box-shadow: none;   /* Ensure no box shadow when focused */
 }
 
         /* Custom style for the Draw Route tab */
