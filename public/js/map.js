@@ -29,14 +29,9 @@ function initMap() {
     map.on('load', function () {
         console.log("Map loaded successfully.");
         initGeoJSONSource();       // Load GeoJSON source for segments
+        addSegmentLayers();
         initEventListeners();      // Initialize other event listeners
         updateTabHighlight('segments-tab', false);  // Highlight the segments tab by default
-    });
-
-    map.on('styledata', () => {
-        // Reinitialize segments source and layers after every style change
-        initGeoJSONSource();
-        addSegmentLayers();
     });
 
     map.on('error', (e) => {
@@ -80,12 +75,6 @@ function setTileLayer(tileUrl) {
         'id': 'custom-tiles-layer',
         'type': 'raster',
         'source': 'custom-tiles'
-    });
-
-    // Reapply GeoJSON segments source and layers when style changes
-    map.once('style.load', () => {
-        initGeoJSONSource();
-        addSegmentLayers();
     });
 
 }
