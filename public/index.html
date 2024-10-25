@@ -223,6 +223,16 @@
     </select>
 </div>
 
+<!-- Segment Info Modal -->
+<div id="segment-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Segment Information</h2>
+        <p id="segment-details"></p>
+        <button id="delete-segment" class="btn btn-danger">Delete Segment</button>
+    </div>
+</div>
+
 <!-- Control Panel -->
 <div id="control-panel" class="btn-group">
     <button id="undo-btn" class="btn btn-primary" style="border-top-left-radius: 8px; border-bottom-left-radius: 8px;">Undo</button>
@@ -317,9 +327,6 @@
     // Ensure the map is initialized after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', function () {
         initMap();  // This will call your initMap() function in map.js
-
-            // Insert a test button to check if visibility is working correctly
-    document.body.insertAdjacentHTML('beforeend', `<button style="position: fixed; top: 10px; right: 10px; z-index: 9999;">Test Button</button>`);
     });
 </script>
 

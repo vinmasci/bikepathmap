@@ -15,7 +15,7 @@ const originalMapboxStyle = 'mapbox://styles/mapbox/streets-v11';
 // Initialize popup for segment interaction
 const segmentPopup = new mapboxgl.Popup({
     closeButton: false,
-    closeOnClick: false // Removed extra comma if any
+    closeOnClick: false
 });
 
 // ============================
@@ -39,8 +39,42 @@ function setupSegmentInteraction() {
         segmentPopup.remove();
     });
 
+    // Click event to open the modal window with segment details
+    map.on('click', 'drawn-segments-layer', (e) => {
+        const title = e.features[0].properties.title;
+        const segmentId = e.features[0].properties.id;
 
+        // Open the modal with segment information
+        openSegmentModal(title, segmentId);
+    });
 }
+
+// Function to open the modal window with segment information
+function openSegmentModal(title, segmentId) {
+    const modal = document.getElementById('segment-modal');
+    const segmentDetails = document.getElementById('segment-details');
+
+    // Update modal content
+    segmentDetails.innerText = `Segment: ${title}`;
+    
+    // Show modal
+    modal.style.display = 'block';
+}
+
+// Function to close the modal window
+function closeModal() {
+    const modal = document.getElementById('segment-modal');
+    modal.style.display = 'none';
+}
+
+// Optional: Close modal on outside click
+window.onclick = function (event) {
+    const modal = document.getElementById('segment-modal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
 
 // ===========================
 // SECTION: Map Initialization
@@ -312,6 +346,8 @@ function removeSegments() {
     }
 }
 
+
+
 // ============================
 // SECTION: Initialize Event Listeners
 // ============================
@@ -402,3 +438,33 @@ function toggleAddDropdown() {
     dropdown.classList.toggle('show');
     updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
 }
+
+// ============================
+// SECTION: Open Close Modal
+// ============================
+
+function openSegmentModal(title, segmentId) {
+    const modal = document.getElementById('segment-modal');
+    const segmentDetails = document.getElementById('segment-details');
+
+    // Update modal content
+    segmentDetails.innerText = `Segment: ${title}`;
+    
+    // Show modal
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    const modal = document.getElementById('segment-modal');
+    modal.style.display = 'none';
+}
+
+// Optional: Close modal on outside click
+window.onclick = function (event) {
+    const modal = document.getElementById('segment-modal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
+
