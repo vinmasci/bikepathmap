@@ -236,10 +236,18 @@ map.on('click', 'drawn-segments-layer', (e) => {
         .setHTML(popupContent)
         .addTo(map);
 
-    // Add an event listener to the delete button inside the popup
-    popup.getElement().querySelector('#deleteSegmentBtn').addEventListener('click', () => {
-        deleteSegment(segmentId);  // Call the delete function with the segment ID
-        popup.remove();  // Close the popup after deletion
+    // Bind delete button event listener once popup is fully rendered
+    popup.on('open', () => {
+        const deleteButton = popup.getElement().querySelector('#deleteSegmentBtn');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', () => {
+                console.log('Delete button clicked');  // Confirm event binding
+                deleteSegment(segmentId);              // Call delete function
+                popup.remove();                        // Close popup after deletion
+            });
+        } else {
+            console.error('Delete button not found in popup');
+        }
     });
 });
 
