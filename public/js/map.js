@@ -101,52 +101,52 @@ function initGeoJSONSource() {
 // SECTION: Add Segment Layers
 // ============================
 function addSegmentLayers() {
-    // Add the background layer first, placing it above base tile layer but below the main segment layer
+    // Add the background layer first
     if (!map.getLayer('drawn-segments-layer-background')) {
         map.addLayer({
             'id': 'drawn-segments-layer-background',
             'type': 'line',
             'source': 'drawnSegments',
-            'layout': { 
-                'line-join': 'round', 
-                'line-cap': 'round' 
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
             },
-            'paint': { 
+            'paint': {
                 'line-color': '#FFFFFF',  // White background
                 'line-width': 5           // Slightly wider than the main line
-            }
-        }, 'custom-tiles-layer'); // Place above the custom tiles layer
+            } 
+        }); 
     }
 
-    // Add the stroke layer next (providing an outline around the segments)
+    // Add the stroke layer next (to provide an outline)
     if (!map.getLayer('drawn-segments-layer-stroke')) {
         map.addLayer({
             'id': 'drawn-segments-layer-stroke',
             'type': 'line',
             'source': 'drawnSegments',
-            'layout': { 
-                'line-join': 'round', 
-                'line-cap': 'round' 
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
             },
-            'paint': { 
+            'paint': {
                 'line-color': '#000000',  // Black stroke
                 'line-width': 6           // Thick stroke
             }
-        }, 'custom-tiles-layer'); // Place above the custom tiles layer
+        });
     }
 
-    // Add the main segments layer (with dynamic color and line style)
+    // Add the actual segments layer (with dynamic color and line style)
     if (!map.getLayer('drawn-segments-layer')) {
         map.addLayer({
             'id': 'drawn-segments-layer',
             'type': 'line',
             'source': 'drawnSegments',
-            'layout': { 
-                'line-join': 'round', 
-                'line-cap': 'round' 
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
             },
             'paint': {
-                'line-color': ['get', 'color'],  // Dynamic color from GeoJSON properties
+                'line-color': ['get', 'color'],  // Dynamic color from GeoJSON
                 'line-width': 3,                 // Thinner than stroke and background
                 'line-dasharray': [
                     'case',
@@ -154,10 +154,9 @@ function addSegmentLayers() {
                     ['literal', [1, 0]]  // Solid line by default
                 ]
             }
-        }, 'custom-tiles-layer'); // Place above the custom tiles layer
+        });
     }
 }
-
 
 // ============================
 // SECTION: Load Segments
