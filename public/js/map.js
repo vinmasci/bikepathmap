@@ -221,35 +221,37 @@ map.on('mouseleave', 'drawn-segments-layer', () => {
 
 map.on('click', 'drawn-segments-layer', (e) => {
     const title = e.features[0].properties.title;
-    const segmentId = e.features[0].properties.id; // Ensure each feature has a unique `id`
+    const segmentId = e.features[0].properties.id;
 
-    // Construct the popup content with a delete button
+    // Define the popup content with title and delete button
     const popupContent = `
         <strong>${title}</strong>
-        <button id="deleteSegmentBtn" style="display: block; margin-top: 8px; background-color: red; color: white; padding: 5px; border: none; border-radius: 4px; cursor: pointer;">
+        <button id="deleteSegmentBtn" style="display: block; margin-top: 8px; background-color: red; color: white; padding: 5px; border: none; border-radius: 4px; cursor: pointer; z-index: 999;">
             Delete Segment
         </button>
     `;
 
+    // Create the popup with the content
     const popup = new mapboxgl.Popup()
         .setLngLat(e.lngLat)
         .setHTML(popupContent)
         .addTo(map);
 
-    // Bind delete button event listener once popup is fully rendered
-    popup.on('open', () => {
+    // Attach the event listener to the delete button after the popup is rendered
+    setTimeout(() => {
         const deleteButton = popup.getElement().querySelector('#deleteSegmentBtn');
         if (deleteButton) {
             deleteButton.addEventListener('click', () => {
-                console.log('Delete button clicked');  // Confirm event binding
-                deleteSegment(segmentId);              // Call delete function
-                popup.remove();                        // Close popup after deletion
+                console.log('Delete button clicked for segment:', segmentId);
+                deleteSegment(segmentId);  // Call the delete function
+                popup.remove();            // Close popup after deletion
             });
         } else {
             console.error('Delete button not found in popup');
         }
-    });
+    }, 100); // Delay to ensure rendering completion
 });
+
 
 
 
