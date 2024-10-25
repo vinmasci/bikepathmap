@@ -32,6 +32,9 @@ function initMap() {
         addSegmentLayers();
         initEventListeners();      // Initialize other event listeners
         updateTabHighlight('segments-tab', false);  // Highlight the segments tab by default
+
+                // Add hover and click events for segment labels
+                setupSegmentInteraction();
     });
 
     map.on('error', (e) => {
@@ -158,11 +161,55 @@ function addSegmentLayers() {
                     'case',
                     ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], 
                     ['literal', [1, 0]]  // Solid line by default
+
+                    
                 ]
+                
             }
         });
+
+        // Initialize a popup but keep it hidden initially
+const segmentPopup = new mapboxgl.Popup({
+    closeButton: false,
+    closeOnClick: false
+});
+
+function setupSegmentInteraction() {
+    // Hover interaction for showing segment title
+    map.on('mouseenter', 'drawn-segments-layer', (e) => {
+        map.getCanvas().style.cursor = 'pointer';
+
+        // Get the title of the hovered segment
+        const title = e.features[0].properties.title;
+
+        // Display popup with title if it exists
+        if (title) {
+            segmentPopup.setLngLat(e.lngLat).setHTML(`<strong>${title}</strong>`).addTo(map);
+        }
+    });
+
+    // Remove popup and reset cursor on mouse leave
+    map.on('mouseleave', 'drawn-segments-layer', () => {
+        map.getCanvas().style.cursor = '';
+        segmentPopup.remove();  // Hide the popup when mouse leaves
+    });
+
+    // Click interaction to show a persistent popup
+    map.on('click', 'drawn-segments-layer', (e) => {
+        const title = e.features[0].properties.title;
+        
+        // Show a popup that stays open on click
+        if (title) {
+            new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(`<strong>${title}</strong>`)
+                .addTo(map);
+        }
+    });
+}
     }
 }
+
 
 
     // Hover and click interaction for segment labels
