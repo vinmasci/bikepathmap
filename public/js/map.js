@@ -243,6 +243,16 @@ function initEventListeners() {
                 const selectedGravelType = this.value;
                 selectedColor = gravelColors[selectedGravelType];  // Update selectedColor based on chosen gravel type
                 console.log("Route color updated to:", selectedColor);
+
+                // Event listener for tile layer selection dropdown
+document.getElementById('tileLayerSelect').addEventListener('change', function (event) {
+    const selectedLayer = event.target.value;
+    if (selectedLayer === 'reset') {
+        resetToOriginalStyle();  // Reset to original Mapbox style
+    } else if (tileLayers[selectedLayer]) {
+        setTileLayer(tileLayers[selectedLayer]);  // Apply selected tile layer
+    }
+});
             });
         });
     }

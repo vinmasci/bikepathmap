@@ -199,13 +199,15 @@
 
 <div id="dropArea"></div> <!-- Make sure this is present in your HTML -->
 
- <!-- Map Layers -->
 <div class="map-layer-options">
-    <button onclick="resetToOriginalStyle()">Classic Setting</button>
-    <button onclick="setTileLayer(tileLayers.googleMap)">Google Map</button>
-    <button onclick="setTileLayer(tileLayers.googleSatellite)">Google Satellite</button>
-    <button onclick="setTileLayer(tileLayers.googleHybrid)">Google Hybrid</button>
-    <button onclick="setTileLayer(tileLayers.osmCycle)">OSM Cycle</button>
+    <label for="tileLayerSelect">Select Map Layer:</label>
+    <select id="tileLayerSelect" class="form-control">
+        <option value="reset">Classic Setting</option>
+        <option value="googleMap">Google Map</option>
+        <option value="googleSatellite">Google Satellite</option>
+        <option value="googleHybrid">Google Hybrid</option>
+        <option value="osmCycle">OSM Cycle</option>
+    </select>
 </div>
 
 <!-- Control Panel -->
