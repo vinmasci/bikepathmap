@@ -33,6 +33,12 @@ function initMap() {
         updateTabHighlight('segments-tab', false);  // Highlight the segments tab by default
     });
 
+    map.on('styledata', () => {
+        // Reinitialize segments source and layers after every style change
+        initGeoJSONSource();
+        addSegmentLayers();
+    });
+
     map.on('error', (e) => {
         console.error("Map error:", e);
     });
@@ -43,10 +49,9 @@ function initMap() {
 // ===========================
 function resetToOriginalStyle() {
     map.setStyle(originalMapboxStyle);
-
-    // Re-apply the GeoJSON source and segments layer after style reset
     map.once('style.load', () => {
-        loadSegments();  // Load segment data to re-apply after style reload
+        initGeoJSONSource();
+        addSegmentLayers();
     });
 }
 
@@ -77,10 +82,12 @@ function setTileLayer(tileUrl) {
         'source': 'custom-tiles'
     });
 
-    // Reapply segments layer to ensure it overlays correctly
+    // Reapply GeoJSON segments source and layers when style changes
     map.once('style.load', () => {
-        loadSegments();
+        initGeoJSONSource();
+        addSegmentLayers();
     });
+
 }
 
 // ============================
@@ -95,13 +102,9 @@ function initGeoJSONSource() {
                 'features': []  // Initially empty
             }
         });
+
     }
-    addSegmentLayers();  // Call function to add layers once the source is ready
 }
-
-// Initialize map on DOM ready
-document.addEventListener('DOMContentLoaded', initMap);
-
 
 
 // ============================
