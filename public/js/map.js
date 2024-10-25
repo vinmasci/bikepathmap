@@ -225,11 +225,11 @@ map.on('click', 'drawn-segments-layer', (e) => {
 
     // Define the popup content with title and delete button
     const popupContent = `
-        <strong>${title}</strong>
-        <button id="deleteSegmentBtn" style="display: block; margin-top: 8px; background-color: red; color: white; padding: 5px; border: none; border-radius: 4px; cursor: pointer; z-index: 999;">
-            Delete Segment
-        </button>
-    `;
+    <strong>${title}</strong>
+    <button id="deleteSegmentBtn" style="display: block; margin-top: 8px; background-color: red; color: white; padding: 5px; border: 2px solid black; font-size: 16px; cursor: pointer;">
+        Delete Segment
+    </button>
+`;
 
     // Create the popup with the content
     const popup = new mapboxgl.Popup()
@@ -238,7 +238,7 @@ map.on('click', 'drawn-segments-layer', (e) => {
         .addTo(map);
 
     // Attach the event listener to the delete button after the popup is rendered
-    setTimeout(() => {
+    popup.on('open', () => {
         const deleteButton = popup.getElement().querySelector('#deleteSegmentBtn');
         if (deleteButton) {
             deleteButton.addEventListener('click', () => {
@@ -249,8 +249,9 @@ map.on('click', 'drawn-segments-layer', (e) => {
         } else {
             console.error('Delete button not found in popup');
         }
-    }, 100); // Delay to ensure rendering completion
+    });
 });
+
 
 
 

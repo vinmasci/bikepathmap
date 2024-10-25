@@ -317,6 +317,9 @@
     // Ensure the map is initialized after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', function () {
         initMap();  // This will call your initMap() function in map.js
+
+            // Insert a test button to check if visibility is working correctly
+    document.body.insertAdjacentHTML('beforeend', `<button style="position: fixed; top: 10px; right: 10px; z-index: 9999;">Test Button</button>`);
     });
 </script>
 
