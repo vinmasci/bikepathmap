@@ -44,9 +44,9 @@ function initMap() {
 function resetToOriginalStyle() {
     map.setStyle(originalMapboxStyle);
 
-    // Re-add the GeoJSON source and segments layer after style reset
+    // Re-apply the GeoJSON source and segments layer after style reset
     map.once('style.load', () => {
-        initGeoJSONSource();
+        loadSegments();  // Load segment data to re-apply after style reload
     });
 }
 
@@ -77,9 +77,9 @@ function setTileLayer(tileUrl) {
         'source': 'custom-tiles'
     });
 
-    // Reload the segments layer to ensure it overlays correctly
+    // Reapply segments layer to ensure it overlays correctly
     map.once('style.load', () => {
-        initGeoJSONSource();
+        loadSegments();
     });
 }
 
