@@ -235,7 +235,9 @@ map.on('mouseleave', 'drawn-segments-layer', () => {
 
 map.on('click', 'drawn-segments-layer', (e) => {
     const title = e.features[0].properties.title;
-    const segmentId = e.features[0].properties.id;
+    const routeId = e.features[0].properties.routeId;
+
+    console.log('Opening modal for routeId:', routeId);
 
     // Define the popup content with title and delete button
     const popupContent = `
@@ -243,7 +245,7 @@ map.on('click', 'drawn-segments-layer', (e) => {
     <button id="deleteSegmentBtn" style="display: block; margin-top: 8px; background-color: red; color: white; padding: 5px; border: 2px solid black; font-size: 16px; cursor: pointer;">
         Delete Segment
     </button>
-`;
+    `;
 
     // Create the popup with the content
     const popup = new mapboxgl.Popup()
@@ -256,8 +258,8 @@ map.on('click', 'drawn-segments-layer', (e) => {
         const deleteButton = popup.getElement().querySelector('#deleteSegmentBtn');
         if (deleteButton) {
             deleteButton.addEventListener('click', () => {
-                console.log('Delete button clicked for segment:', segmentId);
-                deleteSegment(segmentId);  // Call the delete function
+                console.log('Delete button clicked for routeId:', routeId);
+                deleteSegment(routeId);  // Call the delete function with the correct routeId
                 popup.remove();            // Close popup after deletion
             });
         } else {
@@ -265,7 +267,6 @@ map.on('click', 'drawn-segments-layer', (e) => {
         }
     });
 });
-
 
 
 

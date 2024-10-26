@@ -36,7 +36,6 @@ function openSegmentModal(title, routeId) {
 async function deleteSegment(routeId) {
     if (confirm("Are you sure you want to delete this segment?")) {
         try {
-            // Log the segmentId being sent to the API
             console.log(`Deleting segment with ID: ${routeId}`);
             
             const response = await fetch(`/api/delete-drawn-route?id=${routeId}`, {
@@ -47,8 +46,8 @@ async function deleteSegment(routeId) {
 
             if (result.success) {
                 console.log('Segment deleted successfully.');
-                closeModal();  // Close the modal after successful deletion
-                loadSegments(); // Reload segments from the server to refresh the map
+                closeModal();
+                loadSegments(); // Reload segments to refresh the map
             } else {
                 console.error('Failed to delete segment:', result.message);
             }
@@ -57,6 +56,7 @@ async function deleteSegment(routeId) {
         }
     }
 }
+
 
 
 // ============================
