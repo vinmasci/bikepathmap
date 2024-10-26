@@ -53,7 +53,7 @@ map.on('click', 'drawn-segments-layer', (e) => {
     });
 
     // Call the function to open the modal with the segment title and objectId
-    openSegmentModal(title, objectId);
+    openSegmentModal(title, segmentId);
 });
 }
 
