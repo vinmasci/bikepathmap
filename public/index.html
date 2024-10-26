@@ -119,18 +119,18 @@
         }
 
 /* Modal styling */
-modal {
+.modal {
     display: none;
     position: fixed;
     z-index: 9999;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 300px; 
+    width: 300px; /* Adjust width as needed */
     background-color: rgba(255, 255, 255, 0.8); /* Match the background */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Match shadow */
     border-radius: 5px; /* Match border-radius */
-    padding: 10px; /* Match padding */
+    padding: 0; /* Remove extra padding */
     max-height: 50vh; /* Reduce max height */
     overflow-y: auto; /* Scrollable content if too long */
 }
@@ -142,14 +142,48 @@ modal {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 300px;
-    background-color: rgba(255, 255, 255, 0.8);
+    width: 300px; /* Adjust width as needed */
+    background-color: rgba(255, 255, 255, 0.95); /* Increase opacity for better visibility */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
-    padding: 10px;
+    padding: 0; /* Remove padding to minimize extra space */
     max-height: 50vh;
-    overflow-y: auto;
+    overflow-y: auto; /* Scrollable if content exceeds max height */
 }
+
+#segment-modal .modal-content {
+    padding: 10px; /* Add some padding directly to content */
+    background-color: white; /* Ensure a clean background for content */
+    border-radius: 5px; /* Keep the border-radius for a rounded look */
+    margin: 0; /* Remove any margin around the content */
+}
+
+#segment-modal .modal-content h4 {
+    font-size: 16px;
+    margin: 0 0 10px 0; /* Add space below the title only */
+}
+
+#segment-modal .modal-content .close {
+    display: block;
+    text-align: right;
+    padding: 5px;
+    margin: 0;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#segment-modal .modal-content button {
+    margin-top: 10px;
+    padding: 6px 12px;
+    font-size: 14px;
+    width: 100%; /* Make the button fill the modal's width */
+    background-color: #d9534f; /* Example: Make the delete button red */
+    border: none;
+    color: white;
+    border-radius: 5px; /* Match modal styling */
+    cursor: pointer;
+}
+
 
 
 
@@ -159,8 +193,16 @@ modal {
 }
 
 .modal-content {
-    padding: 10px;
-    margin: 0 auto; /* Center modal content */
+    padding: 10px; /* Add padding directly to content */
+    margin: 0; /* Remove margin */
+    background-color: white; /* Ensure consistent background */
+}
+
+.modal-content .close {
+    display: block;
+    text-align: right;
+    padding: 5px;
+    margin: 0;
 }
 
 /* Updated small modal style for compact display */
@@ -171,7 +213,7 @@ modal {
 
 .modal-content h4 {
     font-size: 16px;
-    margin-bottom: 8px; /* Add space between title and content */
+    margin: 8px 0; /* Add space between title and content */
 }
 
 .modal-content label {
@@ -183,6 +225,8 @@ modal {
     margin-top: 10px;
     padding: 6px 12px;
     font-size: 12px;
+    display: block;
+    width: 100%; /* Make button fill width */
 }
 
 /* Optional: Remove the excess white space around the modal */
