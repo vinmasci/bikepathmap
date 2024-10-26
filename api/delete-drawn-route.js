@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
         const collection = await connectToMongo();
 
         // Use the routeId directly as a string for the deletion filter
-        const filter = { routeId: routeId };
+        const filter = { _id: new ObjectId(objectId) };
 
         // Log the filter for debugging purposes
         console.log("Deleting with filter:", filter);

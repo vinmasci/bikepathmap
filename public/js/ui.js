@@ -26,7 +26,7 @@ function openSegmentModal(title, routeId) {
 
     // Attach the click event listener for deleting the segment
     deleteButton.onclick = () => {
-        console.log("Attempting to delete segment with ID:", routeId); // Log the segment ID before deletion
+        console.log("Attempting to delete segment with ID:", objectId); // Log the segment ID before deletion
         deleteSegment(routeId);
     };
 }
@@ -37,9 +37,9 @@ function openSegmentModal(title, routeId) {
 async function deleteSegment(routeId) {
     if (confirm("Are you sure you want to delete this segment?")) {
         try {
-            console.log(`Deleting segment with ID: ${routeId}`);
+            console.log(`Deleting segment with ID: ${objectId}`);
             
-            const response = await fetch(`/api/delete-drawn-route?id=${routeId}`, {
+            const response = await fetch(`/api/delete-drawn-route?id=${objectId}`, {
                 method: 'DELETE',
             });
 
