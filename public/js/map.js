@@ -44,7 +44,7 @@ function setupSegmentInteraction() {
         const segmentId = e.features[0].properties.id;
 
         // Call the function to open the modal from ui.js
-        openSegmentModal(title, routeId);
+        openSegmentModal(title, segmentId);
     });
 }
 
