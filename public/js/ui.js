@@ -10,33 +10,56 @@ function closeRouteNameModal() {
 
 
 // ============================
-// SECTION: Open Route Modal
+// SECTION: Open Segment Modal
 // ============================
-function openSegmentModal(segmentId) {
+function openSegmentModal(title, segmentId) {
+    const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
-    segmentDetails.textContent = `Segment ID: ${segmentId}`;
-
-    // Show the modal
-    document.getElementById('segment-modal').style.display = 'block';
-
     const deleteButton = document.getElementById('delete-segment');
-    deleteButton.onclick = () => deleteSegment(segmentId); // Pass the segment ID to delete
+
+    // Update modal content
+    segmentDetails.innerText = `Segment: ${title}`;
+    
+    // Show modal
+    modal.style.display = 'block';
+
+    // Attach the click event listener for deleting the segment
+    deleteButton.onclick = () => deleteSegment(segmentId);
+}
+
+// ============================
+// SECTION: Delete Segment
+// ============================
+async function deleteSegment(segmentId) {
+    if (confirm("Are you sure you want to delete this segment?")) {
+        try {
+            const response = await fetch(`/api/delete-drawn-route?id=${segmentId}`, {
+                method: 'DELETE',
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                console.log('Segment deleted successfully.');
+                closeModal();  // Close the modal after successful deletion
+                loadSegments(); // Reload segments from the server to refresh the map
+            } else {
+                console.error('Failed to delete segment:', result.message);
+            }
+        } catch (error) {
+            console.error('Error in deleting segment:', error);
+        }
+    }
 }
 
 // ============================
 // SECTION: Close Modal
 // ============================
 function closeModal() {
-    document.getElementById('segment-modal').style.display = 'none';
+    const modal = document.getElementById('segment-modal');
+    modal.style.display = 'none';
 }
 
-// Close the modal when clicking outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById('segment-modal');
-    if (event.target === modal) {
-        closeModal();
-    }
-};
+
 
 // ============================
 // SECTION: Tab Highlighting
