@@ -49,17 +49,40 @@ function setupSegmentInteraction() {
     });
 }
 
-// Function to open the modal window with segment information
 function openSegmentModal(title, segmentId) {
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
+    const deleteButton = document.getElementById('delete-segment');
 
     // Update modal content
     segmentDetails.innerText = `Segment: ${title}`;
     
     // Show modal
     modal.style.display = 'block';
+
+    // Attach the click event listener for deleting the segment
+    deleteButton.onclick = async () => {
+        if (confirm("Are you sure you want to delete this segment?")) {
+            try {
+                const response = await fetch(`/api/delete-drawn-route?id=${segmentId}`, {
+                    method: 'DELETE',
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('Segment deleted successfully.');
+                    closeModal();  // Close the modal after successful deletion
+                    loadSegments(); // Reload segments from the server to refresh the map
+                } else {
+                    console.error('Failed to delete segment:', result.message);
+                }
+            } catch (error) {
+                console.error('Error in deleting segment:', error);
+            }
+        }
+    };
 }
+
 
 // Function to close the modal window
 function closeModal() {
