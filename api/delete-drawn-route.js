@@ -9,13 +9,13 @@ async function connectToMongo() {
 }
 
 module.exports = async (req, res) => {
-    const objectId = req.query.id; // Get the objectId from the query parameters
+    const routeId = req.query.id; // Get the routeId from the query parameters
 
     try {
         const collection = await connectToMongo();
 
-        // Convert the objectId into a MongoDB ObjectId type for the filter
-        const filter = { _id: new ObjectId(objectId) };
+        // Convert the routeId into a MongoDB ObjectId type for the filter
+        const filter = { _id: new ObjectId(routeId) };
 
         // Log the filter for debugging purposes
         console.log("Deleting with filter:", filter);

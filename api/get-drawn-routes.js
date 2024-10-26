@@ -20,29 +20,31 @@ module.exports = async (req, res) => {
         // Log the raw routes before processing them
         console.log("Raw routes from MongoDB:", JSON.stringify(routes, null, 2));
 
-        // Simplify route formatting
-        const formattedRoutes = routes.map(route => {
-            const formattedFeatures = route.geojson.features.map(feature => {
-                return {
-                    ...feature,
-                    properties: {
-                        ...feature.properties,
-                        title: feature.properties.title || "Untitled Route",  // Default title if not set
-                        color: feature.properties.color || "#000000",  // Default color if not set
-                        lineStyle: feature.properties.lineStyle || "solid"  // Default line style if not set
-                    }
-                };
-            });
+// Simplify route formatting
+const formattedRoutes = routes.map(route => {
+    const formattedFeatures = route.geojson.features.map(feature => {
+        return {
+            ...feature,
+            properties: {
+                ...feature.properties,
+                title: feature.properties.title || "Untitled Route",  // Default title if not set
+                color: feature.properties.color || "#000000",  // Default color if not set
+                lineStyle: feature.properties.lineStyle || "solid",  // Default line style if not set
+                routeId: route._id.toString()  // Include routeId in each feature's properties
+            }
+        };
+    });
 
-            return {
-                routeId: route._id.toString(),
-                geojson: {
-                    type: "FeatureCollection",
-                    features: formattedFeatures
-                },
-                gravelType: route.gravelType  // Return the gravel type
-            };
-        });
+    return {
+        routeId: route._id.toString(),
+        geojson: {
+            type: "FeatureCollection",
+            features: formattedFeatures
+        },
+        gravelType: route.gravelType  // Return the gravel type
+    };
+});
+
 
         // Log the formatted routes before sending them to the client
         console.log("Formatted routes being sent:", JSON.stringify(formattedRoutes, null, 2));

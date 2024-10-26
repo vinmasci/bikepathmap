@@ -12,7 +12,7 @@ function closeRouteNameModal() {
 // ============================
 // SECTION: Open Segment Modal
 // ============================
-function openSegmentModal(title, objectId) {
+function openSegmentModal(title, routeId) {
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
     const deleteButton = document.getElementById('delete-segment');
@@ -23,22 +23,23 @@ function openSegmentModal(title, objectId) {
     // Show modal
     modal.style.display = 'block';
 
-    // Attach the click event listener for deleting the segment using the objectId
+    // Attach the click event listener for deleting the segment using the routeId
     deleteButton.onclick = () => {
-        console.log("Attempting to delete segment with ID:", objectId); // Log the objectId before deletion
-        deleteSegment(objectId);
+        console.log("Attempting to delete segment with ID:", routeId); // Log the routeId before deletion
+        deleteSegment(routeId);
     };
 }
+
 
 // ============================
 // SECTION: Delete Segment
 // ============================
-async function deleteSegment(objectId) {
+async function deleteSegment(routeId) {
     if (confirm("Are you sure you want to delete this segment?")) {
         try {
-            console.log(`Deleting segment with ID: ${objectId}`);
+            console.log(`Deleting segment with ID: ${routeId}`);
             
-            const response = await fetch(`/api/delete-drawn-route?id=${objectId}`, {
+            const response = await fetch(`/api/delete-drawn-route?id=${routeId}`, {
                 method: 'DELETE',
             });
 
@@ -56,6 +57,7 @@ async function deleteSegment(objectId) {
         }
     }
 }
+
 
 
 

@@ -38,24 +38,23 @@ function setupSegmentInteraction() {
         segmentPopup.remove();
     });
 
- // Click event to open the modal window with segment details
-map.on('click', 'drawn-segments-layer', (e) => {
-    const title = e.features[0].properties.title;
-    const segmentId = e.features[0].properties.segmentId; // For UI interactions
-    const routeId = e.features[0].properties._id; // For MongoDB operations
+    // Click event to open the modal window with segment details
+    map.on('click', 'drawn-segments-layer', (e) => {
+        const title = e.features[0].properties.title;
+        const routeId = e.features[0].properties.routeId; // For MongoDB operations
 
-    // Log the details of the clicked segment
-    console.log('Clicked segment details:', {
-        title: title,
-        segmentId: segmentId,
-        routeId: routeId,
-        properties: e.features[0].properties
+        // Log the details of the clicked segment
+        console.log('Clicked segment details:', {
+            title: title,
+            routeId: routeId,
+            properties: e.features[0].properties
+        });
+
+        // Call the function to open the modal with the segment title and routeId
+        openSegmentModal(title, routeId);
     });
-
-    // Call the function to open the modal with the segment title and objectId
-    openSegmentModal(title, segmentId);
-});
 }
+
 
 
 
