@@ -48,6 +48,7 @@ async function deleteSegment(routeId) {
             if (result.success) {
                 console.log('Segment deleted successfully.');
                 closeModal();
+                loadSegments(); // Reload segments to refresh the map
             } else {
                 console.error('Failed to delete segment:', result.message);
             }
