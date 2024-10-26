@@ -126,7 +126,7 @@ modal {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 300px;
+    width: 300px; 
     background-color: rgba(255, 255, 255, 0.8); /* Match the background */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Match shadow */
     border-radius: 5px; /* Match border-radius */
@@ -134,6 +134,25 @@ modal {
     max-height: 50vh; /* Reduce max height */
     overflow-y: auto; /* Scrollable content if too long */
 }
+
+#segment-modal.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    padding: 10px;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+
+
 
 .modal.show {
     display: block;
