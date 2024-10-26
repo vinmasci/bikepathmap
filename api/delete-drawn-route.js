@@ -14,9 +14,9 @@ module.exports = async (req, res) => {
     try {
         const collection = await connectToMongo();
         // Check if the segmentId is a valid ObjectId, otherwise treat it as a string
-        const filter = ObjectId.isValid(segmentId) 
-            ? { _id: new ObjectId(segmentId) } 
-            : { _id: segmentId };
+        const filter = ObjectId.isValid(routeId) 
+            ? { _id: new ObjectId(routeId) } 
+            : { _id: routeId };
 
         const result = await collection.deleteOne(filter);
 
