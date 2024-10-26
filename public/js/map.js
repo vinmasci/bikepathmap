@@ -42,13 +42,12 @@ function setupSegmentInteraction() {
 map.on('click', 'drawn-segments-layer', (e) => {
     const title = e.features[0].properties.title;
     const segmentId = e.features[0].properties.segmentId; // For UI interactions
-    const objectId = e.features[0].properties._id; // For MongoDB operations
+    const routeId = e.features[0].properties._id; // For MongoDB operations
 
     // Log the details of the clicked segment
     console.log('Clicked segment details:', {
         title: title,
         segmentId: segmentId,
-        objectId: objectId,
         routeId: routeId,
         properties: e.features[0].properties
     });
