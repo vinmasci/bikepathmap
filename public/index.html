@@ -147,7 +147,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     padding: 0; /* Remove padding to minimize extra space */
-    max-height: 17vh;
+    max-height: 30vh;
 
 }
 
@@ -290,22 +290,21 @@
     </select>
 </div>
 
+
+
 <!-- Segment Info Modal -->
 <div id="segment-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="segmentModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="segmentModalLabel">Segment: <span id="segment-details">Untitled Route</span></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                Segment: <p id="segment-details"></p>
+                    <span class="close" onclick="closeModal()">&times;</span>
             </div>
             <div class="modal-body">
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum.</p>
             </div>
             <div class="modal-footer">
                 <button id="delete-segment" class="btn btn-danger">Delete Segment</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
