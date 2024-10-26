@@ -12,12 +12,13 @@ module.exports = async (req, res) => {
     const segmentId = req.query.id; // Get the segment ID from the query parameters
 
     try {
-        if (!segmentId || !ObjectId.isValid(segmentId)) {
-            return res.status(400).json({ success: false, message: 'Invalid segment ID' });
-        }
-
         const collection = await connectToMongo();
-        const result = await collection.deleteOne({ _id: new ObjectId(segmentId) });
+        // Check if the segmentId is a valid ObjectId, otherwise treat it as a string
+        const filter = ObjectId.isValid(segmentId) 
+            ? { _id: new ObjectId(segmentId) } 
+            : { _id: segmentId };
+
+        const result = await collection.deleteOne(filter);
 
         if (result.deletedCount === 1) {
             res.status(200).json({ success: true, message: 'Segment deleted successfully!' });
