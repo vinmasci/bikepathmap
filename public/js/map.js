@@ -43,6 +43,8 @@ function setupSegmentInteraction() {
         const title = e.features[0].properties.title;
         const segmentId = e.features[0].properties.routeId;
 
+        console.log('Clicked segment with title:', title, 'and routeId:', segmentId);
+
         // Call the function to open the modal from ui.js
         openSegmentModal(title, segmentId);
     });

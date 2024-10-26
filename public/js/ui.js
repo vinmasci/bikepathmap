@@ -13,6 +13,10 @@ function closeRouteNameModal() {
 // SECTION: Open Segment Modal
 // ============================
 function openSegmentModal(title, routeId) {
+    if (!routeId) {
+        console.error('routeId is undefined when opening modal.');
+        return;
+    }
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
     const deleteButton = document.getElementById('delete-segment');
