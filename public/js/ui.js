@@ -12,7 +12,7 @@ function closeRouteNameModal() {
 // ============================
 // SECTION: Open Segment Modal
 // ============================
-function openSegmentModal(title, routeId) {
+function openSegmentModal(title, segmentId) {
     
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
