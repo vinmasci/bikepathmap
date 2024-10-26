@@ -41,7 +41,7 @@ function setupSegmentInteraction() {
     // Click event to open the modal window with segment details
     map.on('click', 'drawn-segments-layer', (e) => {
         const title = e.features[0].properties.title;
-        const segmentId = e.features[0].properties.id;
+        const routeId = e.features[0].properties.routeId;
 
         // Call the function to open the modal from ui.js
         openSegmentModal(title, segmentId);
