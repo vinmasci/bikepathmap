@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const client = new MongoClient(process.env.MONGODB_URI);
@@ -9,12 +9,12 @@ async function connectToMongo() {
 }
 
 module.exports = async (req, res) => {
-    const routeId = req.query.id; // Get the routeId from the query parameters
+    const objectId = req.query.id; // Get the objectId from the query parameters
 
     try {
         const collection = await connectToMongo();
 
-        // Use the routeId directly as a string for the deletion filter
+        // Convert the objectId into a MongoDB ObjectId type for the filter
         const filter = { _id: new ObjectId(objectId) };
 
         // Log the filter for debugging purposes
