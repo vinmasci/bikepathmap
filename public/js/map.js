@@ -44,7 +44,13 @@ map.on('click', 'drawn-segments-layer', (e) => {
     const segmentId = e.features[0].properties.segmentId; // For UI interactions
     const objectId = e.features[0].properties._id; // For MongoDB operations
 
-    console.log('Opening modal for segmentId:', segmentId, 'with objectId:', objectId);
+    // Log the details of the clicked segment
+    console.log('Clicked segment details:', {
+        title: title,
+        segmentId: segmentId,
+        objectId: objectId,
+        properties: e.features[0].properties
+    });
 
     // Call the function to open the modal with the segment title and objectId
     openSegmentModal(title, objectId);
