@@ -26,7 +26,7 @@ function openSegmentModal(title, routeId) {
     // Attach the click event listener for deleting the segment
     deleteButton.onclick = () => {
         console.log("Attempting to delete segment with ID:", routeId); // Log the segment ID before deletion
-        deleteSegment(segmentId);
+        deleteSegment(routeId);
     };
 }
 
