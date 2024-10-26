@@ -44,7 +44,7 @@ function setupSegmentInteraction() {
         const segmentId = e.features[0].properties.segmentId;
         const objectId = e.features[0].properties._id; // Ensure this is included
 
-        console.log('Opening modal for segmentId:', routeId, 'with objectId:', objectId);
+        console.log('Opening modal for segmentId:', segmentId, 'with objectId:', objectId);
 
         // Call the function to open the modal from ui.js
         openSegmentModal(title, segmentId);
