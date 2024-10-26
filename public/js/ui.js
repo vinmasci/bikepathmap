@@ -21,6 +21,7 @@ function openSegmentModal(title, routeId) {
     segmentDetails.innerText = `Segment: ${title}`;
     
     // Show modal
+    modal.classList.add('show');  // Add the 'show' class to make the modal visible
     modal.style.display = 'block';
 
     // Attach the click event listener for deleting the segment using the routeId
@@ -67,6 +68,7 @@ async function deleteSegment(routeId) {
 function closeModal() {
     const modal = document.getElementById('segment-modal');
     modal.style.display = 'none';
+    modal.classList.remove('show');  // Remove the 'show' class if used for display control
 }
 
 
