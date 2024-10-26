@@ -49,6 +49,7 @@ map.on('click', 'drawn-segments-layer', (e) => {
         title: title,
         segmentId: segmentId,
         objectId: objectId,
+        routeId: routeId,
         properties: e.features[0].properties
     });
 
