@@ -1,4 +1,4 @@
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 const client = new MongoClient(process.env.MONGODB_URI);
@@ -9,14 +9,16 @@ async function connectToMongo() {
 }
 
 module.exports = async (req, res) => {
-    const segmentId = req.query.id; // Get the segment ID from the query parameters
+    const routeId = req.query.id; // Get the routeId from the query parameters
 
     try {
         const collection = await connectToMongo();
-        // Check if the segmentId is a valid ObjectId, otherwise treat it as a string
-        const filter = ObjectId.isValid(routeId) 
-            ? { _id: new ObjectId(routeId) } 
-            : { _id: routeId };
+
+        // Use the routeId directly as a string for the deletion filter
+        const filter = { routeId: routeId };
+
+        // Log the filter for debugging purposes
+        console.log("Deleting with filter:", filter);
 
         const result = await collection.deleteOne(filter);
 
