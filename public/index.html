@@ -11,6 +11,19 @@
     <!-- Font Awesome Pro -->
     <script src="https://kit.fontawesome.com/b02e210188.js" crossorigin="anonymous"></script>
 
+    <!-- Your custom script to handle the modal -->
+<script>
+    // To hide the modal
+    function closeModal() {
+        $('#segment-modal').modal('hide');
+    }
+
+    // To show the modal (if needed)
+    function openSegmentModal() {
+        $('#segment-modal').modal('show');
+    }
+</script>
+
     <style>
         body { 
             margin: 0; 
@@ -147,7 +160,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     padding: 0; /* Remove padding to minimize extra space */
-    max-height: 30vh;
+    max-height: 40vh;
 
 }
 
