@@ -122,6 +122,9 @@ async function handlePhotoUpload() {
     }
 }
 
+// =========================
+// SECTION: Save Route Modal 
+// =========================
 // Define the function to open the route name modal
 function openRouteNameModal() {
     const modal = document.getElementById('routeNameModal');
