@@ -326,13 +326,14 @@
     <button id="save-btn" class="btn btn-success" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px;">Save</button>
 
     <!-- Photo Upload Console -->
-    <div id="photo-upload-console" class="btn-group" style="background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); z-index: 1000;">
-        <p><b>Upload Photos</b></p>
-        <input type="file" id="photoFilesInput" multiple accept="image/*" class="form-control" />
-        <button id="uploadPhotosBtn" class="btn btn-primary" style="margin-top: 10px;">Upload</button>
+    <div id="photo-upload-console" style="width: 100%; margin-top: 10px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+        <p style="margin-bottom: 5px; font-weight: bold;">Upload Photos</p>
+        <input type="file" id="photoFilesInput" multiple accept="image/*" class="form-control" style="margin-bottom: 10px;" />
+        <button id="uploadPhotosBtn" class="btn btn-primary" style="width: auto; padding: 5px 10px;">Upload</button>
     </div>
 
 </div>
+
 
 <div class="tabs">
     <div class="tab draw-route-tab" id="draw-route-tab" onclick="enableDrawingMode()"><i class="fa-thin fa-pencil" style="color: #ffffff;"></i> Draw Route</div>
