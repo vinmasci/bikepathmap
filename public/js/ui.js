@@ -1,14 +1,3 @@
-// Function to open the modal for entering the route name
-function openRouteNameModal() {
-    document.getElementById('routeNameModal').style.display = 'block';  // Show modal
-}
-
-// Function to close the modal
-function closeRouteNameModal() {
-    document.getElementById('routeNameModal').style.display = 'none';  // Hide modal
-}
-
-
 // ============================
 // SECTION: Open Segment Modal
 // ============================
