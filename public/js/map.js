@@ -428,14 +428,6 @@ function togglePOILayer() {
     updateTabHighlight('pois-tab', layerVisibility.pois);
 }
 
-// ============================
-// SECTION: Toggle Add Dropdown
-// ============================
-function toggleAddDropdown() {
-    const dropdown = document.getElementById('add-dropdown');
-    dropdown.classList.toggle('show');
-    updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
-}
 
 // ============================
 // SECTION: Open Close Modal
