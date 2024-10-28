@@ -2,6 +2,7 @@
 // SECTION: Open Segment Modal
 // ============================
 function openSegmentModal(title, routeId) {
+    console.log("Opening segment modal with routeId:", routeId); // Check if routeId is valid
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
     const deleteButton = document.getElementById('delete-segment');
