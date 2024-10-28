@@ -313,7 +313,7 @@
     
     <!-- Drawing Options -->
     <div class="drawing-options">
-        <h5>Gravel Type (Color):</h5>
+        <h5 style="margin-bottom: 10px;">Gravel Type (Color):</h5>
         <label><input type="radio" name="gravelType" value="0">&nbsp; <i class="fa-solid fa-circle" style="color: #01bf11;"></i> Easiest</label>
         <label><input type="radio" name="gravelType" value="1">&nbsp; <i class="fa-solid fa-square" style="color: #0050c1;"></i> Intermediate</label>
         <label><input type="radio" name="gravelType" value="2">&nbsp; <i class="fa-solid fa-diamond" style="color: #444444;"></i> Advanced</label>
@@ -321,15 +321,23 @@
         <label><input type="radio" name="gravelType" value="4">&nbsp; <i class="fa-solid fa-grip-lines" style="color: #FFD43B;"></i> Rail Trail</label>
         <label><input type="radio" name="gravelType" value="5">&nbsp; <i class="fa-solid fa-grip-lines" style="color: #831100;"></i> Closed or Private</label>     
     </div>
-    <button id="undo-btn" class="btn btn-primary" style="border-top-left-radius: 8px; border-bottom-left-radius: 8px;">Undo</button>
-    <button id="reset-btn" class="btn btn-warning">Reset</button>
-    <button id="save-btn" class="btn btn-success" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px;">Save</button>
+
+    <!-- Control Buttons -->
+    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+        <button id="undo-btn" class="btn btn-primary" style="width: 80px; padding: 5px 10px; font-size: 12px;">Undo</button>
+        <button id="reset-btn" class="btn btn-warning" style="width: 80px; padding: 5px 10px; font-size: 12px;">Reset</button>
+        <button id="save-btn" class="btn btn-success" style="width: 80px; padding: 5px 10px; font-size: 12px;">Save</button>
+    </div>
 
     <!-- Photo Upload Console -->
-    <div id="photo-upload-console" style="width: 100%; margin-top: 10px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
-        <p style="margin-bottom: 5px; font-weight: bold;">Upload Photos</p>
-        <input type="file" id="photoFilesInput" multiple accept="image/*" class="form-control" style="width: 270px; margin-bottom: 10px; font-size: 12px;" />
-        <button id="uploadPhotosBtn" class="btn btn-primary" style="width: 90px; padding: 5px 10px; font-size: 12px;">Upload</button>
+    <div id="photo-upload-console" style="width: 100%; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+        <h5 style="margin-bottom: 10px;">Upload Photos</h5>
+        <div style="margin-bottom: 10px; width: 100%;">
+            <input type="file" id="photoFilesInput" multiple accept="image/*" class="form-control" 
+                style="width: 100%; display: inline-block; font-size: 12px;" />
+            <small style="display: block; font-size: 10px; color: gray; text-align: center;">No files selected</small>
+        </div>
+        <button id="uploadPhotosBtn" class="btn btn-primary" style="width: 80px; padding: 5px 10px; font-size: 12px; display: block; margin: 0 auto;">Upload</button>
     </div>
 
 </div>
