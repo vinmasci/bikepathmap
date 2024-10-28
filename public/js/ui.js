@@ -55,9 +55,10 @@ async function deleteSegment(routeId) {
 // SECTION: Close Modal
 // ============================
 function closeModal() {
-    console.log('Close button clicked'); // This will appear in the console if the function is triggered
+    console.log('Close button clicked'); // Check if this appears in the console
     const modal = document.getElementById('segment-modal');
     modal.style.display = 'none';
+    modal.classList.remove('show');
 }
 
 
