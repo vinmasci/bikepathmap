@@ -9,17 +9,18 @@ async function connectToMongo() {
 }
 
 module.exports = async (req, res) => {
-    const routeId = req.query.id; // Get the routeId from the query parameters
+    const routeId = req.query.id;
 
     try {
-        const collection = await connectToMongo();
+        // Validate routeId format
+        if (!ObjectId.isValid(routeId)) {
+            return res.status(400).json({ success: false, message: "Invalid routeId format." });
+        }
 
-        // Convert the routeId into a MongoDB ObjectId type for the filter
+        const collection = await connectToMongo();
         const filter = { _id: new ObjectId(routeId) };
 
-        // Log the filter for debugging purposes
-        console.log("Deleting with filter:", filter);
-
+        console.log("Attempting to delete with filter:", filter);
         const result = await collection.deleteOne(filter);
 
         if (result.deletedCount === 1) {
