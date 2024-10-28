@@ -189,7 +189,9 @@
 
 
 
-
+.modal.show {
+    display: block;
+}
 
 .modal-content {
     padding: 10px; /* Add padding directly to content */
@@ -389,6 +391,18 @@
     document.addEventListener('DOMContentLoaded', function () {
         initMap();  // This will call your initMap() function in map.js
     });
+</script>
+
+<script>
+    // ============================
+// SECTION: Close Modal
+// ============================
+function closeModal() {
+    console.log('Close button clicked'); // Check if this appears in the console
+    const modal = document.getElementById('segment-modal');
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+}
 </script>
 
 
