@@ -22,6 +22,12 @@ const segmentPopup = new mapboxgl.Popup({
 // SECTION: Segment Interaction (Hover & Click)
 // ============================
 function setupSegmentInteraction() {
+    // Prevent duplicate event listeners by checking if one exists
+    if (map.hasListener('click', 'drawn-segments-layer')) {
+        console.log("Click event already added to drawn-segments-layer, skipping.");
+        return;
+    }
+
     // Hover interaction for showing segment title
     map.on('mouseenter', 'drawn-segments-layer', (e) => {
         map.getCanvas().style.cursor = 'pointer';
@@ -41,20 +47,17 @@ function setupSegmentInteraction() {
     // Click event to open the modal window with segment details
     map.on('click', 'drawn-segments-layer', (e) => {
         const title = e.features[0].properties.title;
-        const routeId = e.features[0].properties.routeId; // For MongoDB operations
+        const routeId = e.features[0].properties.routeId;
 
-        // Log the details of the clicked segment
         console.log('Clicked segment details:', {
             title: title,
             routeId: routeId,
             properties: e.features[0].properties
         });
 
-        // Call the function to open the modal with the segment title and routeId
         openSegmentModal(title, routeId);
     });
 }
-
 
 
 
