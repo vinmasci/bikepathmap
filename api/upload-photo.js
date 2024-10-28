@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const multer = require('multer');
+console.log('Multer is loaded:', multer);
 const fs = require('fs');
 const exifParser = require('exif-parser');
 const { MongoClient } = require('mongodb');
