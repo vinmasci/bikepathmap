@@ -10,6 +10,9 @@
     
     <!-- Font Awesome Pro -->
     <script src="https://kit.fontawesome.com/b02e210188.js" crossorigin="anonymous"></script>
+    <!-- Include jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <style>
         body { 
@@ -291,17 +294,21 @@
 </div>
 
 <!-- Segment Info Modal -->
-<div id="segment-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-        <p id="segment-details"></p>
-        <span class="close" onclick="closeModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum.</p>
-        </div>
-        <div class="modal-footer">
-        <button id="delete-segment" class="btn btn-danger">Delete Segment</button>
+<div id="segment-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="segmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="segment-details">Segment Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="delete-segment" class="btn btn-danger">Delete Segment</button>
+            </div>
         </div>
     </div>
 </div>
