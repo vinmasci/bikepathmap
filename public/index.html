@@ -282,17 +282,6 @@
 
 <div><button id="delete-segment" class="btn btn-danger">Delete Segment</button></div>
 
-<div class="map-layer-options">
-    <label for="tileLayerSelect">Select Map Layer:</label>
-    <select id="tileLayerSelect" class="form-control">
-        <option value="reset">Classic Setting</option>
-        <option value="googleMap">Google Map</option>
-        <option value="googleSatellite">Google Satellite</option>
-        <option value="googleHybrid">Google Hybrid</option>
-        <option value="osmCycle">OSM Cycle</option>
-    </select>
-</div>
-
 <!-- Segment Info Modal -->
 <div id="segment-modal" class="modal">
     <div class="modal-content">
@@ -382,6 +371,17 @@
         <button id="confirmSaveBtn" class="btn btn-success">Save Route</button>
         <button onclick="closeRouteNameModal()" class="btn btn-secondary">Cancel</button>
     </div>
+</div>
+
+<div class="map-layer-options"></div>
+    <label for="tileLayerSelect">Select Map Layer:</label>
+    <select id="tileLayerSelect" class="form-control">
+        <option value="reset">Classic Setting</option>
+        <option value="googleMap">Google Map</option>
+        <option value="googleSatellite">Google Satellite</option>
+        <option value="googleHybrid">Google Hybrid</option>
+        <option value="osmCycle">OSM Cycle</option>
+    </select>
 </div>
 
 <!-- Include external JS files -->
