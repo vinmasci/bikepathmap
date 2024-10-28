@@ -406,15 +406,12 @@ function togglePhotoLayer() {
 
     if (layerVisibility.photos) {
         loadPhotoMarkers(); // Load photo markers when toggled on
-        document.getElementById('photo-upload-console').style.display = 'block'; // Show the photo upload console
     } else {
         removePhotoMarkers(); // Remove photo markers when toggled off
-        document.getElementById('photo-upload-console').style.display = 'none'; // Hide the photo upload console
     }
 
     updateTabHighlight('photos-tab', layerVisibility.photos);
 }
-
 
 // ============================
 // SECTION: Toggle POI Layer
