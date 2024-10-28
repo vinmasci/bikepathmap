@@ -34,7 +34,9 @@ async function deleteSegment(routeId) {
                 method: 'DELETE',
             });
 
+            console.log('Delete request response:', response);
             const result = await response.json();
+            console.log('Delete request result:', result);
 
             if (result.success) {
                 console.log('Segment deleted successfully.');
