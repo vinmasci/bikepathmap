@@ -355,10 +355,10 @@ function initEventListeners() {
     document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode);
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
-   
     document.getElementById('reset-btn').addEventListener('click', resetRoute);
     document.getElementById('undo-btn').addEventListener('click', undoLastSegment);
     document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);
+    document.getElementById('uploadPhotosBtn').addEventListener('click', handlePhotoUpload);
 
     // Gravel type radio buttons for updating route color
     document.querySelectorAll('input[name="gravelType"]').forEach((radio) => {
@@ -406,12 +406,15 @@ function togglePhotoLayer() {
 
     if (layerVisibility.photos) {
         loadPhotoMarkers(); // Load photo markers when toggled on
+        document.getElementById('photo-upload-console').style.display = 'block'; // Show the photo upload console
     } else {
         removePhotoMarkers(); // Remove photo markers when toggled off
+        document.getElementById('photo-upload-console').style.display = 'none'; // Hide the photo upload console
     }
 
     updateTabHighlight('photos-tab', layerVisibility.photos);
 }
+
 
 // ============================
 // SECTION: Toggle POI Layer
