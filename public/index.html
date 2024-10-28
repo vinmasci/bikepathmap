@@ -307,10 +307,7 @@
     </div>
 </div>
 
-<div id="routeNameModal" class="modal">
-    <input type="text" id="routeNameInput" placeholder="Enter route name">
-    <button id="confirmSaveBtn">Save</button>
-</div>
+
 
 <!-- Control Panel -->
 <div id="control-panel" class="btn-group">
@@ -348,7 +345,15 @@
 
 </div>
 
-
+<!-- Modal for Route Name -->
+<div id="routeNameModal" class="modal">
+    <div class="modal-content">
+        <h4>Street / Track or Path Name:</h4>
+        <input type="text" id="routeNameInput" placeholder="Enter road/path name" class="form-control" />
+        <button id="confirmSaveBtn" class="btn btn-success">Save Route</button>
+        <button onclick="closeRouteNameModal()" class="btn btn-secondary">Cancel</button>
+    </div>
+</div>
 
 
 <!-- Drawing Options Modal -->
