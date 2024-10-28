@@ -355,7 +355,7 @@ function initEventListeners() {
     document.getElementById('draw-route-tab').addEventListener('click', toggleDrawingMode);
     document.getElementById('photos-tab').addEventListener('click', togglePhotoLayer);
     document.getElementById('pois-tab').addEventListener('click', togglePOILayer);
-    document.getElementById('add-tab').addEventListener('click', toggleAddDropdown);
+   
     document.getElementById('reset-btn').addEventListener('click', resetRoute);
     document.getElementById('undo-btn').addEventListener('click', undoLastSegment);
     document.getElementById('save-btn').addEventListener('click', saveDrawnRoute);
@@ -428,14 +428,7 @@ function togglePOILayer() {
     updateTabHighlight('pois-tab', layerVisibility.pois);
 }
 
-// ============================
-// SECTION: Toggle Add Dropdown
-// ============================
-function toggleAddDropdown() {
-    const dropdown = document.getElementById('add-dropdown');
-    dropdown.classList.toggle('show');
-    updateTabHighlight('add-tab', dropdown.classList.contains('show')); // Update tab highlight
-}
+
 
 // ============================
 // SECTION: Open Close Modal
