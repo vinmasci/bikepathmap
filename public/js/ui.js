@@ -6,6 +6,7 @@ function openSegmentModal(title, routeId) {
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
     const deleteButton = document.getElementById('delete-segment');
+    console.log("Delete Button:", deleteButton); // Check if delete button is found
 
     // Check if the modal is already open to prevent duplicate openings
     if (modal.classList.contains('show')) {

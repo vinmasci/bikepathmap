@@ -393,7 +393,6 @@
 
 <!-- Include togpx from CDN -->
 <script src="/js/togpx.js"></script>
-
 <script src="/js/ui.js"></script>
 <script src="/js/routes.js"></script>
 <script src="/js/map.js"></script>
@@ -420,38 +419,6 @@ function closeModal() {
     modal.classList.remove('show');
 }
 </script>
-
-<script>
-    // ============================
-// SECTION: Delete Segment
-// ============================
-async function deleteSegment(routeId) {
-    if (confirm("Are you sure you want to delete this segment?")) {
-        try {
-            console.log(`Deleting segment with ID: ${routeId}`);
-            
-            const response = await fetch(`/api/delete-drawn-route?id=${routeId}`, {
-                method: 'DELETE',
-            });
-
-            console.log('Delete request response:', response);
-            const result = await response.json();
-            console.log('Delete request result:', result);
-
-            if (result.success) {
-                console.log('Segment deleted successfully.');
-                closeModal();
-                loadSegments(); // Reload segments to refresh the map
-            } else {
-                console.error('Failed to delete segment:', result.message);
-            }
-        } catch (error) {
-            console.error('Error in deleting segment:', error);
-        }
-    }
-}
-</script>
-
 
 </body>
 </html>
