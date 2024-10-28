@@ -121,3 +121,23 @@ async function handlePhotoUpload() {
         alert('Error during upload: ' + error.message);
     }
 }
+
+// Define the function to open the route name modal
+function openRouteNameModal() {
+    const modal = document.getElementById('routeNameModal');
+    if (modal) {
+        modal.style.display = 'block'; // Make the modal visible
+    } else {
+        console.error('routeNameModal not found in the DOM.');
+    }
+}
+
+// Define the function to close the route name modal
+function closeRouteNameModal() {
+    const modal = document.getElementById('routeNameModal');
+    if (modal) {
+        modal.style.display = 'none'; // Hide the modal
+    } else {
+        console.error('routeNameModal not found in the DOM.');
+    }
+}
