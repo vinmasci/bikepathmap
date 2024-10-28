@@ -7,12 +7,21 @@ function openSegmentModal(title, routeId) {
     const segmentDetails = document.getElementById('segment-details');
     const deleteButton = document.getElementById('delete-segment');
 
+    // Check if the modal is already open to prevent duplicate openings
+    if (modal.classList.contains('show')) {
+        console.log("Modal is already open, skipping duplicate open.");
+        return;
+    }
+
     // Update modal content
     segmentDetails.innerText = `Segment: ${title}`;
     
     // Show modal
-    modal.classList.add('show');  // Add the 'show' class to make the modal visible
+    modal.classList.add('show');
     modal.style.display = 'block';
+
+    // Remove any previous event listener to prevent duplicates
+    deleteButton.onclick = null;
 
     // Attach the click event listener for deleting the segment using the routeId
     deleteButton.onclick = () => {
@@ -20,6 +29,7 @@ function openSegmentModal(title, routeId) {
         deleteSegment(routeId);
     };
 }
+
 
 
 // ============================
