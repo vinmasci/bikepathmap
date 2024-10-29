@@ -101,16 +101,15 @@ map.on('click', 'unclustered-photo', (e) => {
     const coordinates = e.features[0].geometry.coordinates.slice();
     const { originalName, url, _id: photoId } = e.features[0].properties; // Assume `_id` is the photoId
 
-    // Create popup content with photoId displayed
     const popupContent = `
-        <div style="text-align: center;">
-            <p style="font-size: small; color: gray;">Photo ID: ${photoId}</p> <!-- Display photoId for debugging -->
-            <img src="${url}" style="width:200px; margin-bottom: 10px;">
-            <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
-                Delete Photo
-            </button>
-        </div>
-    `;
+    <div style="text-align: center;">
+        <img src="${url}" style="width:200px; margin-bottom: 10px;">
+        <p id="photo-id-display" style="display: none;">${photoId}</p> <!-- Hidden element for photoId -->
+        <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
+            Delete Photo
+        </button>
+    </div>
+`;
 
     const popup = new mapboxgl.Popup()
         .setLngLat(coordinates)
@@ -121,18 +120,20 @@ map.on('click', 'unclustered-photo', (e) => {
     popup.on('open', () => {
         const deleteButton = document.getElementById('deletePhotoBtn');
         if (deleteButton) {
-            deleteButton.onclick = async () => {
-                console.log("Photo ID for deletion:", photoId);  // Log the photoId for manual verification
+            deleteButton.addEventListener('click', async () => {
+                const photoIdElement = document.getElementById('photo-id-display');
+                const photoId = photoIdElement ? photoIdElement.textContent : null; // Retrieve `photoId` from text content
+                
                 if (photoId) {
-                    await deletePhoto(photoId);  // Call delete function with photo ID
-                    popup.remove();              // Close popup after deletion
+                    console.log("Deleting photo with ID:", photoId);
+                    await deletePhoto(photoId);
+                    popup.remove();
                 } else {
                     console.error("No photo ID found for deletion.");
                 }
-            };
+            });
         }
     });
-});
 
 
 
