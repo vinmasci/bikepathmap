@@ -1,8 +1,8 @@
 // ============================
 // SECTION: Open Segment Modal
 // ============================
-function openSegmentModal(title) {
-    console.log("Opening segment modal with title:", title);
+function openSegmentModal(segmentId) {
+    console.log("Opening segment modal with segmentId:", segmentId);
 
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
@@ -13,30 +13,30 @@ function openSegmentModal(title) {
         return;
     }
 
-    // Set and display the title in the modal
-    segmentDetails.innerText = `Segment: ${title}`;
+    // Set and display the segmentId in the modal
+    segmentDetails.innerText = `Segment ID: ${segmentId}`;
     modal.classList.add('show');
     modal.style.display = 'block';
 
     // Clear any prior event listeners to avoid duplicate calls
     deleteButton.onclick = null;
 
-    // Set delete function with captured `title`
+    // Set delete function with captured `segmentId`
     deleteButton.onclick = function() {
-        deleteSegment(title); // Pass title explicitly
+        deleteSegment(segmentId); // Pass segmentId explicitly
     };
 }
 
 // ============================
 // SECTION: Delete Segment
 // ============================
-async function deleteSegment(title) {
+async function deleteSegment(segmentId) {
     const deleteButton = document.getElementById('delete-segment');
     deleteButton.disabled = true;
     deleteButton.innerHTML = "Deleting...";
 
-    if (!title) {
-        console.error("No title found for deletion.");
+    if (!segmentId) {
+        console.error("No segment ID found for deletion.");
         deleteButton.disabled = false;
         deleteButton.innerHTML = "Delete Segment";
         return;
@@ -44,8 +44,8 @@ async function deleteSegment(title) {
 
     if (confirm("Are you sure you want to delete this segment?")) {
         try {
-            console.log(`Deleting segment with title: ${title}`);
-            const response = await fetch(`/api/delete-drawn-route?title=${encodeURIComponent(title)}`, {
+            console.log(`Deleting segment with ID: ${segmentId}`);
+            const response = await fetch(`/api/delete-drawn-route?segmentId=${encodeURIComponent(segmentId)}`, {
                 method: 'DELETE',
             });
 
@@ -84,9 +84,10 @@ function closeModal() {
 // Attach Event Listener to Delete Button (No Inline Onclick)
 // ============================
 document.getElementById('delete-segment').addEventListener('click', () => {
-    const title = document.getElementById('segment-details').innerText.replace('Segment: ', '');
-    deleteSegment(title);
+    const segmentId = document.getElementById('segment-details').innerText.replace('Segment ID: ', '');
+    deleteSegment(segmentId);
 });
+
 
 // ============================
 // SECTION: Tab Highlighting
