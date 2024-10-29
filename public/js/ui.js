@@ -1,3 +1,5 @@
+let currentRouteId = null; // Track the route ID globally
+
 // ============================
 // SECTION: Delete Segment
 // ============================
@@ -53,6 +55,9 @@ function openSegmentModal(title, routeId) {
         return;
     }
 
+    // Update the global variable with the current routeId
+    currentRouteId = routeId;
+
     // Update modal content with segment title
     segmentDetails.innerText = `Segment: ${title}`;
 
@@ -60,23 +65,24 @@ function openSegmentModal(title, routeId) {
     modal.classList.add('show');
     modal.style.display = 'block';
 
-      // Ensure the delete button is fully visible and clickable
-      deleteButton.style.display = 'inline';
-      deleteButton.style.visibility = 'visible';
-      deleteButton.style.pointerEvents = 'auto';
-  
-
-    // Remove any previous event listener from the delete button to prevent duplicates
-    deleteButton.onclick = null;
-
-// Attach the click event listener for deleting the segment with the specific routeId
-deleteButton.onclick = () => {
-    console.log("Attempting to delete segment with ID:", routeId); // Log the routeId
-    window.requestAnimationFrame(() => deleteSegment(routeId));  // Use requestAnimationFrame for non-blocking UI
-};
-
+    // Ensure the delete button is fully visible and clickable
+    deleteButton.style.display = 'inline';
+    deleteButton.style.visibility = 'visible';
+    deleteButton.style.pointerEvents = 'auto';
 }
 
+// ============================
+// Attach Persistent Event Listener to Delete Button
+// ============================
+const deleteButton = document.getElementById('delete-segment');
+deleteButton.addEventListener('click', () => {
+    if (currentRouteId) {
+        console.log("Delete button clicked for segment ID:", currentRouteId);
+        deleteSegment(currentRouteId);  // Use the global currentRouteId for deletion
+    } else {
+        console.error("No current route ID found for deletion.");
+    }
+});
 
 // ============================
 // SECTION: Close Modal
@@ -89,6 +95,7 @@ function closeModal() {
         modal.classList.remove('show');
     }
 }
+
 
 
 
