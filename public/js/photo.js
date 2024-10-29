@@ -129,24 +129,23 @@ async function loadPhotoMarkers() {
 
                 // Add event listener for delete button within the popup
                 popup.on('open', () => {
-                    console.log("Popup opened with delete button for photo ID:", photoId);
                     const deleteButton = document.getElementById('deletePhotoBtn');
-
                     if (deleteButton) {
+                        console.log("Delete button found, attaching event listener.");
                         deleteButton.onclick = async () => {
+                            console.log("Delete button clicked.");
                             const photoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
-                            console.log("Delete button clicked, deleting photo ID:", photoId);
-
+                            console.log("Photo ID for deletion:", photoId);
+                
                             if (photoId) {
                                 await deletePhoto(photoId);  // Call delete function with photo ID
                                 popup.remove();              // Close popup after deletion
-                                console.log("Popup closed after deletion.");
                             } else {
                                 console.error("No photo ID found for deletion.");
                             }
                         };
                     } else {
-                        console.error("Delete button not found within popup.");
+                        console.error("Delete button not found.");
                     }
                 });
             });
