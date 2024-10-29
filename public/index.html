@@ -396,44 +396,6 @@ async function compressAndUploadImage(file) {
 </script>
 
 
-<script>
-    document.getElementById('uploadPhotosBtn').addEventListener('click', async () => {
-        const uploadButton = document.getElementById('uploadPhotosBtn');
-        const photoFiles = document.getElementById('photoFilesInput').files;
-
-        if (photoFiles.length === 0) {
-            alert("Please select at least one photo to upload.");
-            return;
-        }
-
-        // Update button to show "Uploading..."
-        uploadButton.textContent = "Uploading...";
-        uploadButton.disabled = true; // Disable button during upload
-
-        try {
-            // Simulate the upload process (replace this with your actual upload function)
-            for (const file of photoFiles) {
-                const formData = new FormData();
-                formData.append('file', file);
-
-                await fetch('/api/upload-photo', {
-                    method: 'POST',
-                    body: formData
-                });
-            }
-
-            alert("Photos uploaded successfully!");
-        } catch (error) {
-            console.error("Error uploading photos:", error);
-            alert("Failed to upload photos.");
-        } finally {
-            // Reset button to original state after upload completes
-            uploadButton.textContent = "Upload";
-            uploadButton.disabled = false;
-        }
-    });
-</script>
-
 </div>
 
 
