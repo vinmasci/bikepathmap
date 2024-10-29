@@ -96,37 +96,43 @@ async function loadPhotoMarkers() {
                 });
             });
 
-            // Click event for unclustered photos
-            map.on('click', 'unclustered-photo', (e) => {
-                const coordinates = e.features[0].geometry.coordinates.slice();
-                const { originalName, url, _id } = e.features[0].properties;
+// Click event for unclustered photos
+map.on('click', 'unclustered-photo', (e) => {
+    const coordinates = e.features[0].geometry.coordinates.slice();
+    const { originalName, url, _id: photoId } = e.features[0].properties; // Assume `_id` is the photoId
 
-                // Create popup content without heading and with a centered delete button
-                const popupContent = `
-                    <div style="text-align: center;">
-                        <img src="${url}" style="width:200px; margin-bottom: 10px;">
-                        <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
-                            Delete Photo
-                        </button>
-                    </div>
-                `;
+    // Create popup content without heading and with a centered delete button
+    const popupContent = `
+        <div style="text-align: center;">
+            <img src="${url}" style="width:200px; margin-bottom: 10px;">
+            <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;" data-photo-id="${photoId}">
+                Delete Photo
+            </button>
+        </div>
+    `;
 
-                const popup = new mapboxgl.Popup()
-                    .setLngLat(coordinates)
-                    .setHTML(popupContent)
-                    .addTo(map);
+    const popup = new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(popupContent)
+        .addTo(map);
 
-                // Add event listener to the delete button
-                popup.on('open', () => {
-                    const deleteButton = document.getElementById('deletePhotoBtn');
-                    if (deleteButton) {
-                        deleteButton.addEventListener('click', () => {
-                            deletePhoto(_id);  // Call delete function with photo ID
-                            popup.remove();    // Close popup after deletion
-                        });
-                    }
-                });
+    // Add event listener to the delete button within the popup
+    popup.on('open', () => {
+        const deleteButton = document.getElementById('deletePhotoBtn');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', async () => {
+                const photoId = deleteButton.getAttribute('data-photo-id'); // Retrieve the photo ID from the button's data attribute
+                if (photoId) {
+                    await deletePhoto(photoId);  // Call delete function with photo ID
+                    popup.remove();              // Close popup after deletion
+                } else {
+                    console.error("No photo ID found for deletion.");
+                }
             });
+        }
+    });
+});
+
 
         } else {
             console.log("Updating existing photoMarkers source...");
