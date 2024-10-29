@@ -2,11 +2,11 @@
 // SECTION: Open Segment Modal
 // ============================
 function openSegmentModal(title, routeId) {
-    console.log("Opening segment modal with title:", title, "and routeId:", routeId); // Log to confirm values
+    console.log("Opening segment modal with title:", title, "and routeId:", routeId);
 
     const modal = document.getElementById('segment-modal');
-    const segmentTitle = document.getElementById('segment-details'); // For displaying the title
-    const routeIdElement = document.getElementById('route-id'); // For displaying the route ID
+    const segmentTitle = document.getElementById('segment-details');
+    const routeIdElement = document.getElementById('route-id');
     const deleteButton = document.getElementById('delete-segment');
 
     if (!modal || !segmentTitle || !routeIdElement || !deleteButton) {
@@ -16,14 +16,7 @@ function openSegmentModal(title, routeId) {
 
     // Display the segment title and route ID in the modal
     segmentTitle.innerText = title;
-    routeIdElement.innerText = `Route ID: ${routeId}`; // Display routeId in smaller text
-
-    // Log to verify that the `routeIdElement` was updated
-    console.log("Title set in modal:", segmentTitle.innerText);
-    console.log("Route ID set in modal:", routeIdElement.innerText);
-
-    // Store routeId on the delete button as a data attribute
-    deleteButton.setAttribute('data-route-id', routeId);
+    routeIdElement.innerText = `Route ID: ${routeId}`;
 
     // Show the modal
     modal.classList.add('show');
@@ -32,10 +25,9 @@ function openSegmentModal(title, routeId) {
     // Clear previous event listeners to avoid duplicate calls
     deleteButton.onclick = null;
 
-    // Assign the delete function, using the routeId from the data attribute on the delete button
+    // Assign delete function directly to delete button
     deleteButton.onclick = function() {
-        const routeIdFromButton = deleteButton.getAttribute('data-route-id');
-        deleteSegment(routeIdFromButton); // Pass the stored routeId
+        deleteSegment(); // Calls deleteSegment, which retrieves routeId from modal text
     };
 }
 
@@ -44,10 +36,14 @@ function openSegmentModal(title, routeId) {
 // ============================
 // SECTION: Delete Segment
 // ============================
-async function deleteSegment(routeId) {
+async function deleteSegment() {
     const deleteButton = document.getElementById('delete-segment');
     deleteButton.disabled = true;
     deleteButton.innerHTML = "Deleting...";
+
+    // Retrieve routeId directly from the displayed text in the modal
+    const routeIdElement = document.getElementById('route-id');
+    const routeId = routeIdElement ? routeIdElement.innerText.replace('Route ID: ', '') : null;
 
     if (!routeId) {
         console.error("No route ID found for deletion.");
@@ -81,6 +77,7 @@ async function deleteSegment(routeId) {
         }
     }
 }
+
 
 
 
