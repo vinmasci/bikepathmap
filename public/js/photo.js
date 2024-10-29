@@ -108,47 +108,40 @@ async function loadPhotoMarkers() {
             map.on('click', 'unclustered-photo', (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const { originalName, url, _id: photoId } = e.features[0].properties;
-
-                console.log("Unclustered photo clicked:", photoId);
-
-                // Create popup content displaying photoId
+            
+                // Create popup content with clickable text for deletion
                 const popupContent = `
                     <div style="text-align: center;">
                         <p id="photoIdText" style="font-size: small; color: gray;">Photo ID: ${photoId}</p>
                         <img src="${url}" style="width:200px; margin-bottom: 10px;">
-                        <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
+                        <span id="deletePhotoText" style="color: red; cursor: pointer; text-decoration: underline;">
                             Delete Photo
-                        </button>
+                        </span>
                     </div>
                 `;
-
+            
                 const popup = new mapboxgl.Popup()
                     .setLngLat(coordinates)
                     .setHTML(popupContent)
                     .addTo(map);
-
-                // Add event listener for delete button within the popup
+            
+                // Event listener for clickable delete text
                 popup.on('open', () => {
-                    const deleteButton = document.getElementById('deletePhotoBtn');
-                    if (deleteButton) {
-                        console.log("Delete button found, attaching event listener.");
-                        deleteButton.onclick = async () => {
-                            console.log("Delete button clicked.");
-                            const photoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
-                            console.log("Photo ID for deletion:", photoId);
-                
-                            if (photoId) {
-                                await deletePhoto(photoId);  // Call delete function with photo ID
-                                popup.remove();              // Close popup after deletion
-                            } else {
-                                console.error("No photo ID found for deletion.");
-                            }
-                        };
-                    } else {
-                        console.error("Delete button not found.");
-                    }
+                    const deleteText = document.getElementById('deletePhotoText');
+                    deleteText?.addEventListener('click', async () => {
+                        const photoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
+                        console.log("Deleting photo with ID:", photoId);  // For manual verification
+            
+                        if (photoId) {
+                            await deletePhoto(photoId);  // Call delete function with photo ID
+                            popup.remove();              // Close popup after deletion
+                        } else {
+                            console.error("No photo ID found for deletion.");
+                        }
+                    });
                 });
             });
+            
 
         } else {
             map.getSource('photoMarkers').setData(photoGeoJSON);
