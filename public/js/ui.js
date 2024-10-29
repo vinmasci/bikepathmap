@@ -2,11 +2,11 @@
 // SECTION: Open Segment Modal
 // ============================
 function openSegmentModal(title, routeId) {
-    console.log("Opening segment modal with title:", title, "and routeId:", routeId);
+    console.log("Opening segment modal with title:", title, "and routeId:", routeId); // Log to confirm values
 
     const modal = document.getElementById('segment-modal');
     const segmentTitle = document.getElementById('segment-details'); // For displaying the title
-    const routeIdElement = document.getElementById('route-id'); // New element for route ID
+    const routeIdElement = document.getElementById('route-id'); // For displaying the route ID
     const deleteButton = document.getElementById('delete-segment');
 
     if (!modal || !segmentTitle || !routeIdElement || !deleteButton) {
@@ -16,7 +16,11 @@ function openSegmentModal(title, routeId) {
 
     // Display the segment title and route ID in the modal
     segmentTitle.innerText = title;
-    routeIdElement.innerText = `Route ID: ${routeId}`; // Corrected to display routeId
+    routeIdElement.innerText = `Route ID: ${routeId}`; // Display routeId in smaller text
+
+    // Log to verify that the `routeIdElement` was updated
+    console.log("Title set in modal:", segmentTitle.innerText);
+    console.log("Route ID set in modal:", routeIdElement.innerText);
 
     // Store routeId on the delete button as a data attribute
     deleteButton.setAttribute('data-route-id', routeId);
@@ -34,6 +38,7 @@ function openSegmentModal(title, routeId) {
         deleteSegment(routeIdFromButton); // Pass the stored routeId
     };
 }
+
 
 
 // ============================
