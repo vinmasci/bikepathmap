@@ -134,6 +134,8 @@ map.on('click', 'unclustered-photo', (e) => {
             });
         }
     });
+    
+});
 
 
 
