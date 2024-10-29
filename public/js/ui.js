@@ -13,8 +13,10 @@ function openSegmentModal(segmentId) {
         return;
     }
 
-    // Display the segmentId in the modal for reference
-    segmentDetails.innerText = segmentId;
+    // Display the segment title or other details (optional) and store the segmentId in a data attribute
+    segmentDetails.innerText = `Segment Details`; // Only display a generic label, no segmentId
+    segmentDetails.setAttribute('data-segment-id', segmentId); // Store segmentId as a data attribute
+
     modal.classList.add('show');
     modal.style.display = 'block';
 
@@ -84,7 +86,8 @@ function closeModal() {
 // Attach Event Listener to Delete Button (No Inline Onclick)
 // ============================
 document.getElementById('delete-segment').addEventListener('click', () => {
-    const segmentId = document.getElementById('segment-details').innerText;
+    // Fetch the actual segmentId stored in the data attribute, not inner text
+    const segmentId = document.getElementById('segment-details').getAttribute('data-segment-id');
     deleteSegment(segmentId);
 });
 
