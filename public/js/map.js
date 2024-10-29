@@ -254,14 +254,6 @@ map.on('click', 'drawn-segments-layer', (e) => {
 
     console.log('Opening modal for routeId:', routeId);
 
-    // Define the popup content with title and delete button
-    const popupContent = `
-    <strong>${title}</strong>
-    <button id="deleteSegmentBtn" style="display: block; margin-top: 8px; background-color: red; color: white; padding: 5px; border: 2px solid black; font-size: 16px; cursor: pointer;">
-        Delete Segment
-    </button>
-    `;
-
     // Create the popup with the content
     const popup = new mapboxgl.Popup()
         .setLngLat(e.lngLat)
