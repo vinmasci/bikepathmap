@@ -43,18 +43,33 @@ async function deleteSegment() {
 
     if (!currentRouteId) {
         console.error("No current route ID found for deletion.");
+        deleteButton.disabled = false;
+        deleteButton.innerHTML = "Delete Segment";
         return;
     }
 
     if (confirm("Are you sure you want to delete this segment?")) {
         try {
             console.log(`Deleting segment with ID: ${currentRouteId}`);
+
+            // Perform the delete request
             const response = await fetch(`/api/delete-drawn-route?id=${currentRouteId}`, {
                 method: 'DELETE',
             });
+
+            // Check if the response is OK (status 200)
+            if (!response.ok) {
+                console.error(`Failed to delete segment. Status: ${response.status}`);
+                console.log(await response.text()); // Log any additional info from the server
+                deleteButton.innerHTML = "Delete Segment"; // Reset button text
+                return;
+            }
+
+            // Parse the response JSON
             const result = await response.json();
             console.log('Delete request result:', result);
 
+            // Check if deletion was successful
             if (result.success) {
                 console.log('Segment deleted successfully.');
                 closeModal(); // Close modal on successful deletion
@@ -68,6 +83,10 @@ async function deleteSegment() {
             deleteButton.disabled = false;
             deleteButton.innerHTML = "Delete Segment"; // Restore button text
         }
+    } else {
+        // Reset button state if deletion is canceled
+        deleteButton.disabled = false;
+        deleteButton.innerHTML = "Delete Segment";
     }
 }
 
@@ -90,9 +109,6 @@ function closeModal() {
         modal.classList.remove('show');
     }
 }
-
-
-
 
 
 // ============================
