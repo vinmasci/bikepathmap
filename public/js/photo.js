@@ -108,7 +108,7 @@ async function loadPhotoMarkers() {
             map.on('click', 'unclustered-photo', (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const { originalName, url, _id: photoId } = e.features[0].properties;
-            
+
                 // Create popup content with clickable text for deletion
                 const popupContent = `
                     <div style="text-align: center;">
@@ -119,68 +119,76 @@ async function loadPhotoMarkers() {
                         </span>
                     </div>
                 `;
-            
+
                 const popup = new mapboxgl.Popup()
                     .setLngLat(coordinates)
                     .setHTML(popupContent)
                     .addTo(map);
-            
+
                 console.log("Popup opened with Photo ID:", photoId);
-            
+
                 // Event listener for clickable delete text
                 popup.on('open', () => {
                     const deleteText = document.getElementById('deletePhotoText');
-                    if (!deleteText) {
+                    
+                    if (deleteText) {
+                        deleteText.addEventListener('click', async () => {
+                            const retrievedPhotoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
+                            console.log("Delete text clicked. Retrieved Photo ID:", retrievedPhotoId);
+
+                            if (retrievedPhotoId) {
+                                await deletePhoto(retrievedPhotoId);  // Call delete function with retrieved photo ID
+                                popup.remove();  // Close popup after deletion
+                                console.log("Popup removed after deletion.");
+                            } else {
+                                console.error("No photo ID found for deletion.");
+                            }
+                        });
+                    } else {
                         console.error("Delete text element not found in popup.");
-                        return;
                     }
-            
-                    deleteText.addEventListener('click', async () => {
-                        const retrievedPhotoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
-                        console.log("Delete text clicked. Retrieved Photo ID:", retrievedPhotoId);
-            
-                        if (retrievedPhotoId) {
-                            await deletePhoto(retrievedPhotoId);  // Call delete function with retrieved photo ID
-                            popup.remove();  // Close popup after deletion
-                            console.log("Popup removed after deletion.");
-                        } else {
-                            console.error("No photo ID found for deletion.");
-                        }
-                    });
                 });
             });
-            
-            // Delete photo function with additional logging
-            async function deletePhoto(photoId) {
-                if (!confirm("Are you sure you want to delete this photo?")) return;
-            
-                try {
-                    console.log("Sending delete request for photo ID:", photoId);
-                    const response = await fetch(`/api/delete-photo?photoId=${encodeURIComponent(photoId)}`, {
-                        method: 'DELETE'
-                    });
-                    
-                    console.log("Delete request sent for photo ID:", photoId);
-            
-                    if (!response.ok) {
-                        console.error("Server responded with error status:", response.status);
-                        return;
-                    }
-            
-                    const result = await response.json();
-                    console.log("Delete request result:", result);
-            
-                    if (result.success) {
-                        console.log("Photo deleted successfully.");
-                        loadPhotoMarkers(); // Refresh markers to remove deleted photo
-                    } else {
-                        console.error("Failed to delete photo:", result.message);
-                    }
-                } catch (error) {
-                    console.error("Error deleting photo:", error);
-                }
-            }
-            
+
+        } else {
+            map.getSource('photoMarkers').setData(photoGeoJSON);
+            console.log("Updated photoMarkers source data.");
+        }
+    } catch (error) {
+        console.error('Error loading photo markers:', error);
+    }
+}
+
+// Delete photo function with additional logging
+async function deletePhoto(photoId) {
+    if (!confirm("Are you sure you want to delete this photo?")) return;
+
+    try {
+        console.log("Sending delete request for photo ID:", photoId);
+        const response = await fetch(`/api/delete-photo?photoId=${encodeURIComponent(photoId)}`, {
+            method: 'DELETE'
+        });
+
+        console.log("Delete request sent for photo ID:", photoId);
+
+        if (!response.ok) {
+            console.error("Server responded with error status:", response.status);
+            return;
+        }
+
+        const result = await response.json();
+        console.log("Delete request result:", result);
+
+        if (result.success) {
+            console.log("Photo deleted successfully.");
+            loadPhotoMarkers(); // Refresh markers to remove deleted photo
+        } else {
+            console.error("Failed to delete photo:", result.message);
+        }
+    } catch (error) {
+        console.error("Error deleting photo:", error);
+    }
+}
 
 // Function to remove all photo markers and clusters from the map
 function removePhotoMarkers() {
