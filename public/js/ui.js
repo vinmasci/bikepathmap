@@ -30,49 +30,47 @@ function openSegmentModal(title, routeId) {
     // Remove any previous event listener from the delete button to prevent duplicates
     deleteButton.onclick = null;
 
-    // Attach the click event listener for deleting the segment with the specific routeId
-    deleteButton.onclick = () => {
-        console.log("Attempting to delete segment with ID:", routeId); // Log the routeId
-        deleteSegment(routeId);  // Call delete function with the routeId
-    };
+// Attach the click event listener for deleting the segment with the specific routeId
+deleteButton.onclick = () => {
+    console.log("Attempting to delete segment with ID:", routeId); // Log the routeId
+    window.requestAnimationFrame(() => deleteSegment(routeId));  // Use requestAnimationFrame for non-blocking UI
+};
+
 }
 
 // ============================
 // SECTION: Delete Segment
 // ============================
 async function deleteSegment(routeId) {
-    // Confirm with the user before proceeding
+    const deleteButton = document.getElementById('delete-segment');
+    deleteButton.disabled = true;
+    deleteButton.innerHTML = "Deleting..."; // Change button text to indicate progress
+
     if (confirm("Are you sure you want to delete this segment?")) {
         try {
             console.log(`Deleting segment with ID: ${routeId}`);
-            
             const response = await fetch(`/api/delete-drawn-route?id=${routeId}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
             });
-
-            if (!response.ok) {
-                throw new Error(`Server responded with status ${response.status}`);
-            }
-
             const result = await response.json();
             console.log('Delete request result:', result);
 
-            // Check if deletion was successful
             if (result.success) {
                 console.log('Segment deleted successfully.');
-                closeModal();         // Close the modal
-                loadSegments();        // Reload segments to refresh the map
+                closeModal(); // Close modal on successful deletion
+                loadSegments(); // Reload segments to refresh the map
             } else {
                 console.error('Failed to delete segment:', result.message);
-                alert(`Failed to delete segment: ${result.message}`);
             }
         } catch (error) {
             console.error('Error in deleting segment:', error);
-            alert("An error occurred while attempting to delete the segment. Please try again.");
+        } finally {
+            deleteButton.disabled = false;
+            deleteButton.innerHTML = "Delete Segment"; // Restore button text
         }
     }
 }
+
 
 // ============================
 // SECTION: Close Modal
