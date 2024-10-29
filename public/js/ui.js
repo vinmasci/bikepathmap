@@ -1,3 +1,5 @@
+let currentRouteId = null; // Track the route ID globally
+
 // ============================
 // SECTION: Open Segment Modal
 // ============================
@@ -14,19 +16,16 @@ function openSegmentModal(title, routeId) {
         return;
     }
 
-    // Validate if the routeId is a valid ObjectId format (24 hexadecimal characters)
-    if (!/^[a-fA-F0-9]{24}$/.test(routeId)) {
-        console.error("Invalid routeId format:", routeId);
-        alert("The segment ID is not valid.");
-        return;
-    }
+    // Set the global currentRouteId
+    currentRouteId = routeId;
+    console.log("Set currentRouteId to:", currentRouteId); // Verify currentRouteId is set
 
     // Update modal content and show the modal
     segmentDetails.innerText = `Segment: ${title}`;
     modal.classList.add('show');
     modal.style.display = 'block';
 
-    // Make the delete button visible and clickable
+    // Ensure the delete button is fully visible and clickable
     deleteButton.style.display = 'inline';
     deleteButton.style.visibility = 'visible';
     deleteButton.style.pointerEvents = 'auto';
@@ -34,10 +33,10 @@ function openSegmentModal(title, routeId) {
     // Clear previous event listener to avoid duplicate events
     deleteButton.onclick = null;
 
-    // Attach a new click event listener that passes the validated routeId directly
+    // Attach a new click event listener, explicitly passing currentRouteId
     deleteButton.onclick = () => {
-        console.log("Delete button clicked with routeId:", routeId);
-        deleteSegment(routeId); // Call delete with the specific route ID
+        console.log("Delete button clicked with currentRouteId:", currentRouteId);
+        deleteSegment(currentRouteId); // Pass the specific route ID
     };
 }
 
@@ -93,6 +92,7 @@ function closeModal() {
         modal.classList.remove('show');
     }
 }
+
 
 
 // ============================
