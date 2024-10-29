@@ -22,120 +22,74 @@ async function loadPhotoMarkers() {
                 },
                 properties: {
                     originalName: photo.originalName,
-                    url: photo.url  // We'll use the URL in popups, but not as an icon
+                    url: photo.url,  // URL to display in the popup
+                    latitude: photo.latitude,
+                    longitude: photo.longitude,
+                    _id: photo._id  // Assuming MongoDB _id is included for deletion
                 }
             }))
         };
 
-        console.log("GeoJSON formatted photos:", photoGeoJSON);
-
         // Add a GeoJSON source for photos with clustering enabled
         if (!map.getSource('photoMarkers')) {
-            console.log("Adding photoMarkers source to the map...");
-
             map.addSource('photoMarkers', {
                 type: 'geojson',
                 data: photoGeoJSON,
-                cluster: true,   // Enable clustering
-                clusterMaxZoom: 12,  // Max zoom to cluster points on
-                clusterRadius: 50   // Radius of each cluster (adjust as needed)
+                cluster: true,
+                clusterMaxZoom: 12,
+                clusterRadius: 50
             });
 
-
-// CLUSTER
-// Load the camera icon for the cluster expansion from the public folder
-map.loadImage('/cameraiconexpand.png', (error, image) => {
-    if (error) {
-        console.error('Error loading camera icon for clusters:', error);
-        return;
-    }
-
-    // Add the camera icon for clusters to the map
-    if (!map.hasImage('camera-icon-cluster')) {
-        map.addImage('camera-icon-cluster', image);
-    }
-
-    // Add cluster points using the camera icon
-    map.addLayer({
-        id: 'clusters',
-        type: 'symbol',
-        source: 'photoMarkers',
-        filter: ['has', 'point_count'],  // Only show clusters
-        layout: {
-            'icon-image': 'camera-icon-cluster',  // Use the loaded camera icon for clusters
-            'icon-size': 0.4,  // Adjust size as needed for clusters
-            'icon-allow-overlap': true,
-            'icon-pitch-alignment': 'map',
-            'icon-rotation-alignment': 'map'
-        }
-    });
-
-
-});
-
-
-// UNCLUSTER
-// Load the camera icon from the public folder
-map.loadImage('/cameraicon1.png', (error, image) => {
-    if (error) {
-        console.error('Error loading camera icon:', error);
-        return;
-    }
-
-    // Add the camera icon to the map
-    if (!map.hasImage('camera-icon')) {
-        map.addImage('camera-icon', image);
-    }
-
-    // Add unclustered photo points using the camera icon
-    map.addLayer({
-        id: 'unclustered-photo',
-        type: 'symbol',
-        source: 'photoMarkers',
-        filter: ['!', ['has', 'point_count']],  // Show only unclustered points
-        layout: {
-            'icon-image': 'camera-icon',  // Use the loaded camera icon
-            'icon-size': 0.3,  // Adjust size as needed
-            'icon-allow-overlap': true,
-            'icon-pitch-alignment': 'map',  // Ensure icon faces the map
-            'icon-rotation-alignment': 'map'  // Prevent upside-down icons
-        }
-    });
-});
-
-
-            // Add click event for clusters to zoom into them
-            map.on('click', 'clusters', (e) => {
-                const features = map.queryRenderedFeatures(e.point, {
-                    layers: ['clusters']
-                });
-                const clusterId = features[0].properties.cluster_id;
-                map.getSource('photoMarkers').getClusterExpansionZoom(clusterId, (err, zoom) => {
-                    if (err) return;
-
-                    map.easeTo({
-                        center: features[0].geometry.coordinates,
-                        zoom: zoom
-                    });
+            // UNCLUSTERED PHOTO ICON
+            map.loadImage('/cameraicon1.png', (error, image) => {
+                if (error) throw error;
+                if (!map.hasImage('camera-icon')) map.addImage('camera-icon', image);
+                map.addLayer({
+                    id: 'unclustered-photo',
+                    type: 'symbol',
+                    source: 'photoMarkers',
+                    filter: ['!', ['has', 'point_count']],
+                    layout: {
+                        'icon-image': 'camera-icon',
+                        'icon-size': 0.3,
+                        'icon-allow-overlap': true
+                    }
                 });
             });
 
             // Add click event for unclustered photos
             map.on('click', 'unclustered-photo', (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
-                const { originalName, url } = e.features[0].properties;
+                const { originalName, url, latitude, longitude, _id } = e.features[0].properties;
 
-                // Create a popup with photo information
-                new mapboxgl.Popup()
+                // Popup content without heading, including location and delete button
+                const popupContent = `
+                    <div>
+                        <img src="${url}" style="width:200px; margin-bottom: 10px;">
+                        <p>Location: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}</p>
+                        <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
+                            Delete Photo
+                        </button>
+                    </div>
+                `;
+
+                const popup = new mapboxgl.Popup()
                     .setLngLat(coordinates)
-                    .setHTML(`<h3>${originalName}</h3><img src="${url}" style="width:200px;">`)
+                    .setHTML(popupContent)
                     .addTo(map);
+
+                // Add event listener to the delete button
+                popup.on('open', () => {
+                    const deleteButton = document.getElementById('deletePhotoBtn');
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', () => {
+                            deletePhoto(_id);  // Call delete function with photo ID
+                            popup.remove();    // Close popup after deletion
+                        });
+                    }
+                });
             });
-
-            console.log("Photo markers and clusters successfully added.");
-
         } else {
-            console.log("Updating existing photoMarkers source...");
             map.getSource('photoMarkers').setData(photoGeoJSON);
         }
     } catch (error) {
@@ -143,10 +97,29 @@ map.loadImage('/cameraicon1.png', (error, image) => {
     }
 }
 
+// Delete photo function
+async function deletePhoto(photoId) {
+    if (!confirm("Are you sure you want to delete this photo?")) return;
+
+    try {
+        const response = await fetch(`/api/delete-photo?photoId=${encodeURIComponent(photoId)}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            console.log("Photo deleted successfully.");
+            loadPhotoMarkers(); // Refresh markers to remove deleted photo
+        } else {
+            console.error("Failed to delete photo:", result.message);
+        }
+    } catch (error) {
+        console.error("Error deleting photo:", error);
+    }
+}
+
 // Function to remove all photo markers and clusters from the map
 function removePhotoMarkers() {
-    if (map.getLayer('clusters')) map.removeLayer('clusters');
-    if (map.getLayer('cluster-count')) map.removeLayer('cluster-count');
     if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
     if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
 }
