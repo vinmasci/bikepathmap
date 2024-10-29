@@ -1,22 +1,27 @@
 // ============================
 // SECTION: Open Segment Modal
 // ============================
-function openSegmentModal(segmentId) {
-    console.log("Opening segment modal with segmentId:", segmentId);
+function openSegmentModal(title, segmentId) {
+    console.log("Opening segment modal with title:", title, "and segmentId:", segmentId);
 
     const modal = document.getElementById('segment-modal');
-    const segmentDetails = document.getElementById('segment-details');
+    const segmentDetails = document.getElementById('segment-details'); // Element for title
+    const routeIdElement = document.getElementById('route-id'); // New element for route ID
     const deleteButton = document.getElementById('delete-segment');
 
-    if (!modal || !segmentDetails || !deleteButton) {
-        console.error("Modal, segment details, or delete button element not found.");
+    if (!modal || !segmentDetails || !routeIdElement || !deleteButton) {
+        console.error("Modal, segment details, route ID element, or delete button not found.");
         return;
     }
 
-    // Display a generic label in the modal and set the segmentId as a data attribute on the delete button
-    segmentDetails.innerText = "Segment Details"; 
-    deleteButton.setAttribute('data-segment-id', segmentId); // Store segmentId on delete button
+    // Display the segment title and route ID in the modal
+    segmentDetails.innerText = title;
+    routeIdElement.innerText = `Route ID: ${segmentId}`; // Display segmentId in smaller text
 
+    // Store segmentId on the delete button as a data attribute
+    deleteButton.setAttribute('data-segment-id', segmentId);
+
+    // Show the modal
     modal.classList.add('show');
     modal.style.display = 'block';
 
@@ -71,6 +76,7 @@ async function deleteSegment(segmentId) {
     }
 }
 
+
 // ============================
 // SECTION: Close Modal
 // ============================
@@ -89,7 +95,7 @@ function closeModal() {
 document.getElementById('delete-segment').addEventListener('click', () => {
     // Fetch the segmentId from the delete button's data attribute
     const segmentId = document.getElementById('delete-segment').getAttribute('data-segment-id');
-    deleteSegment(segmentId);
+    deleteSegment(segmentId); // Call deleteSegment with segmentId
 });
 
 
