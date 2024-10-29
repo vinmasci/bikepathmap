@@ -22,8 +22,8 @@ async function loadPhotoMarkers() {
                 },
                 properties: {
                     originalName: photo.originalName,
-                    url: photo.url,  // URL to display in the popup
-                    _id: photo._id   // MongoDB _id for deletion
+                    url: photo.url,
+                    _id: photo._id
                 }
             }))
         };
@@ -41,9 +41,11 @@ async function loadPhotoMarkers() {
             // Clustered Icon Layer
             map.loadImage('/cameraiconexpand.png', (error, image) => {
                 if (error) throw error;
+                console.log("Loaded cluster icon.");
 
                 if (!map.hasImage('camera-icon-cluster')) {
                     map.addImage('camera-icon-cluster', image);
+                    console.log("Added cluster icon to map.");
                 }
 
                 map.addLayer({
@@ -57,14 +59,17 @@ async function loadPhotoMarkers() {
                         'icon-allow-overlap': true
                     }
                 });
+                console.log("Added cluster layer to map.");
             });
 
             // Unclustered Photo Icon Layer
             map.loadImage('/cameraicon1.png', (error, image) => {
                 if (error) throw error;
+                console.log("Loaded unclustered photo icon.");
 
                 if (!map.hasImage('camera-icon')) {
                     map.addImage('camera-icon', image);
+                    console.log("Added unclustered photo icon to map.");
                 }
 
                 map.addLayer({
@@ -78,6 +83,7 @@ async function loadPhotoMarkers() {
                         'icon-allow-overlap': true
                     }
                 });
+                console.log("Added unclustered photo layer to map.");
             });
 
             // Click event for clusters to zoom into them
@@ -86,6 +92,8 @@ async function loadPhotoMarkers() {
                     layers: ['clusters']
                 });
                 const clusterId = features[0].properties.cluster_id;
+                console.log("Cluster clicked, expanding cluster:", clusterId);
+
                 map.getSource('photoMarkers').getClusterExpansionZoom(clusterId, (err, zoom) => {
                     if (err) return;
 
@@ -100,6 +108,8 @@ async function loadPhotoMarkers() {
             map.on('click', 'unclustered-photo', (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const { originalName, url, _id: photoId } = e.features[0].properties;
+
+                console.log("Unclustered photo clicked:", photoId);
 
                 // Create popup content displaying photoId
                 const popupContent = `
@@ -117,24 +127,33 @@ async function loadPhotoMarkers() {
                     .setHTML(popupContent)
                     .addTo(map);
 
-                // Event listener for delete button within the popup
+                // Add event listener for delete button within the popup
                 popup.on('open', () => {
+                    console.log("Popup opened with delete button for photo ID:", photoId);
                     const deleteButton = document.getElementById('deletePhotoBtn');
-                    deleteButton?.addEventListener('click', async () => {
-                        const photoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
-                        console.log("Deleting photo with ID:", photoId);  // For manual verification
-                        if (photoId) {
-                            await deletePhoto(photoId);  // Call delete function with photo ID
-                            popup.remove();              // Close popup after deletion
-                        } else {
-                            console.error("No photo ID found for deletion.");
-                        }
-                    });
+
+                    if (deleteButton) {
+                        deleteButton.onclick = async () => {
+                            const photoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
+                            console.log("Delete button clicked, deleting photo ID:", photoId);
+
+                            if (photoId) {
+                                await deletePhoto(photoId);  // Call delete function with photo ID
+                                popup.remove();              // Close popup after deletion
+                                console.log("Popup closed after deletion.");
+                            } else {
+                                console.error("No photo ID found for deletion.");
+                            }
+                        };
+                    } else {
+                        console.error("Delete button not found within popup.");
+                    }
                 });
             });
 
         } else {
             map.getSource('photoMarkers').setData(photoGeoJSON);
+            console.log("Updated photoMarkers source data.");
         }
     } catch (error) {
         console.error('Error loading photo markers:', error);
@@ -146,6 +165,7 @@ async function deletePhoto(photoId) {
     if (!confirm("Are you sure you want to delete this photo?")) return;
 
     try {
+        console.log("Sending delete request for photo ID:", photoId);
         const response = await fetch(`/api/delete-photo?photoId=${encodeURIComponent(photoId)}`, {
             method: 'DELETE'
         });
@@ -167,4 +187,5 @@ function removePhotoMarkers() {
     if (map.getLayer('clusters')) map.removeLayer('clusters');
     if (map.getLayer('unclustered-photo')) map.removeLayer('unclustered-photo');
     if (map.getSource('photoMarkers')) map.removeSource('photoMarkers');
+    console.log("Removed all photo markers and clusters from the map.");
 }
