@@ -4,7 +4,7 @@ let currentRouteId = null; // Track the route ID globally
 // SECTION: Open Segment Modal
 // ============================
 function openSegmentModal(title, routeId) {
-    console.log("Opening segment modal with routeId:", routeId); // Debug: log routeId
+    console.log("Opening segment modal with routeId:", routeId);
 
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
@@ -15,9 +15,9 @@ function openSegmentModal(title, routeId) {
         return;
     }
 
-    // Set and confirm the routeId globally, only if we aren't directly passing it
+    // Set the global currentRouteId and log confirmation
     currentRouteId = routeId;
-    console.log("Set currentRouteId to:", currentRouteId); // Confirm it’s set
+    console.log("Set currentRouteId to:", currentRouteId);
 
     // Update modal content and show the modal
     segmentDetails.innerText = `Segment: ${title}`;
@@ -29,8 +29,11 @@ function openSegmentModal(title, routeId) {
     deleteButton.style.visibility = 'visible';
     deleteButton.style.pointerEvents = 'auto';
 
-    // Bind delete functionality with the current routeId, directly passing it
-    deleteButton.onclick = () => handleDeleteClick(routeId);
+    // Ensure `routeId` is passed correctly by wrapping in an arrow function
+    deleteButton.onclick = (event) => {
+        event.stopPropagation(); // Prevent event propagation
+        handleDeleteClick(routeId); // Pass the routeId directly
+    };
 }
 
 // ============================
@@ -82,6 +85,7 @@ async function deleteSegment(routeId) {
         }
     }
 }
+
 
 // ============================
 // SECTION: Close Modal
