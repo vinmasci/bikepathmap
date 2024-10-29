@@ -22,8 +22,8 @@ async function loadPhotoMarkers() {
                 },
                 properties: {
                     originalName: photo.originalName,
-                    url: photo.url,
-                    _id: photo._id  // MongoDB _id for deletion
+                    url: photo.url,  // URL to display in the popup
+                    _id: photo._id   // MongoDB _id for deletion
                 }
             }))
         };
@@ -104,7 +104,7 @@ async function loadPhotoMarkers() {
                 // Create popup content displaying photoId
                 const popupContent = `
                     <div style="text-align: center;">
-                        <p style="font-size: small; color: gray;">Photo ID: ${photoId}</p>
+                        <p id="photoIdText" style="font-size: small; color: gray;">Photo ID: ${photoId}</p>
                         <img src="${url}" style="width:200px; margin-bottom: 10px;">
                         <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
                             Delete Photo
@@ -117,13 +117,18 @@ async function loadPhotoMarkers() {
                     .setHTML(popupContent)
                     .addTo(map);
 
-                // Event listener for delete button
+                // Event listener for delete button within the popup
                 popup.on('open', () => {
                     const deleteButton = document.getElementById('deletePhotoBtn');
                     deleteButton?.addEventListener('click', async () => {
+                        const photoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
                         console.log("Deleting photo with ID:", photoId);  // For manual verification
-                        await deletePhoto(photoId);  // Call delete function
-                        popup.remove();              // Close popup after deletion
+                        if (photoId) {
+                            await deletePhoto(photoId);  // Call delete function with photo ID
+                            popup.remove();              // Close popup after deletion
+                        } else {
+                            console.error("No photo ID found for deletion.");
+                        }
                     });
                 });
             });
