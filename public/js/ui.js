@@ -4,41 +4,40 @@ let currentRouteId = null; // Track the route ID globally
 // SECTION: Open Segment Modal
 // ============================
 function openSegmentModal(title, routeId) {
-    console.log("Opening segment modal with routeId:", routeId);
+    console.log("Opening segment modal with routeId:", routeId); // Log routeId when modal opens
 
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
     const deleteButton = document.getElementById('delete-segment');
 
+    // Confirm that elements exist before proceeding
     if (!modal || !segmentDetails || !deleteButton) {
         console.error("Modal, segment details, or delete button element not found.");
         return;
     }
 
-    // Set the global currentRouteId and log confirmation
+    // Set the global currentRouteId
     currentRouteId = routeId;
-    console.log("Set currentRouteId to:", currentRouteId);
+    console.log("Set currentRouteId to:", currentRouteId); // Verify currentRouteId is set
 
     // Update modal content and show the modal
     segmentDetails.innerText = `Segment: ${title}`;
     modal.classList.add('show');
     modal.style.display = 'block';
 
-    // Ensure delete button is visible and clickable
+    // Ensure the delete button is fully visible and clickable
     deleteButton.style.display = 'inline';
     deleteButton.style.visibility = 'visible';
     deleteButton.style.pointerEvents = 'auto';
 
-    // Set up the delete button's click event to delete the current route ID
-    deleteButton.onclick = handleDeleteClick;
-}
+    // Clear previous event listener to avoid duplicate events
+    deleteButton.onclick = null;
 
-// ============================
-// SECTION: Handle Delete Click
-// ============================
-function handleDeleteClick() {
-    console.log("Delete button clicked with currentRouteId:", currentRouteId);
-    deleteSegment(currentRouteId); // Ensure currentRouteId is passed explicitly
+    // Attach a new click event listener, explicitly passing currentRouteId
+    deleteButton.onclick = () => {
+        console.log("Delete button clicked with currentRouteId:", currentRouteId);
+        deleteSegment(currentRouteId); // Pass the specific route ID
+    };
 }
 
 // ============================
@@ -47,7 +46,7 @@ function handleDeleteClick() {
 async function deleteSegment(routeId) {
     const deleteButton = document.getElementById('delete-segment');
     deleteButton.disabled = true;
-    deleteButton.innerHTML = "Deleting...";
+    deleteButton.innerHTML = "Deleting..."; // Show deletion progress
 
     if (!routeId) {
         console.error("No route ID provided for deletion.");
@@ -93,7 +92,6 @@ function closeModal() {
         modal.classList.remove('show');
     }
 }
-
 
 
 // ============================
