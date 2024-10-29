@@ -94,6 +94,13 @@ function closeModal() {
 }
 
 
+
+// ============================
+// Ensure Persistent Delete Button Event Listener for Safety
+// ============================
+document.getElementById('delete-segment').addEventListener('click', deleteSegment);
+
+
 // ============================
 // SECTION: Tab Highlighting
 // ============================
