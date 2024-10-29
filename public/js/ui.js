@@ -13,17 +13,18 @@ function openSegmentModal(title, routeId) {
         return;
     }
 
-    // Log and update modal content with title
-    console.log("Segment details set with routeId:", routeId);
+    // Set and log the routeId for verification
     segmentDetails.innerText = `Segment: ${title}`;
     modal.classList.add('show');
     modal.style.display = 'block';
 
-    // Remove any existing click listener to prevent multiple listeners
+    // Clear any prior event listeners to avoid duplicate calls
     deleteButton.onclick = null;
 
-    // Add a click listener passing routeId directly to deleteSegment
-    deleteButton.addEventListener('click', () => deleteSegment(routeId));
+    // Set delete function with captured `routeId`
+    deleteButton.onclick = function() {
+        deleteSegment(routeId); // Pass routeId explicitly
+    };
 }
 
 // ============================
@@ -78,6 +79,7 @@ function closeModal() {
         modal.classList.remove('show');
     }
 }
+
 
 
 // ============================
