@@ -60,6 +60,12 @@ function openSegmentModal(title, routeId) {
     modal.classList.add('show');
     modal.style.display = 'block';
 
+      // Ensure the delete button is fully visible and clickable
+      deleteButton.style.display = 'inline';
+      deleteButton.style.visibility = 'visible';
+      deleteButton.style.pointerEvents = 'auto';
+  
+
     // Remove any previous event listener from the delete button to prevent duplicates
     deleteButton.onclick = null;
 
