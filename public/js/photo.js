@@ -101,11 +101,12 @@ map.on('click', 'unclustered-photo', (e) => {
     const coordinates = e.features[0].geometry.coordinates.slice();
     const { originalName, url, _id: photoId } = e.features[0].properties; // Assume `_id` is the photoId
 
-    // Create popup content without heading and with a centered delete button
+    // Create popup content with photoId displayed
     const popupContent = `
         <div style="text-align: center;">
+            <p style="font-size: small; color: gray;">Photo ID: ${photoId}</p> <!-- Display photoId for debugging -->
             <img src="${url}" style="width:200px; margin-bottom: 10px;">
-            <button id="deletePhotoBtn" data-photo-id="${photoId}" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
+            <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
                 Delete Photo
             </button>
         </div>
@@ -116,12 +117,12 @@ map.on('click', 'unclustered-photo', (e) => {
         .setHTML(popupContent)
         .addTo(map);
 
-    // Add click event for delete button after popup is added to DOM
+    // Add click event for delete button within the popup
     popup.on('open', () => {
         const deleteButton = document.getElementById('deletePhotoBtn');
         if (deleteButton) {
             deleteButton.onclick = async () => {
-                const photoId = deleteButton.getAttribute('data-photo-id'); // Retrieve the photo ID
+                console.log("Photo ID for deletion:", photoId);  // Log the photoId for manual verification
                 if (photoId) {
                     await deletePhoto(photoId);  // Call delete function with photo ID
                     popup.remove();              // Close popup after deletion
@@ -132,6 +133,7 @@ map.on('click', 'unclustered-photo', (e) => {
         }
     });
 });
+
 
 
 
