@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
 
     try {
         const collection = await connectToMongo();
-        const filter = { "properties.id": segmentId }; // Match by segmentId within properties
+        const filter = { "properties.id": segmentId }; // Match by properties.id
 
         console.log("Attempting to delete with filter:", filter);
         const result = await collection.deleteOne(filter);
