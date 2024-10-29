@@ -1,5 +1,3 @@
-let currentRouteId = null; // Track the route ID globally
-
 // ============================
 // SECTION: Open Segment Modal
 // ============================
@@ -16,36 +14,36 @@ function openSegmentModal(title, routeId) {
         return;
     }
 
-    // Set the global currentRouteId and log confirmation
-    currentRouteId = routeId;
-    console.log("Set currentRouteId to:", currentRouteId); // Verify currentRouteId is set
-
-    // Update modal content and show the modal
+    // Update modal content with segment title
     segmentDetails.innerText = `Segment: ${title}`;
     modal.classList.add('show');
     modal.style.display = 'block';
 
-    // Make the delete button clickable and add an inline event listener for deletion
+    // Make the delete button visible and clickable
     deleteButton.style.display = 'inline';
     deleteButton.style.visibility = 'visible';
     deleteButton.style.pointerEvents = 'auto';
 
+    // Clear previous event listener to avoid duplicate events
+    deleteButton.onclick = null;
+
+    // Attach a new click event listener that passes the routeId directly
     deleteButton.onclick = () => {
-        console.log("Delete button clicked with currentRouteId:", currentRouteId);
-        deleteSegment(); // Call delete with the current route ID
+        console.log("Delete button clicked with routeId:", routeId);
+        deleteSegment(routeId); // Call delete with the specific route ID
     };
 }
 
 // ============================
 // SECTION: Delete Segment
 // ============================
-async function deleteSegment() {
+async function deleteSegment(routeId) {
     const deleteButton = document.getElementById('delete-segment');
     deleteButton.disabled = true;
     deleteButton.innerHTML = "Deleting..."; // Show deletion progress
 
-    if (!currentRouteId) {
-        console.error("No current route ID found for deletion.");
+    if (!routeId) {
+        console.error("No route ID provided for deletion.");
         deleteButton.disabled = false;
         deleteButton.innerHTML = "Delete Segment";
         return;
@@ -53,8 +51,8 @@ async function deleteSegment() {
 
     if (confirm("Are you sure you want to delete this segment?")) {
         try {
-            console.log(`Deleting segment with ID: ${currentRouteId}`);
-            const response = await fetch(`/api/delete-drawn-route?id=${currentRouteId}`, {
+            console.log(`Deleting segment with ID: ${routeId}`);
+            const response = await fetch(`/api/delete-drawn-route?id=${routeId}`, {
                 method: 'DELETE',
             });
 
