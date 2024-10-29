@@ -14,7 +14,14 @@ function openSegmentModal(title, routeId) {
         return;
     }
 
-    // Update modal content with segment title
+    // Validate if the routeId is a valid ObjectId format (24 hexadecimal characters)
+    if (!/^[a-fA-F0-9]{24}$/.test(routeId)) {
+        console.error("Invalid routeId format:", routeId);
+        alert("The segment ID is not valid.");
+        return;
+    }
+
+    // Update modal content and show the modal
     segmentDetails.innerText = `Segment: ${title}`;
     modal.classList.add('show');
     modal.style.display = 'block';
@@ -27,7 +34,7 @@ function openSegmentModal(title, routeId) {
     // Clear previous event listener to avoid duplicate events
     deleteButton.onclick = null;
 
-    // Attach a new click event listener that passes the routeId directly
+    // Attach a new click event listener that passes the validated routeId directly
     deleteButton.onclick = () => {
         console.log("Delete button clicked with routeId:", routeId);
         deleteSegment(routeId); // Call delete with the specific route ID
