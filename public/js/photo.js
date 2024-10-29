@@ -108,37 +108,36 @@ async function loadPhotoMarkers() {
             map.on('click', 'unclustered-photo', (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const { originalName, url, _id: photoId } = e.features[0].properties;
-
-                // Create popup content with clickable text for deletion
+            
                 const popupContent = `
                     <div style="text-align: center;">
                         <p id="photoIdText" style="font-size: small; color: gray;">Photo ID: ${photoId}</p>
                         <img src="${url}" style="width:200px; margin-bottom: 10px;">
-                        <span id="deletePhotoText" style="color: red; cursor: pointer; text-decoration: underline;">
+                        <span id="deletePhotoText" data-photo-id="${photoId}" style="color: red; cursor: pointer; text-decoration: underline;">
                             Delete Photo
                         </span>
                     </div>
                 `;
-
+            
                 const popup = new mapboxgl.Popup()
                     .setLngLat(coordinates)
                     .setHTML(popupContent)
                     .addTo(map);
-
+            
                 console.log("Popup opened with Photo ID:", photoId);
-
-                // Event listener for clickable delete text
-                popup.on('open', () => {
+            
+                // Attach the event listener immediately after the popup is added
+                setTimeout(() => {
                     const deleteText = document.getElementById('deletePhotoText');
-                    
                     if (deleteText) {
                         deleteText.addEventListener('click', async () => {
-                            const retrievedPhotoId = document.getElementById('photoIdText').innerText.replace('Photo ID: ', '').trim();
-                            console.log("Delete text clicked. Retrieved Photo ID:", retrievedPhotoId);
-
-                            if (retrievedPhotoId) {
-                                await deletePhoto(retrievedPhotoId);  // Call delete function with retrieved photo ID
-                                popup.remove();  // Close popup after deletion
+                            // Fetch photoId from data attribute
+                            const photoId = deleteText.getAttribute('data-photo-id');
+                            console.log("Delete text clicked. Retrieved Photo ID:", photoId);
+            
+                            if (photoId) {
+                                await deletePhoto(photoId);  // Call delete function with photo ID
+                                popup.remove();              // Close popup after deletion
                                 console.log("Popup removed after deletion.");
                             } else {
                                 console.error("No photo ID found for deletion.");
@@ -147,8 +146,9 @@ async function loadPhotoMarkers() {
                     } else {
                         console.error("Delete text element not found in popup.");
                     }
-                });
+                }, 0);  // Ensures the DOM is ready
             });
+            
 
         } else {
             map.getSource('photoMarkers').setData(photoGeoJSON);
