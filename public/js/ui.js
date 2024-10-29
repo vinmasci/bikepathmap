@@ -4,7 +4,7 @@ let currentRouteId = null; // Track the route ID globally
 // SECTION: Open Segment Modal
 // ============================
 function openSegmentModal(title, routeId) {
-    console.log("Opening segment modal with routeId:", routeId);
+    console.log("Opening segment modal with routeId:", routeId); // Debug: log routeId
 
     const modal = document.getElementById('segment-modal');
     const segmentDetails = document.getElementById('segment-details');
@@ -17,7 +17,7 @@ function openSegmentModal(title, routeId) {
 
     // Set the global currentRouteId and log confirmation
     currentRouteId = routeId;
-    console.log("Set currentRouteId to:", currentRouteId);
+    console.log("Set currentRouteId to:", currentRouteId); // Confirm it’s set
 
     // Update modal content and show the modal
     segmentDetails.innerText = `Segment: ${title}`;
@@ -37,6 +37,8 @@ async function deleteSegment() {
     const deleteButton = document.getElementById('delete-segment');
     deleteButton.disabled = true;
     deleteButton.innerHTML = "Deleting...";
+
+    console.log("Current route ID before deletion:", currentRouteId); // Debug to confirm currentRouteId
 
     if (!currentRouteId) {
         console.error("No current route ID found for deletion.");
@@ -87,8 +89,6 @@ function closeModal() {
 // Persistent Delete Button Event Listener for Safety
 // ============================
 document.getElementById('delete-segment').addEventListener('click', deleteSegment);
-
-
 
 // ============================
 // SECTION: Tab Highlighting
