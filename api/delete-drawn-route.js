@@ -9,15 +9,15 @@ async function connectToMongo() {
 }
 
 module.exports = async (req, res) => {
-    const segmentId = req.query.segmentId; // Get segmentId from the query
+    const routeId = req.query.routeId; // Get routeId from the query
 
-    if (!segmentId) {
-        return res.status(400).json({ success: false, message: "No segment ID provided." });
+    if (!routeId) {
+        return res.status(400).json({ success: false, message: "No route ID provided." });
     }
 
     try {
         const collection = await connectToMongo();
-        const filter = { "properties.id": segmentId }; // Match by properties.id
+        const filter = { "properties.id": routeId }; // Match by properties.id
 
         console.log("Attempting to delete with filter:", filter);
         const result = await collection.deleteOne(filter);
