@@ -46,22 +46,34 @@ function setupSegmentInteraction() {
         segmentPopup.remove();
     });
 
-    // Click event to open the modal window with segment details
-    map.on('click', 'drawn-segments-layer', (e) => {
-        const title = e.features[0].properties.title;
-        const routeId = e.features[0].properties.routeId; // For MongoDB operations
+ // Click event to open the modal window with segment details
+map.on('click', 'drawn-segments-layer', (e) => {
+    const title = e.features[0].properties.title;
+    const routeId = e.features[0].properties.routeId;
 
-        console.log('Clicked segment details:', { title, routeId, properties: e.features[0].properties });
-        
-        // Call the function to open the modal with the segment title and routeId
-        openSegmentModal(title, routeId);
-    });
+    console.log('Opening modal for routeId:', routeId);
 
-    // Mark that the segment interaction has been initialized
-    segmentInteractionInitialized = true;
+    // Get the modal and its elements
+    const modal = document.getElementById('segment-modal');
+    const segmentDetails = document.getElementById('segment-details'); // Element to show title
+    const routeIdElement = document.getElementById('route-id'); // Element to show routeId
+    const deleteButton = document.getElementById('delete-segment'); // Modal's delete button
+
+    // Set the title and routeId directly in the modal
+    segmentDetails.innerText = `Segment: ${title}`;
+    routeIdElement.innerText = `Route ID: ${routeId}`;
+
+    // Store routeId as a data attribute on the delete button in the modal
+    deleteButton.setAttribute('data-route-id', routeId);
+
+    // Show the modal
+    modal.style.display = 'block';
+});
+
+// Mark that the segment interaction has been initialized
+segmentInteractionInitialized = true;
+
 }
-
-
 
 
 
@@ -167,7 +179,6 @@ function initGeoJSONSource() {
 
     }
 }
-
 
 // ============================
 // SECTION: Add Segment Layers
