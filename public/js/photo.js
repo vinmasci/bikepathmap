@@ -105,7 +105,7 @@ map.on('click', 'unclustered-photo', (e) => {
     const popupContent = `
         <div style="text-align: center;">
             <img src="${url}" style="width:200px; margin-bottom: 10px;">
-            <button id="deletePhotoBtn" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;" data-photo-id="${photoId}">
+            <button id="deletePhotoBtn" data-photo-id="${photoId}" style="background-color: red; color: white; padding: 5px; border: none; cursor: pointer;">
                 Delete Photo
             </button>
         </div>
@@ -116,22 +116,23 @@ map.on('click', 'unclustered-photo', (e) => {
         .setHTML(popupContent)
         .addTo(map);
 
-    // Add event listener to the delete button within the popup
+    // Add click event for delete button after popup is added to DOM
     popup.on('open', () => {
         const deleteButton = document.getElementById('deletePhotoBtn');
         if (deleteButton) {
-            deleteButton.addEventListener('click', async () => {
-                const photoId = deleteButton.getAttribute('data-photo-id'); // Retrieve the photo ID from the button's data attribute
+            deleteButton.onclick = async () => {
+                const photoId = deleteButton.getAttribute('data-photo-id'); // Retrieve the photo ID
                 if (photoId) {
                     await deletePhoto(photoId);  // Call delete function with photo ID
                     popup.remove();              // Close popup after deletion
                 } else {
                     console.error("No photo ID found for deletion.");
                 }
-            });
+            };
         }
     });
 });
+
 
 
         } else {
