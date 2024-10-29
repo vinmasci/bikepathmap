@@ -13,7 +13,7 @@ function openSegmentModal(segmentId) {
         return;
     }
 
-    // Display a generic label in the modal, and set the segmentId as a data attribute on the delete button
+    // Display a generic label in the modal and set the segmentId as a data attribute on the delete button
     segmentDetails.innerText = "Segment Details"; 
     deleteButton.setAttribute('data-segment-id', segmentId); // Store segmentId on delete button
 
@@ -83,13 +83,12 @@ function closeModal() {
     }
 }
 
-
 // ============================
 // Attach Event Listener to Delete Button (No Inline Onclick)
 // ============================
 document.getElementById('delete-segment').addEventListener('click', () => {
-    // Fetch the actual segmentId stored in the data attribute, not inner text
-    const segmentId = document.getElementById('segment-details').getAttribute('data-segment-id');
+    // Fetch the segmentId from the delete button's data attribute
+    const segmentId = document.getElementById('delete-segment').getAttribute('data-segment-id');
     deleteSegment(segmentId);
 });
 
