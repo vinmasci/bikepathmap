@@ -14,7 +14,7 @@ const s3 = new AWS.S3({
 });
 
 // Multer configuration for file uploads
-const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).array('photoFiles', 10);  // Expecting up to 10 files
+const upload = multer({ dest: '/tmp/', limits: { fileSize: 50000000 } }).array('photo', 10);  // Adjusted field name to 'photo'
 
 // MongoDB connection
 let client;
