@@ -370,6 +370,9 @@ async function compressAndUploadImage(file) {
             maxWidth: 1600, // Maximum width
             maxHeight: 1200, // Maximum height
             success(result) {
+                // Log compressed file size in KB
+                console.log(`Compressed file size: ${(result.size / 1024).toFixed(2)} KB`); 
+
                 // Convert the compressed image to a form data object
                 const formData = new FormData();
                 formData.append('photo', result, result.name);
@@ -397,6 +400,7 @@ async function compressAndUploadImage(file) {
     });
 }
 </script>
+
 
 
 </div>
