@@ -137,7 +137,7 @@ async function handlePhotoUpload() {
 
     const formData = new FormData();
     for (const file of files) {
-        formData.append('photoFiles', file);
+        formData.append('photo', file);
     }
 
     try {
