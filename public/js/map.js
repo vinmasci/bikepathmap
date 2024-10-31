@@ -230,7 +230,7 @@ function addSegmentLayers() {
             },
             'paint': {
                 'line-color': ['get', 'color'],  // Dynamic color from GeoJSON
-                'line-width': 3,                 // Thinner than stroke and background
+                'line-width': 5,                 // Thinner than stroke and background
                 'line-dasharray': [
                     'case',
                     ['==', ['get', 'lineStyle'], 'dashed'], ['literal', [2, 4]], 
