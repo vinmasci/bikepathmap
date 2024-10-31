@@ -190,32 +190,37 @@ function closeRouteNameModal() {
 // =========================
 function toggleContributeDropdown() {
     const dropdown = document.getElementById('contribute-dropdown');
-    dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+    const contributeTab = document.getElementById('draw-route-tab');
+
+    // Toggle dropdown visibility based on tab status
+    if (dropdown.style.display === 'flex') {
+        dropdown.style.display = 'none';
+        contributeTab.classList.remove('active');
+    } else {
+        dropdown.style.display = 'flex';
+        contributeTab.classList.add('active');
+    }
 }
 
 // Show control panel for Gravel Type and enable drawing mode if needed
 function showControlPanel() {
     document.getElementById('draw-route-control-panel').style.display = 'block';
     document.getElementById('photo-upload-control-panel').style.display = 'none';
-    
+
     // Enable drawing mode if it's not already enabled
     if (!drawingEnabled) {
         enableDrawingMode();
     }
-    
-    toggleContributeDropdown(); // Hide the dropdown after selecting
 }
 
 // Show upload photo panel
 function showPhotoUploadPanel() {
     document.getElementById('draw-route-control-panel').style.display = 'none';
     document.getElementById('photo-upload-control-panel').style.display = 'block';
-    toggleContributeDropdown(); // Hide the dropdown after selecting
 }
 
 // Placeholder for GPX Overlay
 function showTempOverlay() {
     alert("GPX Overlay is a placeholder for now.");
-    toggleContributeDropdown(); // Hide the dropdown after selecting
 }
 
