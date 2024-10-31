@@ -18,7 +18,7 @@ const gravelColors = {
     1: '#0050c1', // Intermediate // Blue
     2: '#c0392b', // Hard // Red
     3: '#751203', // Expert // Moroon
-    4: '#e67e22', // Rail trail // Orange
+    4: '#ffa801', // Rail trail // Orange
     5: '#2f3542'  // Closed or Private // Midnight Blue
 };
 
