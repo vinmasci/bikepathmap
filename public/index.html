@@ -391,7 +391,7 @@ document.getElementById('uploadPhotosBtn').addEventListener('click', async funct
         }
 
         // Wait for a longer delay (1 second) before starting the next batch
-        await new Promise(resolve => setTimeout(resolve, 10000));  // 10000ms delay between batches
+        await new Promise(resolve => setTimeout(resolve, 1000));  // 1000ms delay between batches
     }
 
     uploadButton.innerText = "Upload";  // Reset button text after upload

@@ -147,14 +147,9 @@ async function snapToRoads(points) {
 // SECTION: Add Segment
 // ============================
 function addSegment(snappedSegment) {
-    let lineColor = selectedColor;  // Default to the selected color
-    let lineDashArray = [1, 0];  // Default to solid line
-
-    // Gravel Type 3: Dashed black and white
-    if (selectedColor === gravelColors[3]) {
-        lineColor = '#eeeeee';  // Black line for Gravel Type 3
-        lineDashArray = [2, 2];  // Dashed pattern
-    }
+    // Set line color to the selected color and ensure solid lines without dashes
+    const lineColor = selectedColor;
+    const lineDashArray = [1, 0];  // Solid line
 
     const segmentFeature = {
         type: 'Feature',
@@ -163,14 +158,13 @@ function addSegment(snappedSegment) {
             coordinates: snappedSegment
         },
         properties: {
-            color: lineColor,  // Use the selected color or black
-            dashArray: lineDashArray,  // Apply the dash pattern (solid or dashed)
-            id: `segment-${segmentCounter++}`  // Unique ID for each segment
+            color: lineColor,          // Use the selected color
+            dashArray: lineDashArray,   // Apply solid line without any dash
+            id: `segment-${segmentCounter++}` // Unique ID for each segment
         }
     };
     segmentsGeoJSON.features.push(segmentFeature);
 }
-
 
 // ============================
 // SECTION: Draw Segments on Map
@@ -178,22 +172,23 @@ function addSegment(snappedSegment) {
 function drawSegmentsOnMap() {
     const source = map.getSource('drawnSegments');
     if (source) {
-        // Flatten the GeoJSON data before setting it
         const flattenedGeoJSON = {
             type: 'FeatureCollection',
-            features: flattenFeatureCollection(segmentsGeoJSON)  // Use the helper function
+            features: flattenFeatureCollection(segmentsGeoJSON)
         };
 
         // Set the source with the flattened data
         source.setData(flattenedGeoJSON);
 
-        // Apply the line color and dash array
+        // Apply the line color directly from the 'color' property in features
         map.setPaintProperty('drawn-segments-layer', 'line-color', ['get', 'color']);
-        map.setPaintProperty('drawn-segments-layer', 'line-dasharray', ['get', 'dashArray']);
+        // Ensure that line dash array is set to solid lines
+        map.setPaintProperty('drawn-segments-layer', 'line-dasharray', [1, 0]); 
     } else {
         console.error('GeoJSON source "drawnSegments" not found on the map');
     }
 }
+
 
 
 
