@@ -188,35 +188,34 @@ function closeRouteNameModal() {
 // =========================
 // SECTION: Drop down panels
 // =========================
-
-// Toggle the dropdown visibility
 function toggleContributeDropdown() {
     const dropdown = document.getElementById('contribute-dropdown');
     dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
 }
 
-// Show control panel for Gravel Type and enable drawing mode
+// Show control panel for Gravel Type and enable drawing mode if needed
 function showControlPanel() {
     document.getElementById('draw-route-control-panel').style.display = 'block';
     document.getElementById('photo-upload-control-panel').style.display = 'none';
-    enableDrawingMode(); // Enable drawing mode when selecting Gravel Type
+    
+    // Enable drawing mode if it's not already enabled
+    if (!drawingEnabled) {
+        enableDrawingMode();
+    }
+    
     toggleContributeDropdown(); // Hide the dropdown after selecting
 }
 
-function showControlPanel() {
-    document.getElementById('draw-route-control-panel').style.display = 'block';  // Show the Gravel Type control panel
-    document.getElementById('photo-upload-control-panel').style.display = 'none';  // Hide photo upload panel
-    
-    if (!drawingEnabled) {
-        toggleDrawingMode();  // Enable drawing mode when Gravel Type is selected
-    }
-
-    toggleContributeDropdown();  // Hide the dropdown after selecting
+// Show upload photo panel
+function showPhotoUploadPanel() {
+    document.getElementById('draw-route-control-panel').style.display = 'none';
+    document.getElementById('photo-upload-control-panel').style.display = 'block';
+    toggleContributeDropdown(); // Hide the dropdown after selecting
 }
-
 
 // Placeholder for GPX Overlay
 function showTempOverlay() {
     alert("GPX Overlay is a placeholder for now.");
     toggleContributeDropdown(); // Hide the dropdown after selecting
 }
+
