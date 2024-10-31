@@ -186,7 +186,7 @@ function closeRouteNameModal() {
 }
 
 // =========================
-// SECTION: Side drop down panels
+// SECTION: Drop down panels
 // =========================
 
 // Toggle the dropdown visibility
@@ -195,17 +195,18 @@ function toggleContributeDropdown() {
     dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
 }
 
-// Show control panel for Gravel Type
+// Show control panel for Gravel Type and enable drawing mode
 function showControlPanel() {
-    document.getElementById('control-panel').style.display = 'block';
-    document.getElementById('photo-upload-console').style.display = 'none';
+    document.getElementById('draw-route-control-panel').style.display = 'block';
+    document.getElementById('photo-upload-control-panel').style.display = 'none';
+    enableDrawingMode(); // Enable drawing mode when selecting Gravel Type
     toggleContributeDropdown(); // Hide the dropdown after selecting
 }
 
 // Show upload photo panel
 function showPhotoUploadPanel() {
-    document.getElementById('control-panel').style.display = 'none';
-    document.getElementById('photo-upload-console').style.display = 'block';
+    document.getElementById('draw-route-control-panel').style.display = 'none';
+    document.getElementById('photo-upload-control-panel').style.display = 'block';
     toggleContributeDropdown(); // Hide the dropdown after selecting
 }
 
