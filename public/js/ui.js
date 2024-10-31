@@ -224,3 +224,53 @@ function showTempOverlay() {
     alert("GPX Overlay is a placeholder for now.");
 }
 
+// =========================
+// SECTION: Comments
+// =========================
+
+let comments = []; // Temporary storage for comments
+
+// Function to add a comment
+function addComment() {
+    const commentInput = document.getElementById('comment-input');
+    const commentText = commentInput.value.trim();
+
+    if (commentText) {
+        // Push new comment to the array and clear the input
+        comments.push(commentText);
+        commentInput.value = '';
+
+        // Re-render the comments list
+        renderComments();
+    }
+}
+
+// Function to render comments
+function renderComments() {
+    const commentsList = document.getElementById('comments-list');
+    commentsList.innerHTML = ''; // Clear previous comments
+
+    comments.forEach((comment, index) => {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment';
+        commentDiv.innerText = comment;
+        commentsList.appendChild(commentDiv);
+    });
+}
+
+// Render comments when the modal opens
+function openSegmentModal(title, routeId) {
+    // Open the modal and set up other details
+    const modal = document.getElementById('segment-modal');
+    const segmentTitle = document.getElementById('segment-details');
+    const routeIdElement = document.getElementById('route-id');
+
+    segmentTitle.innerText = title;
+    routeIdElement.innerText = `Route ID: ${routeId}`;
+    
+    modal.classList.add('show');
+    modal.style.display = 'block';
+
+    // Render comments for the segment
+    renderComments();
+}

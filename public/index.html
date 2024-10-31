@@ -253,6 +253,20 @@ body {
     background-color: rgb(123, 11, 11) !important;
 }
 
+#comments-section {
+    margin-top: 10px;
+}
+
+#comments-list .comment {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+#add-comment textarea {
+    width: 100%;
+    resize: none;
+}
+
 </style>
 
 </head>
@@ -276,19 +290,32 @@ body {
 <!-- Segment Info Modal -->
 <div id="segment-modal" class="modal">
     <div class="modal-content">
-        <div class="modal-header" style=" margin: 0;">
-            <p id="route-id" style="font-size: x-small; color: gray; margin: 0;">Route ID: </p> <!-- Even smaller text for routeId -->
+        <div class="modal-header" style="margin: 0;">
+            <p id="route-id" style="font-size: x-small; color: gray; margin: 0;">Route ID: </p>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div class="modal-body">
-            <p id="segment-details" style="font-size: medium; font-weight: bold; margin-top: 5px;"></p> <!-- Slightly larger for title -->
-            <p>Lorem ipsum dolor sit amet,</p>
+            <p id="segment-details" style="font-size: medium; font-weight: bold; margin-top: 5px;"></p>
+
+            <!-- Comments Section -->
+            <div id="comments-section">
+                <h5>Comments</h5>
+                <div id="comments-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px;">
+                    <!-- Existing comments will be dynamically added here -->
+                </div>
+                
+                <div id="add-comment">
+                    <textarea id="comment-input" placeholder="Add a comment..." class="form-control" rows="2"></textarea>
+                    <button id="submit-comment" class="btn btn-primary mt-2" onclick="addComment()">Submit</button>
+                </div>
+            </div>
         </div>
         <div class="modal-footer">
             <button id="delete-segment" class="btn btn-danger">Delete Segment</button>
         </div>
     </div>
 </div>
+
 
 <!-- Control Panel -->
 <div id="control-panel" class="btn-group">
