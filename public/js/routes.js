@@ -109,7 +109,7 @@ async function drawPoint(e) {
 
 
 // ============================
-// SECTION: Snap to Road Function
+// SECTION: Snap to Closest Road Point Function
 // ============================
 async function snapToRoads(points) {
     try {
@@ -121,7 +121,7 @@ async function snapToRoads(points) {
 
         if (!response.ok) {
             console.error('Error fetching snapped points:', response.statusText);
-            return null;  // Handle API error
+            return await findClosestPoint(points[1]);  // Use the closest point to the last clicked point
         }
 
         const data = await response.json();
@@ -132,13 +132,36 @@ async function snapToRoads(points) {
             return data.matchings[0].geometry.coordinates;
         } else {
             console.error('No valid matchings from Mapbox API:', data);
-            return null;  // Return null if no valid match
+            return await findClosestPoint(points[1]);  // Fallback to the closest road point
         }
     } catch (error) {
         console.error('Error calling Mapbox Matching API:', error);
-        return null;  // Return null on error
+        return await findClosestPoint(points[1]);  // Fallback to closest point on error
     }
 }
+
+// ============================
+// Helper Function: Find Closest Point on Road to Clicked Point
+// ============================
+async function findClosestPoint(point) {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${point.join(',')}.json?access_token=${mapboxgl.accessToken}&proximity=${point.join(',')}&limit=1`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.features && data.features.length > 0) {
+            console.log('Closest road point found:', data.features[0].geometry.coordinates);
+            return [data.features[0].geometry.coordinates];
+        } else {
+            console.warn('No road found near clicked point. Using original point:', point);
+            return [point];  // Return the original point if no close road point is found
+        }
+    } catch (error) {
+        console.error('Error finding closest road point:', error);
+        return [point];  // Fallback to original point on error
+    }
+}
+
 
 
 
