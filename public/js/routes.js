@@ -35,19 +35,17 @@ document.getElementById('applyDrawingOptionsButton').addEventListener('click', f
 let drawingEnabled = false;
 
 // ============================
-// SECTION: Toggle Drawing Mode with Tab Highlight
+// SECTION: Toggle Drawing Mode (Directly for Gravel Type)
 // ============================
 function toggleDrawingMode() {
-    const drawRouteTab = document.getElementById('draw-route-tab');
-    
     if (drawingEnabled) {
         // Disable drawing mode
-        disableDrawingMode();  
+        disableDrawingMode();
         updateTabHighlight('draw-route-tab', false);  // Remove tab highlight (deactivate)
         document.getElementById('control-panel').style.display = 'none';  // Hide control panel
     } else {
         // Enable drawing mode
-        enableDrawingMode();  
+        enableDrawingMode();
         updateTabHighlight('draw-route-tab', true);  // Highlight the tab (activate)
         document.getElementById('control-panel').style.display = 'block';  // Show control panel
     }
