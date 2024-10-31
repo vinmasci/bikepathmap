@@ -184,3 +184,33 @@ function closeRouteNameModal() {
         console.error('routeNameModal not found in the DOM.');
     }
 }
+
+// =========================
+// SECTION: Side drop down panels
+// =========================
+
+// Toggle the dropdown visibility
+function toggleContributeDropdown() {
+    const dropdown = document.getElementById('contribute-dropdown');
+    dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// Show control panel for Gravel Type
+function showControlPanel() {
+    document.getElementById('control-panel').style.display = 'block';
+    document.getElementById('photo-upload-console').style.display = 'none';
+    toggleContributeDropdown(); // Hide the dropdown after selecting
+}
+
+// Show upload photo panel
+function showPhotoUploadPanel() {
+    document.getElementById('control-panel').style.display = 'none';
+    document.getElementById('photo-upload-console').style.display = 'block';
+    toggleContributeDropdown(); // Hide the dropdown after selecting
+}
+
+// Placeholder for GPX Overlay
+function showTempOverlay() {
+    alert("GPX Overlay is a placeholder for now.");
+    toggleContributeDropdown(); // Hide the dropdown after selecting
+}

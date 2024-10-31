@@ -122,7 +122,7 @@
     .show { 
         display: block; 
 
-        /* Contribute dropdown tabs styling */
+/* Contribute dropdown styling */
 .dropdown-tabs {
     display: none; /* Hidden by default */
     position: fixed;
@@ -147,6 +147,7 @@
 .dropdown-tab:hover {
     background-color: #555;
 }
+
     }
 
     /* Modal styling */
@@ -414,7 +415,7 @@ async function compressAndUploadImage(file) {
 
 <!-- tabs -->
 <div class="tabs">
-    <div class="tab draw-route-tab" id="draw-route-tab" onclick="enableDrawingMode()">
+    <div class="tab draw-route-tab" id="draw-route-tab" onclick="toggleContributeDropdown()">
         <i class="fa-regular fa-circle-plus" style="color: #ffffff;"></i> Contribute
     </div>
     <div class="tab" id="segments-tab">
