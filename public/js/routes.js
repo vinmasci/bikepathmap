@@ -10,6 +10,7 @@ let segmentsGeoJSON = {
 let selectedColor = '#FFFFFF'; // Default color
 let selectedLineStyle = 'solid'; // Default to solid line
 let originalPins = []; // Store user-added pins
+let lastSnappedPoint = null; // Track the last successfully snapped point
 
 // Gravel type color mapping
 const gravelColors = {
@@ -80,90 +81,62 @@ function disableDrawingMode() {
     document.getElementById('control-panel').style.display = 'none';  // Hide the control panel
 }
 
+/// TEST
 
 // ============================
-// SECTION: Draw Point
-// ============================
-async function drawPoint(e) {
-    const coords = [e.lngLat.lng, e.lngLat.lat];
-    console.log("Point drawn at:", coords);  // Log the coordinates of each point
-    originalPins.push(coords);  // Add the point to the originalPins array
-
-    // If there are at least two points, attempt to draw the segment
-    if (originalPins.length > 1) {
-        let snappedSegment = await snapToRoads([originalPins[originalPins.length - 2], coords]);
-        
-        // If snapping fails, use original coordinates as fallback
-        if (!snappedSegment) {
-            console.warn('Snapping failed, using original coordinates');
-            snappedSegment = [originalPins[originalPins.length - 2], coords];  // Fallback to non-snapped
-        }
-        
-        console.log("Snapped or Fallback Segment:", snappedSegment);  // Log the segment to be drawn
-        addSegment(snappedSegment);  // Add the segment to GeoJSON
-        drawSegmentsOnMap();  // Draw the segment on the map
-    }
-    createMarker(coords);  // Create a marker at the clicked point
-}
-
-
-
-// ============================
-// SECTION: Snap to Closest Road Point Function
+// SECTION: Snap to Closest Road Function with Directions API
 // ============================
 async function snapToRoads(points) {
     try {
+        // Construct URL for Directions API using start and end points
         const coordinatesString = points.map(coord => coord.join(',')).join(';');
-        const url = `https://api.mapbox.com/matching/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson&steps=true&tidy=true`;
+        const url = `https://api.mapbox.com/directions/v5/mapbox/cycling/${coordinatesString}?access_token=${mapboxgl.accessToken}&geometries=geojson`;
 
-        console.log('Sending request to Mapbox Matching API:', url);  // Log the request URL
+        console.log('Sending request to Mapbox Directions API:', url);
         const response = await fetch(url);
 
         if (!response.ok) {
-            console.error('Error fetching snapped points:', response.statusText);
-            return await findClosestPoint(points[1]);  // Use the closest point to the last clicked point
+            console.error('Error fetching directions:', response.statusText);
+            return null;
         }
 
         const data = await response.json();
-        console.log('Mapbox API Response Data:', data);  // Log the full response from Mapbox
-
-        if (data && data.matchings && data.matchings.length > 0 && data.matchings[0].geometry && data.matchings[0].geometry.coordinates.length > 0) {
-            console.log('Snapped Segment Coordinates:', data.matchings[0].geometry.coordinates);
-            return data.matchings[0].geometry.coordinates;
+        if (data && data.routes && data.routes.length > 0) {
+            console.log('Snapped route segment:', data.routes[0].geometry.coordinates);
+            return data.routes[0].geometry.coordinates;
         } else {
-            console.error('No valid matchings from Mapbox API:', data);
-            return await findClosestPoint(points[1]);  // Fallback to the closest road point
+            console.warn('No route found, using last successful snapped point');
+            return null;
         }
     } catch (error) {
-        console.error('Error calling Mapbox Matching API:', error);
-        return await findClosestPoint(points[1]);  // Fallback to closest point on error
+        console.error('Error calling Mapbox Directions API:', error);
+        return null;
     }
 }
 
 // ============================
-// Helper Function: Find Closest Point on Road to Clicked Point
+// SECTION: Draw Point with Improved Snapping
 // ============================
-async function findClosestPoint(point) {
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${point.join(',')}.json?access_token=${mapboxgl.accessToken}&proximity=${point.join(',')}&limit=1`;
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
+async function drawPoint(e) {
+    const coords = [e.lngLat.lng, e.lngLat.lat];
+    console.log("Point drawn at:", coords);
+    originalPins.push(coords);
 
-        if (data.features && data.features.length > 0) {
-            console.log('Closest road point found:', data.features[0].geometry.coordinates);
-            return [data.features[0].geometry.coordinates];
+    if (originalPins.length > 1) {
+        let snappedSegment = await snapToRoads([originalPins[originalPins.length - 2], coords]);
+
+        // Use lastSnappedPoint if Directions API fails
+        if (!snappedSegment && lastSnappedPoint) {
+            snappedSegment = [lastSnappedPoint, coords];
         } else {
-            console.warn('No road found near clicked point. Using original point:', point);
-            return [point];  // Return the original point if no close road point is found
+            lastSnappedPoint = snappedSegment ? snappedSegment[snappedSegment.length - 1] : coords;
         }
-    } catch (error) {
-        console.error('Error finding closest road point:', error);
-        return [point];  // Fallback to original point on error
+
+        addSegment(snappedSegment);
+        drawSegmentsOnMap();
     }
+    createMarker(coords);
 }
-
-
-
 
 
 // ============================
@@ -211,10 +184,6 @@ function drawSegmentsOnMap() {
         console.error('GeoJSON source "drawnSegments" not found on the map');
     }
 }
-
-
-
-
 
 
 // ============================
