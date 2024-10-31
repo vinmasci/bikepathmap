@@ -16,9 +16,9 @@ let lastSnappedPoint = null; // Track the last successfully snapped point
 const gravelColors = {
     0: '#01bf11', // Easiest // Green
     1: '#0050c1', // Intermediate // Blue
-    2: '#EA2027', // Hard // Red
+    2: '#c0392b', // Hard // Red
     3: '#751203', // Expert // Moroon
-    4: '#8e44ad', // Rail trail // Purple
+    4: '#e67e22', // Rail trail // Orange
     5: '#2f3542'  // Closed or Private // Midnight Blue
 };
 
