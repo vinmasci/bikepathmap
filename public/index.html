@@ -334,7 +334,6 @@
     <button id="reset-btn" class="btn btn-warning"style= "font-size: 14px;">Reset</button>
     <button id="save-btn" class="btn btn-success" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px; font-size: 14px;">Save</button>
 </div>
-</div>
 <!-- HTML for Photo Upload Console -->
 <div id="photo-upload-console" style="width: 100%; margin-top: 10px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
     <h5>Upload Photos</h5>
@@ -420,9 +419,11 @@ async function compressAndUploadImage(file) {
 }
 </script>
 
+</div>
+
 
 <div class="tabs">
-    <div class="tab draw-route-tab" id="draw-route-tab" onclick="enableDrawingMode()"><i class="fa-solid fa-circle-plus" style="color: #ffffff;"></i>Add</div>
+    <div class="tab draw-route-tab" id="draw-route-tab" onclick="enableDrawingMode()"><i class="fa-regular fa-circle-plus" style="color: #ffffff;"></i> Add</div>
     <div class="tab" id="segments-tab"><i class="fa-thin fa-route" style="color: #ffffff;"></i> Segments</div>
     <div class="tab" id="photos-tab"><i class="fa-thin fa-camera-retro" style="color: #ffffff;"></i> Photos</div>
     <div class="tab" id="pois-tab"><i class="fa-thin fa-map-pin" style="color: #ffffff;"></i> POIs</div>
