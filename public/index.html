@@ -101,11 +101,11 @@ body {
     background-color: #555;
 }
 
-/* Dropdown styling */
+/* Dropdown styling - Smaller tabs */
 .dropdown-tabs {
     display: none; /* Hidden initially */
     position: fixed;
-    bottom: 70px; /* Adjust positioning as needed */
+    bottom: 70px;
     left: 10px; /* Position in the bottom-left corner */
     width: auto;
     background-color: #f9f9f9;
@@ -120,11 +120,11 @@ body {
     color: #333;
     background-color: #fff;
     cursor: pointer;
-    padding: 8px 12px;
+    padding: 5px 8px; /* Smaller padding */
     margin: 2px;
     border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
+    border-radius: 3px; /* Slightly smaller border radius */
+    font-size: 12px; /* Smaller font */
 }
 
 .dropdown-tab:hover {
@@ -419,7 +419,7 @@ async function compressAndUploadImage(file) {
 
 <!-- Dropdown for Contribute Options -->
 <div id="contribute-dropdown" class="dropdown-tabs">
-    <div class="dropdown-tab" onclick="showControlPanel()">Gravel Type</div>
+    <div class="dropdown-tab" onclick="showControlPanel()">Draw Route</div>
     <div class="dropdown-tab" onclick="showPhotoUploadPanel()">Upload Photo</div>
     <div class="dropdown-tab" onclick="showTempOverlay()">GPX Overlay</div>
 </div>
