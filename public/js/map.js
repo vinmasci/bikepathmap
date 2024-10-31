@@ -400,9 +400,11 @@ function toggleSegmentsLayer() {
     if (layerVisibility.segments) {
         map.setLayoutProperty('drawn-segments-layer', 'visibility', 'visible');
         loadSegments();
+        showContributeDropdown(); // Display dropdown tabs when segments layer is enabled
     } else {
         map.setLayoutProperty('drawn-segments-layer', 'visibility', 'none');
         removeSegments();
+        hideContributeDropdown(); // Hide dropdown tabs when segments layer is disabled
     }
 
     updateTabHighlight('segments-tab', layerVisibility.segments);

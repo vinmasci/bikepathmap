@@ -121,6 +121,32 @@
 
     .show { 
         display: block; 
+
+        /* Contribute dropdown tabs styling */
+.dropdown-tabs {
+    display: none; /* Hidden by default */
+    position: fixed;
+    bottom: 60px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    background-color: #333;
+    padding: 10px 0;
+    z-index: 999;
+}
+
+.dropdown-tab {
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    padding: 10px;
+    background-color: #444;
+    border-radius: 5px;
+}
+
+.dropdown-tab:hover {
+    background-color: #555;
+}
     }
 
     /* Modal styling */
@@ -278,28 +304,33 @@
 <!-- Control Panel -->
 <div id="control-panel" class="btn-group">
     
-    <!-- Drawing Options -->
-
-        <div id="gravel-style" style="width: 100%; margin-top: 0px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+<!-- Draw Route Control Panel -->
+<div id="draw-route-control-panel" class="control-panel" style="display: none;">
+    <div id="gravel-style" style="width: 100%; margin-top: 0px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
         <div class="drawing-options">
-        <h5>Gravel Type:</h5>
-        <label><input type="radio" name="gravelType" value="0">&nbsp; <i class="fa-solid fa-circle" style="color: #01bf11;"></i> Easiest</label>
-        <label><input type="radio" name="gravelType" value="1">&nbsp; <i class="fa-solid fa-square" style="color: #0050c1;"></i> Intermediate</label>
-        <label><input type="radio" name="gravelType" value="2">&nbsp; <i class="fa-solid fa-diamond" style="color: #c0392b;"></i> Difficult</label>
-        <label><input type="radio" name="gravelType" value="3">&nbsp; <i class="fa-solid fa-diamond-exclamation" style="color: #751203;"></i> Extreme</label>
-        <label><input type="radio" name="gravelType" value="4">&nbsp; <i class="fa-solid fa-route-highway" style="color: #ffa801"></i> Rail Trail</label>
-        <label><input type="radio" name="gravelType" value="5">&nbsp; <i class="fa-solid fa-road-circle-xmark" style="color: #2f3542;"></i> Closed or Private</label>     
+            <h5>Gravel Type:</h5>
+            <label><input type="radio" name="gravelType" value="0">&nbsp; <i class="fa-solid fa-circle" style="color: #01bf11;"></i> Easiest</label>
+            <label><input type="radio" name="gravelType" value="1">&nbsp; <i class="fa-solid fa-square" style="color: #0050c1;"></i> Intermediate</label>
+            <label><input type="radio" name="gravelType" value="2">&nbsp; <i class="fa-solid fa-diamond" style="color: #c0392b;"></i> Difficult</label>
+            <label><input type="radio" name="gravelType" value="3">&nbsp; <i class="fa-solid fa-diamond-exclamation" style="color: #751203;"></i> Extreme</label>
+            <label><input type="radio" name="gravelType" value="4">&nbsp; <i class="fa-solid fa-route-highway" style="color: #ffa801"></i> Rail Trail</label>
+            <label><input type="radio" name="gravelType" value="5">&nbsp; <i class="fa-solid fa-road-circle-xmark" style="color: #2f3542;"></i> Closed or Private</label>
+        </div>
+        <button id="undo-btn" class="btn btn-primary" style="border-top-left-radius: 8px; border-bottom-left-radius: 8px; font-size: 14px;">Undo</button>
+        <button id="reset-btn" class="btn btn-warning" style="font-size: 14px;">Reset</button>
+        <button id="save-btn" class="btn btn-success" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px; font-size: 14px;">Save</button>
+    </div>
 </div>
-    <button id="undo-btn" class="btn btn-primary" style="border-top-left-radius: 8px; border-bottom-left-radius: 8px; font-size: 14px;">Undo</button>
-    <button id="reset-btn" class="btn btn-warning"style= "font-size: 14px;">Reset</button>
-    <button id="save-btn" class="btn btn-success" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px; font-size: 14px;">Save</button>
+
+<!-- Photo Upload Control Panel -->
+<div id="photo-upload-control-panel" class="control-panel" style="display: none;">
+    <div style="width: 100%; margin-top: 10px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+        <h5>Upload Photos</h5>
+        <input type="file" id="photoFilesInput" multiple accept="image/*" class="form-control" style="width: 175px; margin-bottom: 10px; font-size: 10px;" />
+        <button id="uploadPhotosBtn" class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">Upload</button>
+    </div>
 </div>
-<!-- HTML for Photo Upload Console -->
-<div id="photo-upload-console" style="width: 100%; margin-top: 10px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
-    <h5>Upload Photos</h5>
-    <input type="file" id="photoFilesInput" multiple accept="image/*" class="form-control" style="width: 175px; margin-bottom: 10px; font-size: 10px;" />
-    <button id="uploadPhotosBtn" class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">Upload</button>
-</div>
+
 
 <script>
 document.getElementById('uploadPhotosBtn').addEventListener('click', async function () {
@@ -381,7 +412,7 @@ async function compressAndUploadImage(file) {
 
 </div>
 
-
+<!-- tabs -->
 <div class="tabs">
     <div class="tab draw-route-tab" id="draw-route-tab" onclick="enableDrawingMode()">
         <i class="fa-regular fa-circle-plus" style="color: #ffffff;"></i> Contribute
@@ -395,6 +426,13 @@ async function compressAndUploadImage(file) {
     <div class="tab" id="pois-tab">
         <i class="fa-thin fa-map-pin" style="color: #ffffff;"></i> POIs
     </div>
+</div>
+
+<!-- Dropdown for Contribute Options -->
+<div id="contribute-dropdown" class="dropdown-tabs">
+    <div class="dropdown-tab" onclick="showControlPanel()">Gravel Type</div>
+    <div class="dropdown-tab" onclick="showPhotoUploadPanel()">Upload Photo</div>
+    <div class="dropdown-tab" onclick="showTempOverlay()">GPX Overlay</div>
 </div>
 
 <!-- Modal for Route Name -->
