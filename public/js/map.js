@@ -212,8 +212,8 @@ function addSegmentLayers() {
                 'line-cap': 'round'
             },
             'paint': {
-                'line-color': '#000000',  // Black stroke
-                'line-width': 6           // Thick stroke
+                'line-color': '#FFFFFF',  // Black stroke
+                'line-width': 3           // Thick stroke
             }
         });
     }
