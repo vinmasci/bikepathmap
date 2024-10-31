@@ -344,7 +344,7 @@
 <script>
 document.getElementById('uploadPhotosBtn').addEventListener('click', async function () {
     const input = document.getElementById('photoFilesInput');
-    const files = Array.from(input.files);  // Convert FileList to an Array for easier manipulation
+    const files = Array.from(input.files);  // Convert FileList to an Array
 
     if (files.length === 0) {
         alert("Please select photos to upload.");
@@ -390,8 +390,8 @@ document.getElementById('uploadPhotosBtn').addEventListener('click', async funct
             console.error('Batch upload failed:', error);
         }
 
-        // Wait a short delay before starting the next batch
-        await new Promise(resolve => setTimeout(resolve, 200));  // Adjust delay as needed
+        // Wait for a longer delay (1 second) before starting the next batch
+        await new Promise(resolve => setTimeout(resolve, 1000));  // 1000ms delay between batches
     }
 
     uploadButton.innerText = "Upload";  // Reset button text after upload
@@ -418,6 +418,7 @@ async function compressAndUploadImage(file) {
     });
 }
 </script>
+
 </div>
 
 
