@@ -250,7 +250,7 @@ function saveDrawnRoute() {
         // Open the modal and prepare for route name input
         openRouteNameModal();
 
-        // Remove any existing event listener before adding a new one
+        // Ensure only one event listener for the save button
         const confirmSaveBtn = document.getElementById('confirmSaveBtn');
         confirmSaveBtn.removeEventListener('click', handleSaveConfirmation);
         confirmSaveBtn.addEventListener('click', handleSaveConfirmation);
@@ -300,6 +300,7 @@ function handleSaveConfirmation() {
         if (data.success) {
             alert('Route saved successfully!');
             closeRouteNameModal();
+            resetRouteData(); // Reset the route data after a successful save
         } else {
             alert('Error saving route: ' + data.error);
         }
@@ -314,8 +315,6 @@ function handleSaveConfirmation() {
         confirmSaveBtn.disabled = false;
     });
 }
-
-
 
 // ============================
 // SECTION: Reset Route Data
@@ -335,8 +334,6 @@ function closeRouteNameModal() {
     document.getElementById('routeNameModal').style.display = 'none';
     document.getElementById('confirmSaveBtn').removeEventListener('click', handleSaveConfirmation); 
 }
-
-
 
 
 // ============================
