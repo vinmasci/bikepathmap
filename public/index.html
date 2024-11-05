@@ -304,18 +304,19 @@ body {
             </div>
         </div>
         
-        <!-- Footer with Delete and Flag Buttons, Route ID -->
-        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
-                    <!-- Buttons on the right -->
-            <div style="display: flex; gap: 10px;">
-                <button id="flag-segment" class="btn btn-warning btn-sm">Flag</button>
-                <button id="delete-segment" class="btn btn-danger btn-sm">Delete</button>
-                            <!-- Route ID on the left -->
-            <p id="route-id" style="font-size: x-small; color: gray; margin: 0;">Route ID: </p>
+        <!-- Footer with Buttons and Route ID -->
+        <div class="modal-footer" style="display: flex; flex-direction: column; align-items: flex-end;">
+            <!-- Buttons -->
+            <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                <button id="flag-segment" class="btn btn-warning btn-sm">Flag Segment</button>
+                <button id="delete-segment" class="btn btn-danger btn-sm">Delete Segment</button>
             </div>
+            <!-- Route ID positioned below the buttons -->
+            <p id="route-id" style="font-size: x-small; color: gray; margin: 0;">Route ID: </p>
         </div>
     </div>
 </div>
+
 
 
 
