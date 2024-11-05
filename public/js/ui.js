@@ -400,6 +400,11 @@ async function fetchUserData() {
         const response = await fetch('/api/auth/user', {
             headers: { 'Authorization': `Bearer ${token}` },
         });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.statusText}`);
+        }
+
         const data = await response.json();
         console.log("User data:", data.user);  // Display user info or handle as needed
     } catch (error) {
