@@ -7,12 +7,11 @@ passport.use(new GoogleStrategy({
     callbackURL: 'https://bikepathmap.vercel.app/api/auth/callback'
 },
 (accessToken, refreshToken, profile, done) => {
-    // Here you can store user data in your database if necessary
-    return done(null, profile);
+    console.log("Google profile:", profile);  // Log the profile to confirm data is received
+    return done(null, profile);  // Passes the Google profile to `req.user`
 }));
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
 module.exports = passport;
-//
