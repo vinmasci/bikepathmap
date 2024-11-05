@@ -116,15 +116,18 @@ body {
     z-index: 999;
 }
 
-.dropdown-tab {
-    color: #333;
-    background-color: #fff;
-    cursor: pointer;
-    padding: 5px 8px; /* Smaller padding */
-    margin: 2px;
+.dropdown-tabs {
+    display: none; /* Hidden initially */
+    position: fixed;
+    bottom: 70px;
+    left: 10px; /* Position in the bottom-left corner */
+    width: auto;
+    background-color: #f9f9f9;
     border: 1px solid #ddd;
-    border-radius: 3px; /* Slightly smaller border radius */
-    font-size: 12px; /* Smaller font */
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+    z-index: 999;
 }
 
 .dropdown-tab:hover {
@@ -274,7 +277,7 @@ body {
 
 <div id="map"></div>
 
-
+<div id="dropArea"></div> <!-- Make sure this is present in your HTML -->
 
 <div class="map-layer-options">
     <label for="tileLayerSelect">Select Map Layer:</label>
