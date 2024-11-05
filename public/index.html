@@ -125,12 +125,12 @@ body {
 
 /* Hover effect for dropdown-tab */
 .dropdown-tab:hover {
-    background-color: #e6e6e6; /* Change to desired hover color */
+    background-color: #961010; /* Change to desired hover color */
 }
 
 /* Active style for dropdown-tab when clicked */
 .dropdown-tab.active {
-    background-color: #ccc;
+    background-color: #1e1572;
     color: #333;
 }
 
@@ -449,8 +449,7 @@ async function compressAndUploadImage(file) {
     </div>
 </div>
 
-<!-- Dropdown for Contribute Options -->
-<div id="contribute-dropdown" class="dropdown-tabs nav nav-pills flex-row">
+<div id="contribute-dropdown" class="dropdown-tabs nav nav-pills flex-row" style="display: flex;">
     <div class="dropdown-tab nav-link" onclick="showControlPanel()" id="draw-route-dropdown">Draw Route</div>
     <div class="dropdown-tab nav-link" onclick="showPhotoUploadPanel()" id="photo-upload-dropdown">Upload Photo</div>
     <div class="dropdown-tab nav-link" onclick="showTempOverlay()" id="gpx-overlay-dropdown">GPX Overlay</div>
