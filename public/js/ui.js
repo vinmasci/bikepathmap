@@ -319,6 +319,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userStatus = document.getElementById('user-status');
     const userInfo = document.getElementById('user-info');
     const logoutButton = document.getElementById('logout-button');
+    const loginButton = document.getElementById('login-button');
 
     // Check for token in localStorage and fetch user data if available
     const token = localStorage.getItem('token');
@@ -326,6 +327,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await fetchUserData(token, userStatus, userInfo); // Fetch user data with the token
     } else {
         userStatus.style.display = 'none';  // Hide if no token
+        loginButton.style.display = 'block'; // Show login button if not logged in
     }
 
     // Logout button handler
@@ -333,6 +335,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         await fetch('/api/auth/logout');
         localStorage.removeItem('token');  // Clear token on logout
         window.location.reload(); // Refresh the page after logout
+    });
+
+    // Login button handler
+    loginButton.addEventListener('click', () => {
+        window.location.href = '/api/auth/google'; // Redirect to Google login
     });
 });
 
@@ -355,14 +362,17 @@ async function fetchUserData(token, userStatus, userInfo) {
             // Display user info and show the logout button
             userInfo.textContent = `Hello, ${data.user.displayName}`;
             userStatus.style.display = 'block';
+            document.getElementById('login-button').style.display = 'none'; // Hide login button when logged in
         } else {
             userStatus.style.display = 'none';
+            document.getElementById('login-button').style.display = 'block'; // Show login button if not logged in
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
         userStatus.style.display = 'none';  // Hide if there's an error
     }
 }
+
 
 // ============================
 // SECTION: JWT Authentication Helpers
