@@ -209,6 +209,9 @@ function showControlPanel() {
     document.getElementById('draw-route-control-panel').style.display = 'block';
     document.getElementById('photo-upload-control-panel').style.display = 'none';
 
+    // Set active state
+    setActiveDropdownTab('draw-route-control-panel');
+
     // Enable drawing mode if it's not already enabled
     if (!drawingEnabled) {
         enableDrawingMode();
@@ -219,11 +222,29 @@ function showControlPanel() {
 function showPhotoUploadPanel() {
     document.getElementById('draw-route-control-panel').style.display = 'none';
     document.getElementById('photo-upload-control-panel').style.display = 'block';
+
+    // Set active state
+    setActiveDropdownTab('photo-upload-control-panel');
 }
 
 // Placeholder for GPX Overlay
 function showTempOverlay() {
     alert("GPX Overlay is a placeholder for now.");
+
+        // Set active state
+        setActiveDropdownTab('gpx-overlay');  // Placeholder ID, no panel to show
+}
+
+// Helper function to set active state on the selected dropdown tab
+function setActiveDropdownTab(selectedId) {
+    const tabs = document.querySelectorAll('.dropdown-tab');
+    tabs.forEach(tab => {
+        if (tab.getAttribute('onclick').includes(selectedId)) {
+            tab.classList.add('active'); // Add active class to the selected tab
+        } else {
+            tab.classList.remove('active'); // Remove active class from others
+        }
+    });
 }
 
 // =========================

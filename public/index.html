@@ -120,15 +120,20 @@ body {
     color: #333;
     background-color: #fff;
     cursor: pointer;
-    padding: 5px 8px; /* Smaller padding */
+    padding: 5px 8px;
     margin: 2px;
     border: 1px solid #ddd;
-    border-radius: 3px; /* Slightly smaller border radius */
-    font-size: 12px; /* Smaller font */
+    border-radius: 3px;
+    font-size: 12px;
 }
 
 .dropdown-tab:hover {
-    background-color: #e6e6e6;
+    background-color: #e6e6e6; /* Highlight on hover */
+}
+
+.dropdown-tab.active {
+    background-color: #ccc; /* Highlight when active */
+    color: #333;
 }
 
 
