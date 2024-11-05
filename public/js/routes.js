@@ -235,71 +235,94 @@ function resetRoute() {
 // ============================
 function saveDrawnRoute() {
     if (segmentsGeoJSON.features.length > 0) {
-        // Collect gravel types from the modal
         const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
-
-        // Add gravel type information to each segment feature
+        
         segmentsGeoJSON.features.forEach(feature => {
-            feature.properties.gravelType = gravelTypes;  // Store selected gravel types
+            feature.properties.gravelType = gravelTypes; 
         });
 
-        // Convert GeoJSON to GPX, ensure togpx is correctly imported
         const gpxData = togpx ? togpx(segmentsGeoJSON) : null;
         if (!gpxData) {
             console.error("GPX conversion failed. 'togpx' is not defined.");
             return;
         }
 
-        // Prompt user to enter a route name before saving
+        // Open the modal and prepare for route name input
         openRouteNameModal();
 
-        // Save button inside the modal to confirm route name input
-        document.getElementById('confirmSaveBtn').addEventListener('click', function() {
-            const routeName = document.getElementById('routeNameInput').value;
-
-            if (!routeName) {
-                alert('Please enter a road/path name for your route.');
-                return;
-            }
-
-            // Add the route name to each segment feature's properties as "title"
-            segmentsGeoJSON.features.forEach(feature => {
-                feature.properties.title = routeName;  // Store the route name as "title"
-            });
-
-            // Send the drawn route data to the backend API
-            fetch('/api/save-drawn-route', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    gpxData: gpxData,  // Converted GPX data
-                    geojson: segmentsGeoJSON,  // GeoJSON data with the route title
-                    metadata: {
-                        color: selectedColor,
-                        lineStyle: selectedLineStyle,
-                        gravelType: gravelTypes,  // Send gravel types metadata
-                        title: routeName  // Include the route title in the metadata
-                    }
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Route saved successfully!');
-                    closeRouteNameModal();  // Close the modal after saving
-                } else {
-                    alert('Error saving route: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error saving route:', error);
-                alert('An error occurred while saving the route.');
-            });
-        });
+        // Remove any existing event listener before adding a new one
+        const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+        confirmSaveBtn.removeEventListener('click', handleSaveConfirmation);
+        confirmSaveBtn.addEventListener('click', handleSaveConfirmation);
     } else {
         alert('No route to save.');
     }
 }
+
+// ============================
+// SECTION: Handle Save Confirmation
+// ============================
+function handleSaveConfirmation() {
+    const routeName = document.getElementById('routeNameInput').value;
+
+    if (!routeName) {
+        alert('Please enter a road/path name for your route.');
+        return;
+    }
+
+    segmentsGeoJSON.features.forEach(feature => {
+        feature.properties.title = routeName; 
+    });
+
+    fetch('/api/save-drawn-route', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            gpxData: togpx(segmentsGeoJSON),
+            geojson: segmentsGeoJSON,
+            metadata: {
+                color: selectedColor,
+                lineStyle: selectedLineStyle,
+                gravelType: segmentsGeoJSON.features[0].properties.gravelType, 
+                title: routeName
+            }
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Route saved successfully!');
+            closeRouteNameModal();
+            resetRouteData(); // Clear variables after save
+        } else {
+            alert('Error saving route: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error saving route:', error);
+        alert('An error occurred while saving the route.');
+    });
+}
+
+// ============================
+// SECTION: Reset Route Data
+// ============================
+function resetRouteData() {
+    segmentsGeoJSON = { type: 'FeatureCollection', features: [] };
+    originalPins = [];
+    segmentCounter = 0;
+    markers.forEach(marker => marker.remove());
+    markers = [];
+}
+
+// ============================
+// SECTION: Close Route Name Modal
+// ============================
+function closeRouteNameModal() {
+    document.getElementById('routeNameModal').style.display = 'none';
+    document.getElementById('confirmSaveBtn').removeEventListener('click', handleSaveConfirmation); 
+}
+
 
 
 
