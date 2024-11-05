@@ -342,3 +342,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.reload(); // Refresh the page after logout
     });
 });
+
+// ============================
+// SECTION: JWT Authentication Helpers
+// ============================
+
+// Store the token after login
+function login() {
+    fetch('/api/auth/callback')
+        .then(response => response.json())
+        .then(data => {
+            localStorage.setItem('token', data.token);  // Store token in localStorage
+        });
+}
+
+// Attach token to headers on authenticated requests
+function fetchUserData() {
+    const token = localStorage.getItem('token');
+
+    fetch('/api/auth/user', {
+        headers: { 'Authorization': `Bearer ${token}` },
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.user);  // Display user info
+    });
+}

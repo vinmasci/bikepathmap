@@ -1,12 +1,9 @@
+const verifyToken = require('./verifyToken');
+
 export default function handler(req, res) {
-    if (req.isAuthenticated()) {
-      res.json({
-        user: req.user,
-      });
-    } else {
-      res.json({
-        user: null,
-      });
-    }
-  }
-  
+    verifyToken(req, res, () => {
+        res.json({
+            user: req.user,  // Access `req.user`, which contains the decoded JWT payload
+        });
+    });
+}
