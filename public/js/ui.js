@@ -332,8 +332,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Logout button handler
     logoutButton.addEventListener('click', async () => {
-        await fetch('/api/auth/logout');
+        await fetch('/api/auth/logout', { method: 'POST' }); // Use POST to signify a logout action
         localStorage.removeItem('token');  // Clear token on logout
+        userStatus.style.display = 'none';  // Hide user status
+        loginButton.style.display = 'block'; // Show login button
         window.location.reload(); // Refresh the page after logout
     });
 
@@ -372,7 +374,6 @@ async function fetchUserData(token, userStatus, userInfo) {
         userStatus.style.display = 'none';  // Hide if there's an error
     }
 }
-
 
 // ============================
 // SECTION: JWT Authentication Helpers
