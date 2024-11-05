@@ -327,12 +327,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (token) {
         console.log("User is logged in, fetching user data..."); // Log that user is logged in
-        await fetchUserData(token, userStatus, userInfo); // Fetch user data with the token
+        await fetchUserData(token, userStatus, userInfo, logoutButton, loginButton); // Fetch user data with the token
     } else {
         // User is not logged in
         userStatus.style.display = 'flex';  // Ensure the user status display is visible
         userInfo.textContent = ''; // Clear user info if not logged in
         logoutButton.style.display = 'none'; // Hide logout button if not logged in
+        loginButton.style.display = 'block'; // Show login button if not logged in
         console.log("User is not logged in, showing login button."); // Log that the user is not logged in
     }
 
@@ -340,9 +341,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     logoutButton.addEventListener('click', async () => {
         console.log("Logging out..."); // Log when logout button is clicked
         localStorage.removeItem('token');  // Clear the token from localStorage
-        userStatus.style.display = 'flex';  // Ensure user status remains visible
         userInfo.textContent = ''; // Clear user info
         logoutButton.style.display = 'none'; // Hide logout button
+        loginButton.style.display = 'block'; // Show login button
         console.log("User logged out, login button will remain visible."); // Log logout event
 
         // Redirect to Google's logout endpoint
@@ -350,18 +351,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = logoutUrl; // Redirect to log out of Google
     });
 
-// Login button handler
-loginButton.addEventListener('click', () => {
-    console.log("Redirecting to login..."); // Log when login button is clicked
-    window.location.href = '/api/auth/login'; // Redirect to the correct login endpoint
-});
-
+    // Login button handler
+    loginButton.addEventListener('click', () => {
+        console.log("Redirecting to login..."); // Log when login button is clicked
+        window.location.href = '/api/auth/login'; // Redirect to your login endpoint
+    });
 });
 
 // ============================
 // SECTION: Fetch User Data with Token
 // ============================
-async function fetchUserData(token, userStatus, userInfo) {
+async function fetchUserData(token, userStatus, userInfo, logoutButton, loginButton) {
     try {
         const response = await fetch('/api/auth/user', {
             headers: { 'Authorization': `Bearer ${token}` },  // Include the token here
@@ -378,11 +378,13 @@ async function fetchUserData(token, userStatus, userInfo) {
             userInfo.textContent = `Hello, ${data.user.displayName}`;
             userStatus.style.display = 'flex'; // Show user status
             logoutButton.style.display = 'block'; // Show logout button when logged in
+            loginButton.style.display = 'none'; // Hide login button when logged in
             console.log("User data fetched successfully:", data.user); // Log the user data
         } else {
             userStatus.style.display = 'flex'; // Ensure user status is visible
             userInfo.textContent = ''; // Clear user info if no user data
             logoutButton.style.display = 'none'; // Hide logout button if no user data
+            loginButton.style.display = 'block'; // Show login button if no user data
             console.log("No user data found, showing login button."); // Log if no user data
         }
     } catch (error) {
@@ -390,6 +392,7 @@ async function fetchUserData(token, userStatus, userInfo) {
         userStatus.style.display = 'flex'; // Ensure user status is visible even if there's an error
         userInfo.textContent = ''; // Clear user info on error
         logoutButton.style.display = 'none'; // Hide logout button on error
+        loginButton.style.display = 'block'; // Show login button on error
     }
 }
 
