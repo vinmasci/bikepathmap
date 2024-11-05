@@ -453,16 +453,15 @@ async function compressAndUploadImage(file) {
 
 <!-- Modal for Route Name -->
 <div id="routeNameModal" class="modal">
-    <div class="modal-content" style="padding: 20px; max-height: 250px;"> <!-- Increased padding and height -->
+    <div class="modal-content"> <!-- Increased padding and height -->
         <h4>Street / Track or Path Name:</h4>
         <input type="text" id="routeNameInput" placeholder="Enter road/path name" class="form-control" />
-        <div style="margin-top: 20px;"> <!-- Adds spacing above buttons -->
-            <button id="confirmSaveBtn" class="btn btn-success">Save Route</button>
-            <button onclick="closeRouteNameModal()" class="btn btn-secondary">Cancel</button>
+        <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 20px;"> <!-- Align buttons side by side -->
+            <button id="confirmSaveBtn" class="btn btn-success btn-sm">Save Route</button>
+            <button onclick="closeRouteNameModal()" class="btn btn-secondary btn-sm">Cancel</button>
         </div>
     </div>
 </div>
-
 
 
 <!-- Drawing Options Modal -->
@@ -485,13 +484,16 @@ async function compressAndUploadImage(file) {
 
 <!-- Modal for Route Name -->
 <div id="routeNameModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="padding: 20px; max-height: 250px;"> <!-- Increased padding and height -->
         <h4>Street / Track or Path Name:</h4>
         <input type="text" id="routeNameInput" placeholder="Enter road/path name" class="form-control" />
-        <button id="confirmSaveBtn" class="btn btn-success">Save Route</button>
-        <button onclick="closeRouteNameModal()" class="btn btn-secondary">Cancel</button>
+        <div style="margin-top: 20px;"> <!-- Adds spacing above buttons -->
+            <button id="confirmSaveBtn" class="btn btn-success">Save Route</button>
+            <button onclick="closeRouteNameModal()" class="btn btn-secondary">Cancel</button>
+        </div>
     </div>
 </div>
+
 
 <div id="control-panel" class="btn-group" style="display: block;"></div>
 
