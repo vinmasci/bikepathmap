@@ -323,17 +323,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Check for token in localStorage and fetch user data if available
     const token = localStorage.getItem('token');
+    console.log("Current token:", token); // Log the token to see if it exists
+
     if (token) {
+        console.log("User is logged in, fetching user data..."); // Log that user is logged in
         await fetchUserData(token, userStatus, userInfo); // Fetch user data with the token
     } else {
         userStatus.style.display = 'none';  // Hide if no token
         loginButton.style.display = 'block'; // Show login button if not logged in
+        console.log("User is not logged in, showing login button."); // Log that the user is not logged in
     }
 
     // Logout button handler
     logoutButton.addEventListener('click', async () => {
-        // Clear the token from localStorage
-        localStorage.removeItem('token');  
+        console.log("Logging out..."); // Log when logout button is clicked
+        localStorage.removeItem('token');  // Clear the token from localStorage
         userStatus.style.display = 'none';  // Hide user status
         loginButton.style.display = 'block'; // Show login button
 
@@ -344,10 +348,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Login button handler
     loginButton.addEventListener('click', () => {
+        console.log("Redirecting to login..."); // Log when login button is clicked
         window.location.href = '/api/auth/google'; // Redirect to Google login
     });
 });
-
 
 // ============================
 // SECTION: Fetch User Data with Token
@@ -368,17 +372,19 @@ async function fetchUserData(token, userStatus, userInfo) {
             // Display user info and show the logout button
             userInfo.textContent = `Hello, ${data.user.displayName}`;
             userStatus.style.display = 'block';
-            document.getElementById('login-button').style.display = 'none'; // Hide login button when logged in
+            loginButton.style.display = 'none'; // Hide login button when logged in
+            console.log("User data fetched successfully:", data.user); // Log the user data
         } else {
             userStatus.style.display = 'none';
-            document.getElementById('login-button').style.display = 'block'; // Show login button if not logged in
+            loginButton.style.display = 'block'; // Show login button if not logged in
+            console.log("No user data found, showing login button."); // Log if no user data
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
         userStatus.style.display = 'none';  // Hide if there's an error
-        document.getElementById('login-button').style.display = 'block'; // Ensure login button is shown if there's an error
     }
 }
+
 
 // ============================
 // SECTION: JWT Authentication Helpers
