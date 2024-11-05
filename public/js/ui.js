@@ -185,9 +185,16 @@ function closeRouteNameModal() {
     }
 }
 
-// =========================
+// ============================
 // SECTION: Drop down panels
-// =========================
+// ============================
+
+// Ensure the contribute-dropdown is hidden on page load
+document.addEventListener('DOMContentLoaded', function () {
+    const dropdown = document.getElementById('contribute-dropdown');
+    dropdown.style.display = 'none'; // Ensure hidden on page load
+});
+
 function toggleContributeDropdown() {
     const dropdown = document.getElementById('contribute-dropdown');
     const contributeTab = document.getElementById('draw-route-tab');
@@ -241,6 +248,7 @@ function hideControlPanel() {
     document.getElementById('draw-route-control-panel').style.display = 'none';
     document.getElementById('photo-upload-control-panel').style.display = 'none';
 }
+
 
 
 // =========================
