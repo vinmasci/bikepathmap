@@ -206,23 +206,35 @@ function toggleContributeDropdown() {
         document.addEventListener('click', handleClickOutsideDropdown); // Add event listener to detect outside clicks
         showControlPanel(); // Show Draw Route panel by default
     } else {
-        dropdown.style.display = 'none'; // Hide the dropdown
-        contributeTab.classList.remove('active'); // Remove highlight
-        hideControlPanel(); // Hide all control panels when closing dropdown
-        document.removeEventListener('click', handleClickOutsideDropdown); // Remove event listener
+        closeDropdown(); // Call function to close the dropdown and reset states
     }
+}
+
+// Function to close the dropdown and reset active states
+function closeDropdown() {
+    const dropdown = document.getElementById('contribute-dropdown');
+    const contributeTab = document.getElementById('draw-route-tab');
+
+    dropdown.style.display = 'none'; // Hide the dropdown
+    contributeTab.classList.remove('active'); // Remove highlight from Contribute tab
+    resetActiveDropdownTabs(); // Reset active state of each dropdown tab button
+    hideControlPanel(); // Hide all control panels
+    document.removeEventListener('click', handleClickOutsideDropdown); // Remove event listener
 }
 
 // Helper function to set active state on the selected dropdown tab
 function setActiveDropdownTab(selectedId) {
-    // Remove 'active' class from all dropdown tabs
-    document.querySelectorAll('.dropdown-tab').forEach(tab => tab.classList.remove('active'));
+    resetActiveDropdownTabs(); // Reset all before adding active to selected tab
 
-    // Add 'active' class to the selected tab
     const selectedTab = document.getElementById(selectedId);
     if (selectedTab) {
         selectedTab.classList.add('active');
     }
+}
+
+// Function to reset active state on all dropdown tabs
+function resetActiveDropdownTabs() {
+    document.querySelectorAll('.dropdown-tab').forEach(tab => tab.classList.remove('active'));
 }
 
 // Function to handle clicks outside the dropdown and close it if clicked outside
@@ -231,10 +243,7 @@ function handleClickOutsideDropdown(event) {
     const contributeTab = document.getElementById('draw-route-tab');
 
     if (!dropdown.contains(event.target) && !contributeTab.contains(event.target)) {
-        dropdown.style.display = 'none'; // Hide the dropdown
-        contributeTab.classList.remove('active'); // Remove highlight
-        hideControlPanel(); // Hide all control panels
-        document.removeEventListener('click', handleClickOutsideDropdown); // Remove the outside click event listener
+        closeDropdown(); // Use the closeDropdown function to reset states and hide
     }
 }
 
@@ -263,6 +272,7 @@ function hideControlPanel() {
     document.getElementById('draw-route-control-panel').style.display = 'none';
     document.getElementById('photo-upload-control-panel').style.display = 'none';
 }
+
 
 
 
