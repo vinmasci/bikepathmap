@@ -329,8 +329,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("User is logged in, fetching user data..."); // Log that user is logged in
         await fetchUserData(token, userStatus, userInfo); // Fetch user data with the token
     } else {
-        userStatus.style.display = 'none';  // Hide if no token
+        // User is not logged in
+        userStatus.style.display = 'none';  // Hide user status if no token
         loginButton.style.display = 'block'; // Show login button if not logged in
+        logoutButton.style.display = 'none'; // Ensure logout button is hidden
         console.log("User is not logged in, showing login button."); // Log that the user is not logged in
     }
 
@@ -373,17 +375,22 @@ async function fetchUserData(token, userStatus, userInfo) {
             userInfo.textContent = `Hello, ${data.user.displayName}`;
             userStatus.style.display = 'block';
             loginButton.style.display = 'none'; // Hide login button when logged in
+            logoutButton.style.display = 'block'; // Show logout button
             console.log("User data fetched successfully:", data.user); // Log the user data
         } else {
             userStatus.style.display = 'none';
             loginButton.style.display = 'block'; // Show login button if not logged in
+            logoutButton.style.display = 'none'; // Ensure logout button is hidden
             console.log("No user data found, showing login button."); // Log if no user data
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
         userStatus.style.display = 'none';  // Hide if there's an error
+        loginButton.style.display = 'block'; // Show login button in case of error
+        logoutButton.style.display = 'none'; // Ensure logout button is hidden
     }
 }
+
 
 
 // ============================
