@@ -330,17 +330,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         loginButton.style.display = 'block'; // Show login button if not logged in
     }
 
-// Logout button handler
-logoutButton.addEventListener('click', async () => {
-    // Clear the token from localStorage
-    localStorage.removeItem('token');  
-    userStatus.style.display = 'none';  // Hide user status
-    loginButton.style.display = 'block'; // Show login button
+    // Logout button handler
+    logoutButton.addEventListener('click', async () => {
+        // Clear the token from localStorage
+        localStorage.removeItem('token');  
+        userStatus.style.display = 'none';  // Hide user status
+        loginButton.style.display = 'block'; // Show login button
 
-    // Redirect to Google's logout endpoint
-    const logoutUrl = `https://accounts.google.com/Logout`;
-    window.location.href = logoutUrl; // Redirect to log out of Google
-});
+        // Redirect to Google's logout endpoint
+        const logoutUrl = `https://accounts.google.com/Logout`;
+        window.location.href = logoutUrl; // Redirect to log out of Google
+    });
 
     // Login button handler
     loginButton.addEventListener('click', () => {
