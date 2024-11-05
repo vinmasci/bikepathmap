@@ -372,6 +372,7 @@ async function fetchUserData(token, userStatus, userInfo) {
     } catch (error) {
         console.error('Error fetching user data:', error);
         userStatus.style.display = 'none';  // Hide if there's an error
+        document.getElementById('login-button').style.display = 'block'; // Ensure login button is shown if there's an error
     }
 }
 
