@@ -284,13 +284,14 @@ body {
 <!-- Segment Info Modal -->
 <div id="segment-modal" class="modal">
     <div class="modal-content">
+        <!-- Updated Header with Segment Title Only -->
         <div class="modal-header" style="margin: 0;">
-            <p id="route-id" style="font-size: x-small; color: gray; margin: 0;">Route ID: </p>
+            <p id="segment-details" style="font-size: medium; font-weight: bold; margin: 0;"></p>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
-        <div class="modal-body">
-            <p id="segment-details" style="font-size: medium; font-weight: bold; margin-top: 5px;"></p>
 
+        <!-- Modal Body with Comments Section -->
+        <div class="modal-body">
             <!-- Comments Section -->
             <div id="comments-section">
                 <h5>Comments</h5>
@@ -304,11 +305,21 @@ body {
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button id="delete-segment" class="btn btn-danger">Delete Segment</button>
+
+        <!-- Footer with Flag and Delete as Text Links and Route ID at the Bottom -->
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+            <!-- Flag and Delete Segment as Links -->
+            <div style="display: flex; gap: 15px;">
+                <span class="text-muted" style="cursor: pointer; color: #dc3545;" onclick="flagSegment()">Flag Segment</span>
+                <span class="text-muted" style="cursor: pointer; color: #dc3545;" onclick="deleteSegment()">Delete Segment</span>
+            </div>
+            
+            <!-- Route ID at the Bottom -->
+            <p id="route-id" style="font-size: x-small; color: gray; margin: 0;">Route ID:</p>
         </div>
     </div>
 </div>
+
 
 
 <!-- Control Panel -->
@@ -336,7 +347,7 @@ body {
 <div id="photo-upload-control-panel" class="control-panel" style="display: none;">
     <div style="width: 100%; margin-top: 10px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
         <h5>Upload Photos</h5>
-        <input type="file" id="photoFilesInput" multiple accept="image/*" class="form-control" style="width: 195px; margin-bottom: 10px; font-size: 10px;" />
+        <input type="file" id="photoFilesInput" multiple accept="image/*" class="form-control" style="width: 190px; margin-bottom: 10px; font-size: 10px;" />
         <button id="uploadPhotosBtn" class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">Upload</button>
     </div>
 </div>
