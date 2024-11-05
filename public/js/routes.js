@@ -317,8 +317,6 @@ function handleSaveConfirmation(gpxData) {
     });
 }
 
-}
-
 // ============================
 // SECTION: Reset Route Data
 // ============================
