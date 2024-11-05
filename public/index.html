@@ -118,22 +118,11 @@ body {
 
 .dropdown-tab {
     color: #333;
-    background-color: #fff;
     cursor: pointer;
     padding: 5px 8px;
     margin: 2px;
-    border: 1px solid #ddd;
     border-radius: 3px;
     font-size: 12px;
-}
-
-.dropdown-tab:hover {
-    background-color: #e6e6e6; /* Highlight on hover */
-}
-
-.dropdown-tab.active {
-    background-color: #ccc; /* Highlight when active */
-    color: #333;
 }
 
 
@@ -450,12 +439,11 @@ async function compressAndUploadImage(file) {
 </div>
 
 <!-- Dropdown for Contribute Options -->
-<div id="contribute-dropdown" class="dropdown-tabs">
-    <div class="dropdown-tab" onclick="showControlPanel()">Draw Route</div>
-    <div class="dropdown-tab" onclick="showPhotoUploadPanel()">Upload Photo</div>
-    <div class="dropdown-tab" onclick="showTempOverlay()">GPX Overlay</div>
+<div id="contribute-dropdown" class="dropdown-tabs nav nav-pills flex-column">
+    <div class="dropdown-tab nav-link" onclick="showControlPanel()" id="draw-route-dropdown">Draw Route</div>
+    <div class="dropdown-tab nav-link" onclick="showPhotoUploadPanel()" id="photo-upload-dropdown">Upload Photo</div>
+    <div class="dropdown-tab nav-link" onclick="showTempOverlay()" id="gpx-overlay-dropdown">GPX Overlay</div>
 </div>
-
 <!-- Modal for Route Name -->
 <div id="routeNameModal" class="modal">
     <div class="modal-content">
