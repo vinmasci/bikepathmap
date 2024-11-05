@@ -195,19 +195,21 @@ document.addEventListener('DOMContentLoaded', function () {
     dropdown.style.display = 'none'; // Ensure hidden on page load
 });
 
+// Toggle the dropdown visibility and the active state of the Contribute tab
 function toggleContributeDropdown() {
     const dropdown = document.getElementById('contribute-dropdown');
     const contributeTab = document.getElementById('draw-route-tab');
 
-    // Toggle the visibility of the dropdown
     if (dropdown.style.display === 'none' || dropdown.style.display === '') {
         dropdown.style.display = 'flex'; // Show the dropdown
         contributeTab.classList.add('active'); // Highlight Contribute tab
+        document.addEventListener('click', handleClickOutsideDropdown); // Add event listener to detect outside clicks
         showControlPanel(); // Show Draw Route panel by default
     } else {
         dropdown.style.display = 'none'; // Hide the dropdown
         contributeTab.classList.remove('active'); // Remove highlight
         hideControlPanel(); // Hide all control panels when closing dropdown
+        document.removeEventListener('click', handleClickOutsideDropdown); // Remove event listener
     }
 }
 
@@ -220,6 +222,19 @@ function setActiveDropdownTab(selectedId) {
     const selectedTab = document.getElementById(selectedId);
     if (selectedTab) {
         selectedTab.classList.add('active');
+    }
+}
+
+// Function to handle clicks outside the dropdown and close it if clicked outside
+function handleClickOutsideDropdown(event) {
+    const dropdown = document.getElementById('contribute-dropdown');
+    const contributeTab = document.getElementById('draw-route-tab');
+
+    if (!dropdown.contains(event.target) && !contributeTab.contains(event.target)) {
+        dropdown.style.display = 'none'; // Hide the dropdown
+        contributeTab.classList.remove('active'); // Remove highlight
+        hideControlPanel(); // Hide all control panels
+        document.removeEventListener('click', handleClickOutsideDropdown); // Remove the outside click event listener
     }
 }
 
