@@ -320,33 +320,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userInfo = document.getElementById('user-info');
     const logoutButton = document.getElementById('logout-button');
 
-    // Check for token in localStorage and fetch user data
+    // Check for token in localStorage and fetch user data if available
     const token = localStorage.getItem('token');
-
     if (token) {
-        // If token exists, fetch user data
-        try {
-            const response = await fetch('/api/auth/user', {
-                headers: { 'Authorization': `Bearer ${token}` },  // Include the token here
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-
-            if (data.user) {
-                // Display user info and show the logout button
-                userInfo.textContent = `Hello, ${data.user.displayName}`;
-                userStatus.style.display = 'block';
-            } else {
-                userStatus.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-            userStatus.style.display = 'none';  // Hide if there's an error
-        }
+        await fetchUserData(token, userStatus, userInfo); // Fetch user data with the token
     } else {
         userStatus.style.display = 'none';  // Hide if no token
     }
@@ -358,6 +335,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.reload(); // Refresh the page after logout
     });
 });
+
+// ============================
+// SECTION: Fetch User Data with Token
+// ============================
+async function fetchUserData(token, userStatus, userInfo) {
+    try {
+        const response = await fetch('/api/auth/user', {
+            headers: { 'Authorization': `Bearer ${token}` },  // Include the token here
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.user) {
+            // Display user info and show the logout button
+            userInfo.textContent = `Hello, ${data.user.displayName}`;
+            userStatus.style.display = 'block';
+        } else {
+            userStatus.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        userStatus.style.display = 'none';  // Hide if there's an error
+    }
+}
+
+// ============================
+// SECTION: JWT Authentication Helpers
+// ============================
+
+// Store the token after login
+function login() {
+    fetch('/api/auth/callback')
+        .then(response => response.json())
+        .then(data => {
+            localStorage.setItem('token', data.token);  // Store token in localStorage
+        });
+}
 
 // ============================
 // SECTION: Capture Token and Store in localStorage
