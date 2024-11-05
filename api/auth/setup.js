@@ -7,8 +7,10 @@ passport.use(new GoogleStrategy({
     callbackURL: 'https://bikepathmap.vercel.app/api/auth/callback'
 },
 (accessToken, refreshToken, profile, done) => {
-    console.log("Google profile:", profile);  // Log the profile to confirm data is received
-    return done(null, profile);  // Passes the Google profile to `req.user`
+    console.log("Access Token:", accessToken);
+    console.log("Refresh Token:", refreshToken);
+    console.log("Google Profile:", profile);  // Log profile data to confirm
+    return done(null, profile);  // Passes the profile to req.user
 }));
 
 passport.serializeUser((user, done) => done(null, user));
