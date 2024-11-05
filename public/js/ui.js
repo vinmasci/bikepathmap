@@ -372,15 +372,20 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         }
 
         const data = await response.json();
+        console.log("Fetched user data:", data); // Log the fetched user data for debugging
 
         if (data.user) {
             // Display user info and show the logout button
             userInfo.textContent = `Hello, ${data.user.displayName}`;
 
-            // Set user photo
+            // Set user photo if available
             const userPhoto = document.getElementById('user-photo');
-            userPhoto.src = data.user.photos[0].value; // Set the source to the user's profile photo URL
-            userPhoto.style.display = 'block'; // Make the image visible
+            if (data.user.photos && data.user.photos.length > 0) {
+                userPhoto.src = data.user.photos[0].value; // Set the source to the user's profile photo URL
+                userPhoto.style.display = 'block'; // Make the image visible
+            } else {
+                userPhoto.style.display = 'none'; // Hide photo if not available
+            }
 
             userStatus.style.display = 'flex'; // Show user status
             logoutButton.style.display = 'block'; // Show logout button when logged in
@@ -401,6 +406,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         loginButton.style.display = 'block'; // Show login button on error
     }
 }
+
 
 
 // ============================
