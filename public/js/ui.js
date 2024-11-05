@@ -192,13 +192,15 @@ function toggleContributeDropdown() {
     const dropdown = document.getElementById('contribute-dropdown');
     const contributeTab = document.getElementById('draw-route-tab');
 
-    // Toggle dropdown visibility based on tab status
-    if (dropdown.style.display === 'flex') {
-        dropdown.style.display = 'none';
-        contributeTab.classList.remove('active');
+    // Toggle the visibility of the dropdown
+    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+        dropdown.style.display = 'flex'; // Show the dropdown
+        contributeTab.classList.add('active'); // Highlight Contribute tab
+        showControlPanel(); // Show Draw Route panel by default
     } else {
-        dropdown.style.display = 'flex';
-        contributeTab.classList.add('active');
+        dropdown.style.display = 'none'; // Hide the dropdown
+        contributeTab.classList.remove('active'); // Remove highlight
+        hideControlPanel(); // Hide all control panels when closing dropdown
     }
 }
 
