@@ -241,7 +241,8 @@ function saveDrawnRoute() {
             feature.properties.gravelType = gravelTypes; 
         });
 
-        const gpxData = togpx ? togpx(segmentsGeoJSON) : null;
+        // Convert GeoJSON to GPX
+        const gpxData = togpx ? togpx(segmentsGeoJSON) : null; // Make sure gpxData is assigned here
         if (!gpxData) {
             console.error("GPX conversion failed. 'togpx' is not defined.");
             return;
@@ -250,10 +251,10 @@ function saveDrawnRoute() {
         // Open the modal and prepare for route name input
         openRouteNameModal();
 
-        // Ensure only one event listener for the save button
+        // Set the event listener on confirm button once
         const confirmSaveBtn = document.getElementById('confirmSaveBtn');
-        confirmSaveBtn.removeEventListener('click', handleSaveConfirmation);
-        confirmSaveBtn.addEventListener('click', handleSaveConfirmation);
+        confirmSaveBtn.removeEventListener('click', () => handleSaveConfirmation(gpxData)); // Remove previous listener
+        confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData)); // Pass gpxData to handler
     } else {
         alert('No route to save.');
     }
@@ -262,7 +263,7 @@ function saveDrawnRoute() {
 // ============================
 // SECTION: Handle Save Confirmation
 // ============================
-function handleSaveConfirmation() {
+function handleSaveConfirmation(gpxData) {
     const confirmSaveBtn = document.getElementById('confirmSaveBtn');
     const routeName = document.getElementById('routeNameInput').value;
 
@@ -285,7 +286,7 @@ function handleSaveConfirmation() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            gpxData: gpxData,
+            gpxData: gpxData, // Use gpxData from function parameter
             geojson: segmentsGeoJSON,
             metadata: {
                 color: selectedColor,
@@ -314,6 +315,8 @@ function handleSaveConfirmation() {
         confirmSaveBtn.innerText = "Save Route";
         confirmSaveBtn.disabled = false;
     });
+}
+
 }
 
 // ============================
