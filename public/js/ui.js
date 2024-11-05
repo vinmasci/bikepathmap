@@ -195,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
     dropdown.style.display = 'none'; // Ensure hidden on page load
 });
 
+// Toggle the dropdown visibility and the active state of the Contribute tab
 function toggleContributeDropdown() {
     const dropdown = document.getElementById('contribute-dropdown');
     const contributeTab = document.getElementById('draw-route-tab');
@@ -203,24 +204,14 @@ function toggleContributeDropdown() {
         console.log("Opening dropdown and setting active state");
         dropdown.style.display = 'flex'; // Show the dropdown
         contributeTab.classList.add('active'); // Highlight Contribute tab
-        document.addEventListener('click', handleClickOutsideDropdown); // Detect outside clicks
         showControlPanel(); // Show Draw Route panel by default
     } else {
-        closeDropdown(); // Close dropdown if already open
+        console.log("Closing dropdown");
+        dropdown.style.display = 'none'; // Hide the dropdown
+        contributeTab.classList.remove('active'); // Remove highlight from Contribute tab
+        resetActiveDropdownTabs(); // Reset active state of each dropdown tab button
+        hideControlPanel(); // Hide all control panels
     }
-}
-
-// Function to close the dropdown and reset active states
-function closeDropdown() {
-    console.log("Closing dropdown and resetting active state");
-    const dropdown = document.getElementById('contribute-dropdown');
-    const contributeTab = document.getElementById('draw-route-tab');
-
-    dropdown.style.display = 'none'; // Hide the dropdown
-    contributeTab.classList.remove('active'); // Remove highlight from Contribute tab
-    resetActiveDropdownTabs(); // Reset active state of each dropdown tab button
-    hideControlPanel(); // Hide all control panels
-    document.removeEventListener('click', handleClickOutsideDropdown); // Remove event listener
 }
 
 // Helper function to set active state on the selected dropdown tab
@@ -238,17 +229,6 @@ function setActiveDropdownTab(selectedId) {
 function resetActiveDropdownTabs() {
     console.log("Resetting active state for all dropdown tabs");
     document.querySelectorAll('#contribute-dropdown .btn').forEach(tab => tab.classList.remove('active'));
-}
-
-// Function to handle clicks outside the dropdown and close it if clicked outside
-function handleClickOutsideDropdown(event) {
-    const dropdown = document.getElementById('contribute-dropdown');
-    const contributeTab = document.getElementById('draw-route-tab');
-
-    if (!dropdown.contains(event.target) && !contributeTab.contains(event.target)) {
-        console.log("Clicked outside dropdown, closing it");
-        closeDropdown(); // Use the closeDropdown function to reset states and hide
-    }
 }
 
 // Show control panel for Draw Route and activate the tab
@@ -276,8 +256,6 @@ function hideControlPanel() {
     document.getElementById('draw-route-control-panel').style.display = 'none';
     document.getElementById('photo-upload-control-panel').style.display = 'none';
 }
-
-
 
 
 // =========================
