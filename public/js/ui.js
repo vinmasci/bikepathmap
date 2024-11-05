@@ -350,11 +350,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = logoutUrl; // Redirect to log out of Google
     });
 
-    // Login button handler
-    loginButton.addEventListener('click', () => {
-        console.log("Redirecting to login..."); // Log when login button is clicked
-        window.location.href = '/api/auth/google'; // Redirect to Google login
-    });
+// Login button handler
+loginButton.addEventListener('click', () => {
+    console.log("Redirecting to login..."); // Log when login button is clicked
+    window.location.href = '/api/auth/login'; // Redirect to the correct login endpoint
+});
+
 });
 
 // ============================
