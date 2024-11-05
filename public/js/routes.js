@@ -260,9 +260,39 @@ function saveDrawnRoute() {
 }
 
 // ============================
+// SECTION: Save Drawn Route (with route name prompt)
+// ============================
+function saveDrawnRoute() {
+    if (segmentsGeoJSON.features.length > 0) {
+        const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
+        
+        segmentsGeoJSON.features.forEach(feature => {
+            feature.properties.gravelType = gravelTypes; 
+        });
+
+        const gpxData = togpx ? togpx(segmentsGeoJSON) : null;
+        if (!gpxData) {
+            console.error("GPX conversion failed. 'togpx' is not defined.");
+            return;
+        }
+
+        // Open the modal and prepare for route name input
+        openRouteNameModal();
+
+        // Remove any existing event listener before adding a new one
+        const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+        confirmSaveBtn.removeEventListener('click', handleSaveConfirmation);
+        confirmSaveBtn.addEventListener('click', handleSaveConfirmation);
+    } else {
+        alert('No route to save.');
+    }
+}
+
+// ============================
 // SECTION: Handle Save Confirmation
 // ============================
 function handleSaveConfirmation() {
+    const confirmSaveBtn = document.getElementById('confirmSaveBtn');
     const routeName = document.getElementById('routeNameInput').value;
 
     if (!routeName) {
@@ -270,20 +300,26 @@ function handleSaveConfirmation() {
         return;
     }
 
+    // Change button text to "Saving..."
+    confirmSaveBtn.innerText = "Saving...";
+    confirmSaveBtn.disabled = true;
+
+    // Add route name to each segment feature's properties
     segmentsGeoJSON.features.forEach(feature => {
-        feature.properties.title = routeName; 
+        feature.properties.title = routeName;
     });
 
+    // Send drawn route data to the backend API
     fetch('/api/save-drawn-route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            gpxData: togpx(segmentsGeoJSON),
+            gpxData: gpxData,
             geojson: segmentsGeoJSON,
             metadata: {
                 color: selectedColor,
                 lineStyle: selectedLineStyle,
-                gravelType: segmentsGeoJSON.features[0].properties.gravelType, 
+                gravelType: Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value),
                 title: routeName
             }
         })
@@ -293,7 +329,6 @@ function handleSaveConfirmation() {
         if (data.success) {
             alert('Route saved successfully!');
             closeRouteNameModal();
-            resetRouteData(); // Clear variables after save
         } else {
             alert('Error saving route: ' + data.error);
         }
@@ -301,8 +336,14 @@ function handleSaveConfirmation() {
     .catch(error => {
         console.error('Error saving route:', error);
         alert('An error occurred while saving the route.');
+    })
+    .finally(() => {
+        // Re-enable button and reset text
+        confirmSaveBtn.innerText = "Save Route";
+        confirmSaveBtn.disabled = false;
     });
 }
+
 
 // ============================
 // SECTION: Reset Route Data
