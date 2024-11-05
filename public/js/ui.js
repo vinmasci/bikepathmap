@@ -204,7 +204,6 @@ function toggleContributeDropdown() {
     }
 }
 
-// Show control panel for Gravel Type and enable drawing mode if needed
 // Helper function to set active state on the selected dropdown tab
 function setActiveDropdownTab(selectedId) {
     // Remove 'active' class from all dropdown tabs
@@ -236,6 +235,13 @@ function showTempOverlay() {
     alert("GPX Overlay is a placeholder for now.");
     setActiveDropdownTab('gpx-overlay-dropdown');
 }
+
+// Hide all control panels when dropdown is closed
+function hideControlPanel() {
+    document.getElementById('draw-route-control-panel').style.display = 'none';
+    document.getElementById('photo-upload-control-panel').style.display = 'none';
+}
+
 
 
 // =========================
