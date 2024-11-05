@@ -195,23 +195,24 @@ document.addEventListener('DOMContentLoaded', function () {
     dropdown.style.display = 'none'; // Ensure hidden on page load
 });
 
-// Toggle the dropdown visibility and the active state of the Contribute tab
 function toggleContributeDropdown() {
     const dropdown = document.getElementById('contribute-dropdown');
     const contributeTab = document.getElementById('draw-route-tab');
 
     if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+        console.log("Opening dropdown and setting active state");
         dropdown.style.display = 'flex'; // Show the dropdown
         contributeTab.classList.add('active'); // Highlight Contribute tab
-        document.addEventListener('click', handleClickOutsideDropdown); // Add event listener to detect outside clicks
+        document.addEventListener('click', handleClickOutsideDropdown); // Detect outside clicks
         showControlPanel(); // Show Draw Route panel by default
     } else {
-        closeDropdown(); // Call function to close the dropdown and reset states
+        closeDropdown(); // Close dropdown if already open
     }
 }
 
 // Function to close the dropdown and reset active states
 function closeDropdown() {
+    console.log("Closing dropdown and resetting active state");
     const dropdown = document.getElementById('contribute-dropdown');
     const contributeTab = document.getElementById('draw-route-tab');
 
@@ -224,6 +225,7 @@ function closeDropdown() {
 
 // Helper function to set active state on the selected dropdown tab
 function setActiveDropdownTab(selectedId) {
+    console.log("Setting active state for tab:", selectedId);
     resetActiveDropdownTabs(); // Reset all before adding active to selected tab
 
     const selectedTab = document.getElementById(selectedId);
@@ -234,7 +236,8 @@ function setActiveDropdownTab(selectedId) {
 
 // Function to reset active state on all dropdown tabs
 function resetActiveDropdownTabs() {
-    document.querySelectorAll('.dropdown-tab').forEach(tab => tab.classList.remove('active'));
+    console.log("Resetting active state for all dropdown tabs");
+    document.querySelectorAll('#contribute-dropdown .btn').forEach(tab => tab.classList.remove('active'));
 }
 
 // Function to handle clicks outside the dropdown and close it if clicked outside
@@ -243,6 +246,7 @@ function handleClickOutsideDropdown(event) {
     const contributeTab = document.getElementById('draw-route-tab');
 
     if (!dropdown.contains(event.target) && !contributeTab.contains(event.target)) {
+        console.log("Clicked outside dropdown, closing it");
         closeDropdown(); // Use the closeDropdown function to reset states and hide
     }
 }
