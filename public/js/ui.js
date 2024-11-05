@@ -376,6 +376,12 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         if (data.user) {
             // Display user info and show the logout button
             userInfo.textContent = `Hello, ${data.user.displayName}`;
+
+            // Set user photo
+            const userPhoto = document.getElementById('user-photo');
+            userPhoto.src = data.user.photos[0].value; // Set the source to the user's profile photo URL
+            userPhoto.style.display = 'block'; // Make the image visible
+
             userStatus.style.display = 'flex'; // Show user status
             logoutButton.style.display = 'block'; // Show logout button when logged in
             loginButton.style.display = 'none'; // Hide login button when logged in
@@ -395,6 +401,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         loginButton.style.display = 'block'; // Show login button on error
     }
 }
+
 
 // ============================
 // SECTION: JWT Authentication Helpers

@@ -97,7 +97,7 @@ body {
     display: none; /* Initially hidden */
     position: absolute;
     bottom: 60px; /* Adjust this based on the height of the bottom tabs */
-    left: 50px; /* Move further left (adjust this percentage as needed) */
+    left: 100px; /* Move further left (adjust this percentage as needed) */
     transform: translateX(-50%); /* Center adjust */
     background-color: #f9f9f9;
     border-radius: 5px;
@@ -461,7 +461,7 @@ async function compressAndUploadImage(file) {
             <button onclick="closeRouteNameModal()" class="btn btn-secondary btn-sm">Cancel</button>
         </div>
     </div>
-</div>
+</div>  
 
 
 <!-- Drawing Options Modal -->
@@ -483,11 +483,13 @@ async function compressAndUploadImage(file) {
 </div>
 
 <!-- User Status Display -->
-<div id="user-status" style="position: absolute; top: 10px; left: 10px; background-color: rgba(0, 0, 0, 0.5); color: white; padding: 10px; border-radius: 5px; display: flex; align-items: center;">
+<div id="user-status" style="position: absolute; top: 10px; left: 10px; background-color: rgba(255, 255, 255, 0.8); color: black; padding: 10px; border-radius: 5px; display: flex; align-items: center;">
+    <img id="user-photo" src="" alt="User Photo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; display: none;">
     <span id="user-info"></span>
     <button id="logout-button" style="margin-left: 10px; background: #f00; color: white; border: none; padding: 5px 10px; cursor: pointer; display: none;">Logout</button>
     <button id="login-button" style="margin-left: 10px; background: #007bff; color: white; border: none; padding: 5px 10px; cursor: pointer;">Login</button>
 </div>
+
 
 
 
