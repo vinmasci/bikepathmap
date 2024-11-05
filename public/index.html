@@ -101,10 +101,10 @@ body {
     background-color: #555;
 }
 
-/* Container for dropdown tabs */
+/* Dropdown styling - Smaller tabs */
 .dropdown-tabs {
-    display: flex; /* Horizontal layout */
-    gap: 10px;
+    display: flex; /* Ensures horizontal layout */
+    gap: 10px; /* Adds space between the tabs */
     padding: 10px;
     background-color: #f9f9f9;
     border-radius: 5px;
@@ -112,24 +112,28 @@ body {
     z-index: 999;
 }
 
-/* Styling for individual dropdown buttons, using Bootstrap nav-link style */
-.dropdown-tab.nav-link {
-    color: #333;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 3px;
-    font-size: 12px;
-}
-
-/* Base style for dropdown-tab for use without nav-link */
+/* Base style for dropdown-tab */
 .dropdown-tab {
     color: #333;
     cursor: pointer;
-    padding: 5px 8px;
+    padding: 8px 12px;
     margin: 2px;
     border-radius: 3px;
     font-size: 12px;
+    transition: background-color 0.3s ease; /* Smooth transition */
 }
+
+/* Hover effect for dropdown-tab */
+.dropdown-tab:hover {
+    background-color: #e6e6e6; /* Change to desired hover color */
+}
+
+/* Active style for dropdown-tab when clicked */
+.dropdown-tab.active {
+    background-color: #ccc;
+    color: #333;
+}
+
 
 
 
