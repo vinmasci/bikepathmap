@@ -330,9 +330,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         await fetchUserData(token, userStatus, userInfo); // Fetch user data with the token
     } else {
         // User is not logged in
-        userStatus.style.display = 'none';  // Hide user status if no token
-        loginButton.style.display = 'block'; // Show login button if not logged in
-        logoutButton.style.display = 'none'; // Ensure logout button is hidden
+        userStatus.style.display = 'flex';  // Ensure the user status display is visible
+        userInfo.textContent = ''; // Clear user info if not logged in
+        logoutButton.style.display = 'none'; // Hide logout button if not logged in
         console.log("User is not logged in, showing login button."); // Log that the user is not logged in
     }
 
@@ -340,8 +340,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     logoutButton.addEventListener('click', async () => {
         console.log("Logging out..."); // Log when logout button is clicked
         localStorage.removeItem('token');  // Clear the token from localStorage
-        userStatus.style.display = 'none';  // Hide user status
-        loginButton.style.display = 'block'; // Show login button
+        userStatus.style.display = 'flex';  // Ensure user status remains visible
+        userInfo.textContent = ''; // Clear user info
+        logoutButton.style.display = 'none'; // Hide logout button
+        console.log("User logged out, login button will remain visible."); // Log logout event
 
         // Redirect to Google's logout endpoint
         const logoutUrl = `https://accounts.google.com/Logout`;
@@ -373,25 +375,22 @@ async function fetchUserData(token, userStatus, userInfo) {
         if (data.user) {
             // Display user info and show the logout button
             userInfo.textContent = `Hello, ${data.user.displayName}`;
-            userStatus.style.display = 'block';
-            loginButton.style.display = 'none'; // Hide login button when logged in
-            logoutButton.style.display = 'block'; // Show logout button
+            userStatus.style.display = 'flex'; // Show user status
+            logoutButton.style.display = 'block'; // Show logout button when logged in
             console.log("User data fetched successfully:", data.user); // Log the user data
         } else {
-            userStatus.style.display = 'none';
-            loginButton.style.display = 'block'; // Show login button if not logged in
-            logoutButton.style.display = 'none'; // Ensure logout button is hidden
+            userStatus.style.display = 'flex'; // Ensure user status is visible
+            userInfo.textContent = ''; // Clear user info if no user data
+            logoutButton.style.display = 'none'; // Hide logout button if no user data
             console.log("No user data found, showing login button."); // Log if no user data
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
-        userStatus.style.display = 'none';  // Hide if there's an error
-        loginButton.style.display = 'block'; // Show login button in case of error
-        logoutButton.style.display = 'none'; // Ensure logout button is hidden
+        userStatus.style.display = 'flex'; // Ensure user status is visible even if there's an error
+        userInfo.textContent = ''; // Clear user info on error
+        logoutButton.style.display = 'none'; // Hide logout button on error
     }
 }
-
-
 
 // ============================
 // SECTION: JWT Authentication Helpers
