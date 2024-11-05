@@ -31,15 +31,11 @@ function openSegmentModal(title, routeId) {
     };
 }
 
-
-
 // ============================
 // SECTION: Delete Segment
 // ============================
 async function deleteSegment() {
     const deleteButton = document.getElementById('delete-segment');
-    deleteButton.disabled = true;
-    deleteButton.innerHTML = "Deleting...";
 
     // Retrieve routeId directly from the displayed text in the modal
     const routeIdElement = document.getElementById('route-id');
@@ -47,36 +43,43 @@ async function deleteSegment() {
 
     if (!routeId) {
         console.error("No route ID found for deletion.");
+        return; // Exit early if no route ID
+    }
+
+    // Prompt the user for confirmation
+    if (!confirm("Are you sure you want to delete this segment?")) {
+        return; // Exit if deletion is canceled by the user
+    }
+
+    // Set button text to "Deleting..." and disable the button only if deletion is confirmed
+    deleteButton.disabled = true;
+    deleteButton.innerHTML = "Deleting...";
+
+    try {
+        console.log(`Deleting segment with ID: ${routeId}`);
+        const response = await fetch(`/api/delete-drawn-route?routeId=${encodeURIComponent(routeId)}`, {
+            method: 'DELETE',
+        });
+
+        const result = await response.json();
+        console.log('Delete request result:', result);
+
+        if (result.success) {
+            console.log('Segment deleted successfully.');
+            closeModal();
+            loadSegments(); // Refresh to show the updated segments list
+        } else {
+            console.error('Failed to delete segment:', result.message);
+        }
+    } catch (error) {
+        console.error('Error in deleting segment:', error);
+    } finally {
+        // Reset button state after attempting deletion
         deleteButton.disabled = false;
         deleteButton.innerHTML = "Delete Segment";
-        return;
-    }
-
-    if (confirm("Are you sure you want to delete this segment?")) {
-        try {
-            console.log(`Deleting segment with ID: ${routeId}`);
-            const response = await fetch(`/api/delete-drawn-route?routeId=${encodeURIComponent(routeId)}`, {
-                method: 'DELETE',
-            });
-
-            const result = await response.json();
-            console.log('Delete request result:', result);
-
-            if (result.success) {
-                console.log('Segment deleted successfully.');
-                closeModal();
-                loadSegments(); // Refresh to show the updated segments list
-            } else {
-                console.error('Failed to delete segment:', result.message);
-            }
-        } catch (error) {
-            console.error('Error in deleting segment:', error);
-        } finally {
-            deleteButton.disabled = false;
-            deleteButton.innerHTML = "Delete Segment";
-        }
     }
 }
+
 
 
 
