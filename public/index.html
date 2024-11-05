@@ -484,13 +484,10 @@ async function compressAndUploadImage(file) {
 
 <!-- User Status Display -->
 <div id="user-status" style="position: absolute; top: 10px; left: 10px; background-color: rgba(0, 0, 0, 0.5); color: white; padding: 10px; border-radius: 5px; display: flex; align-items: center;">
-    <span id="user-info"></span>
+    <img id="user-photo" src="" alt="User Photo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; display: none;">
     <button id="logout-button" style="margin-left: 10px; background: #f00; color: white; border: none; padding: 5px 10px; cursor: pointer; display: none;">Logout</button>
     <button id="login-button" style="margin-left: 10px; background: #007bff; color: white; border: none; padding: 5px 10px; cursor: pointer;">Login</button>
 </div>
-
-
-
 
 <!-- Include external JS files -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
