@@ -284,13 +284,14 @@ body {
 <!-- Segment Info Modal -->
 <div id="segment-modal" class="modal">
     <div class="modal-content">
+        <!-- Updated Header with Segment Title Only -->
         <div class="modal-header" style="margin: 0;">
-            <p id="route-id" style="font-size: x-small; color: gray; margin: 0;">Route ID: </p>
+            <p id="segment-details" style="font-size: medium; font-weight: bold; margin: 0;"></p>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
-        <div class="modal-body">
-            <p id="segment-details" style="font-size: medium; font-weight: bold; margin-top: 5px;"></p>
 
+        <!-- Modal Body with Comments Section -->
+        <div class="modal-body">
             <!-- Comments Section -->
             <div id="comments-section">
                 <h5>Comments</h5>
@@ -304,11 +305,18 @@ body {
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button id="delete-segment" class="btn btn-danger">Delete Segment</button>
+
+        <!-- Subtle Footer with Flag and Delete Options -->
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding-top: 5px;">
+            <div>
+                <span onclick="flagSegment()" style="font-size: small; color: #dc3545; cursor: pointer; margin-right: 10px;">Flag Segment</span> |
+                <span onclick="deleteSegment()" style="font-size: small; color: #dc3545; cursor: pointer; margin-left: 10px;">Delete Segment</span>
+            </div>
+            <p id="route-id" style="font-size: x-small; color: gray; margin: 0; padding-top: 5px;">Route ID: </p>
         </div>
     </div>
 </div>
+
 
 
 <!-- Control Panel -->
