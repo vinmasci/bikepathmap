@@ -15,7 +15,8 @@ export default function handler(req, res) {
                 { expiresIn: '1h' }
             );
 
-            res.json({ token });
+            // Redirect to home page with token as URL parameter
+            res.redirect(`/?token=${token}`);
         } catch (error) {
             console.error("Error generating token:", error);
             res.status(500).json({ error: "Token generation failed" });

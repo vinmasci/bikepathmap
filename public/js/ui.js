@@ -368,3 +368,41 @@ function fetchUserData() {
         console.log(data.user);  // Display user info
     });
 }
+
+// ============================
+// SECTION: Capture Token and Store in localStorage
+// ============================
+document.addEventListener('DOMContentLoaded', () => {
+    // Capture the token from the URL if it exists
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+        // Store the token in localStorage
+        localStorage.setItem('token', token);
+
+        // Remove the token from the URL for a cleaner experience
+        window.history.replaceState({}, document.title, "/");
+    }
+});
+
+// ============================
+// SECTION: Fetch User Data with Token
+// ============================
+async function fetchUserData() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error("No token found, user might not be logged in.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/auth/user', {
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const data = await response.json();
+        console.log("User data:", data.user);  // Display user info or handle as needed
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+    }
+}
