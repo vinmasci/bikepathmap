@@ -311,3 +311,34 @@ function openSegmentModal(title, routeId) {
     // Render comments for the segment
     renderComments();
 }
+
+// ============================
+// SECTION: User Login Status
+// ============================
+document.addEventListener('DOMContentLoaded', async () => {
+    const userStatus = document.getElementById('user-status');
+    const userInfo = document.getElementById('user-info');
+    const logoutButton = document.getElementById('logout-button');
+
+    try {
+        // Fetch user data to check if logged in
+        const response = await fetch('/api/auth/user');
+        const data = await response.json();
+
+        if (data.user) {
+            // Display user info and show the logout button
+            userInfo.textContent = `Hello, ${data.user.displayName}`;
+            userStatus.style.display = 'block';
+        } else {
+            userStatus.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+
+    // Logout button handler
+    logoutButton.addEventListener('click', async () => {
+        await fetch('/api/auth/logout');
+        window.location.reload(); // Refresh the page after logout
+    });
+});
