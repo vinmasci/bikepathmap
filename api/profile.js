@@ -26,34 +26,34 @@ async function connectToMongo() {
 }
 
 // Middleware for JWT authentication with enhanced logging
+const jwt = require('jsonwebtoken');
+
 const authenticateJWT = (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
-    
     if (!token) {
-        console.error("Token not provided in the request headers");
+        console.error("Token not provided");
         return res.status(401).json({ error: "Token not provided" });
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
         if (err) {
-            console.error("Token verification failed:", err.message);
-            return res.status(403).json({ error: "Token verification failed" });
+            if (err.name === 'TokenExpiredError') {
+                console.error("Token expired:", err.expiredAt);
+                return res.status(401).json({ error: "Token expired", expiredAt: err.expiredAt });
+            } else {
+                console.error("Token verification failed:", err.message);
+                return res.status(403).json({ error: "Token verification failed" });
+            }
         }
 
-        console.log("Decoded token:", decodedToken);
-
-        // Check if `id` exists in the token payload, or use an alternative if applicable
-        const userId = decodedToken.id || decodedToken.sub; // Or other key based on your auth system
-        if (!userId) {
-            console.error("User ID missing in token payload");
-            return res.status(403).json({ error: "User ID missing in token payload" });
-        }
-
-        req.user = { id: userId }; // Set `req.user` with the decoded `id`
-        console.log("Authenticated user:", req.user); 
+        console.log("Token successfully verified:", decodedToken);
+        req.user = { id: decodedToken.id };  // Ensure the decoded ID is set to req.user
         next();
     });
 };
+
+module.exports = authenticateJWT;
+
 
 // Update user profile handler with error handling and enhanced logging
 module.exports = (req, res) => {

@@ -364,10 +364,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function fetchUserData(token, userStatus, userInfo, logoutButton, loginButton) {
     try {
         const response = await fetch('/api/auth/user', {
-            headers: { 'Authorization': `Bearer ${token}` },  // Include the token here
+            headers: { 'Authorization': `Bearer ${token}` } // Include the token here
         });
 
         if (!response.ok) {
+            // Check if token has expired or is invalid
+            const errorData = await response.json();
+            if (response.status === 401 && errorData.error === "Token expired") {
+                console.error("Token expired at:", errorData.expiredAt);
+                alert("Session expired. Please log in again.");
+                // Redirect to login page
+                window.location.href = '/api/auth/login';
+                return;
+            }
             throw new Error(`Error: ${response.statusText}`);
         }
 
