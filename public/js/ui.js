@@ -377,14 +377,28 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         }
 
         const data = await response.json();
-        console.log("Fetched user data:", data); // Log the fetched user data
 
         if (data.user) {
-            // Get user's initials (first two initials)
             const names = data.user.displayName.split(' ').map(name => name.charAt(0)).slice(0, 2).join('').toUpperCase();
-            console.log("User initials:", names); // Log initials
+            
+            // Clear previous user info
+            userInfo.innerHTML = ''; 
+            
+            // Set profile image or initials
+            const currentProfileImage = document.getElementById('current-profile-image');
+            const currentInitials = document.getElementById('current-initials');
 
-            // Create a circle element for initials
+            if (data.user.profileImage) {
+                currentProfileImage.src = data.user.profileImage; // Set the profile image URL
+                currentProfileImage.style.display = 'block'; // Show the image
+                currentInitials.style.display = 'none'; // Hide initials
+            } else {
+                currentInitials.textContent = names; // Set initials
+                currentInitials.style.display = 'flex'; // Show initials
+                currentProfileImage.style.display = 'none'; // Hide profile image
+            }
+
+            // Additional user info handling
             const initialsCircle = document.createElement('div');
             initialsCircle.textContent = names;
             initialsCircle.style.width = '40px';
@@ -399,55 +413,39 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             initialsCircle.style.marginRight = '10px';
             initialsCircle.style.cursor = 'pointer';
 
-            userInfo.innerHTML = '';
-            userInfo.appendChild(initialsCircle);
+            userInfo.appendChild(initialsCircle); // Append the initials circle
 
-            const currentProfileImage = document.getElementById('current-profile-image');
-            const currentInitials = document.getElementById('current-initials');
-
-            // Check if profile image exists and set it
-            if (data.user.profileImage) {
-                console.log("Profile image found:", data.user.profileImage); // Log the image URL
-                currentProfileImage.src = data.user.profileImage; // Set the profile image URL
-                currentProfileImage.style.display = 'block'; // Show the image
-                currentInitials.style.display = 'none'; // Hide initials
-            } else {
-                console.log("No profile image found, displaying initials."); // Log when no image is found
-                currentInitials.textContent = names; // Set initials
-                currentInitials.style.display = 'flex'; // Show initials
-                currentProfileImage.style.display = 'none'; // Hide profile image
-            }
-
+            // Add event listener for the initials circle
             initialsCircle.addEventListener('click', () => {
                 const modal = document.getElementById('profile-info-modal');
                 const rect = initialsCircle.getBoundingClientRect();
                 modal.style.position = 'absolute';
-                modal.style.top = `${rect.bottom + window.scrollY}px`;
-                modal.style.left = `${rect.left}px`;
-                modal.style.display = 'block';
-
+                modal.style.top = `${rect.bottom + window.scrollY}px`; // Position below the circle
+                modal.style.left = `${rect.left}px`; // Align with the left edge of the circle
+                modal.style.display = 'block'; // Show the modal
                 document.getElementById('user-name').value = data.user.displayName; // Set the name field
             });
 
-            userStatus.style.display = 'flex';
-            logoutButton.style.display = 'none';
-            loginButton.style.display = 'none';
+            userStatus.style.display = 'flex'; // Show user status
+            logoutButton.style.display = 'none'; // Hide logout button on main page
+            loginButton.style.display = 'none'; // Hide login button when logged in
             console.log("User data fetched successfully:", data.user);
         } else {
-            console.log("No user data found, showing login button."); // Log when no user data is found
             userStatus.style.display = 'flex';
-            userInfo.textContent = ''; 
-            logoutButton.style.display = 'none'; 
+            userInfo.textContent = '';
+            logoutButton.style.display = 'none';
             loginButton.style.display = 'block';
+            console.log("No user data found, showing login button.");
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
-        userStatus.style.display = 'flex'; 
-        userInfo.textContent = ''; 
-        logoutButton.style.display = 'none'; 
-        loginButton.style.display = 'block'; 
+        userStatus.style.display = 'flex';
+        userInfo.textContent = '';
+        logoutButton.style.display = 'none';
+        loginButton.style.display = 'block';
     }
 }
+
 
 
 // ============================
