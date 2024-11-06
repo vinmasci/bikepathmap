@@ -413,11 +413,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             // Add event listener for the initials circle
             initialsCircle.addEventListener('click', (event) => {
                 const modal = document.getElementById('profile-info-modal');
-
-                // Get the bounding rectangle of the initials circle
                 const rect = initialsCircle.getBoundingClientRect();
-
-                // Set the modal position
                 modal.style.position = 'absolute';
                 modal.style.top = `${rect.bottom + window.scrollY}px`; // Position below the circle
                 modal.style.left = `${rect.left}px`; // Align with the left edge of the circle
@@ -448,7 +444,9 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
     }
 }
 
-// Save profile information
+// ============================
+// SECTION: Save Profile Information
+// ============================
 document.getElementById('save-profile-info').addEventListener('click', async () => {
     const userName = document.getElementById('user-name').value;
     const profileImage = document.getElementById('profile-image').files[0];
@@ -459,7 +457,7 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
         formData.append('image', profileImage); // Add image file if exists
     }
 
-    // Change button text to "Saving..."
+    // Change button text to "Saving..." and disable it
     const saveButton = document.getElementById('save-profile-info');
     saveButton.innerText = 'Saving...';
     saveButton.disabled = true; // Disable button while saving
@@ -473,34 +471,39 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
         body: formData // Sending FormData to include file uploads
     });
 
+    // Reset button text and enable it
+    saveButton.innerText = 'Save'; // Reset the button text
+    saveButton.disabled = false; // Enable the button again
+
     if (response.ok) {
         console.log('Profile information saved successfully');
         document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
     } else {
         console.error('Error saving profile information');
     }
-
-    // Reset button state after save attempt
-    saveButton.innerText = 'Update';
-    saveButton.disabled = false;
 });
 
-// Close modal functionality
+// ============================
+// SECTION: Close Modal
+// ============================
 document.getElementById('close-modal').addEventListener('click', () => {
     document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
 });
 
-// Logout button in the modal
+// ============================
+// SECTION: Logout Button in Modal
+// ============================
 document.getElementById('modal-logout-button').addEventListener('click', async () => {
     console.log("Logging out from profile modal...");
-    localStorage.removeItem('token');
-    userInfo.textContent = '';
-    logoutButton.style.display = 'none';
-    loginButton.style.display = 'block';
+    localStorage.removeItem('token');  // Clear the token from localStorage
+    userInfo.textContent = ''; // Clear user info
+    logoutButton.style.display = 'none'; // Hide logout button
+    loginButton.style.display = 'block'; // Show login button
     console.log("User logged out, login button will remain visible.");
 
-    // Redirect to your homepage
-    window.location.href = '/'; // Change this to your homepage URL
+    // Redirect to your application's logout URL
+    const logoutUrl = '/'; // Redirect to your homepage or logout route
+    window.location.href = logoutUrl; // Redirect to log out of the application
 });
 
 // ============================
@@ -522,4 +525,3 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchUserData(token, userStatus, userInfo, logoutButton, loginButton);
     }
 });
-
