@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient } = require('mongodb');  // No need for ObjectId now
 require('dotenv').config();
 
 // AWS S3 configuration
@@ -44,13 +44,14 @@ const authenticateJWT = (req, res, next) => {
     });
 };
 
-// Ensure profile document exists or create a new one
+// Ensure profile document exists or create a new one without converting userId to ObjectId
 async function ensureProfileDocument(userId, collection) {
     try {
-        const existingProfile = await collection.findOne({ _id: new ObjectId(userId) });
+        // Check if the profile exists using the plain userId string
+        const existingProfile = await collection.findOne({ _id: userId });
         if (!existingProfile) {
             console.log("Profile not found, creating a new one...");
-            await collection.insertOne({ _id: new ObjectId(userId), name: "", profileImage: "" });
+            await collection.insertOne({ _id: userId, name: "", profileImage: "" });
         }
     } catch (error) {
         console.error('Error ensuring profile document:', error.message);
@@ -100,7 +101,7 @@ module.exports = async (req, res) => {
                 // Update profile document with new data
                 const updateData = { name, profileImage: profileImageUrl };
                 const result = await collection.updateOne(
-                    { _id: new ObjectId(userId) },
+                    { _id: userId },  // Use userId directly as a string
                     { $set: updateData },
                     { upsert: true } // Ensure document is created if it doesn't exist
                 );
