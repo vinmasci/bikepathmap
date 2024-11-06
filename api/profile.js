@@ -56,12 +56,6 @@ const authenticateJWT = (req, res, next) => {
 // ============================
 module.exports = async (req, res) => {
     authenticateJWT(req, res, async () => {
-        // Log to verify if `req.user` and `req.user.id` are set
-        if (!req.user || !req.user.id) {
-            console.error("Error: `req.user.id` is undefined. Authentication might have failed.");
-            return res.status(500).json({ error: "`req.user.id` is undefined after authentication" });
-        }
-
         upload(req, res, async (err) => {
             if (err) {
                 console.error('Error uploading file:', err.message);
@@ -73,14 +67,14 @@ module.exports = async (req, res) => {
 
             try {
                 const collection = await connectToMongo();
-                const userId = req.user.id;  // This should now log correctly if `req.user.id` is set
+                const userId = req.user.id; // This should be the user's ID from the JWT token
                 console.log('User ID:', userId);
 
                 // Ensure profile document exists
-                await ensureProfileDocument(userId, collection);
+                await ensureProfileDocument(userId, name);
 
                 // Process the image upload if present
-                let profileImageUrl = "";
+                let profileImageUrl = ""; // Default to empty
                 if (image) {
                     const fileContent = fs.readFileSync(image.path);
                     const params = {
@@ -92,15 +86,15 @@ module.exports = async (req, res) => {
 
                     const s3Data = await s3.upload(params).promise();
                     console.log('Upload successful. File URL:', s3Data.Location);
-                    profileImageUrl = s3Data.Location;
+                    profileImageUrl = s3Data.Location; // Get the uploaded image URL
 
                     fs.unlink(image.path, (unlinkErr) => {
                         if (unlinkErr) console.error('Failed to delete local file:', unlinkErr);
                     });
                 }
 
-                // Update profile document with new data
-                const updateData = { name, profileImage: profileImageUrl };
+                // Update the profile document with new data
+                const updateData = { name, profileImage: profileImageUrl || undefined }; // Only update if there's a new image
                 const result = await collection.updateOne(
                     { _id: userId },  // Use userId directly as a string
                     { $set: updateData },
