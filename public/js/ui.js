@@ -410,7 +410,6 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
 
                 // Pre-fill the modal fields with user data
                 document.getElementById('user-name').value = data.user.displayName; // Set the name field
-                document.getElementById('user-email').value = data.user.email; // Set the email field
             });
 
             userStatus.style.display = 'flex'; // Show user status
@@ -437,12 +436,10 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
 // Save profile information
 document.getElementById('save-profile-info').addEventListener('click', async () => {
     const userName = document.getElementById('user-name').value;
-    const userEmail = document.getElementById('user-email').value;
     const profileImage = document.getElementById('profile-image').files[0];
 
     const formData = new FormData();
     formData.append('name', userName);
-    formData.append('email', userEmail);
     if (profileImage) {
         formData.append('image', profileImage); // Add image file if exists
     }
@@ -469,7 +466,19 @@ document.getElementById('close-modal').addEventListener('click', () => {
     document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
 });
 
+// Logout button in the modal
+document.getElementById('modal-logout-button').addEventListener('click', async () => {
+    console.log("Logging out from profile modal..."); // Log when logout button is clicked
+    localStorage.removeItem('token');  // Clear the token from localStorage
+    userInfo.textContent = ''; // Clear user info
+    logoutButton.style.display = 'none'; // Hide logout button
+    loginButton.style.display = 'block'; // Show login button
+    console.log("User logged out, login button will remain visible."); // Log logout event
 
+    // Redirect to Google's logout endpoint
+    const logoutUrl = `https://accounts.google.com/Logout`;
+    window.location.href = logoutUrl; // Redirect to log out of Google
+});
 
 // ============================
 // SECTION: Capture Token and Store in localStorage

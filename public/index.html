@@ -499,17 +499,18 @@ async function compressAndUploadImage(file) {
     <button id="login-button" class="btn btn-success" style="margin-left: 10px; border-radius: 10px;">Login</button>
 </div>
 
+
+<!-- Profile Info Modal -->
 <div id="profile-info-modal" style="display: none;">
     <div class="modal-content">
         <span id="close-modal" style="cursor: pointer;">&times;</span>
         <h2>Edit Profile</h2>
         <label for="user-name">Name:</label>
         <input type="text" id="user-name" />
-        <label for="user-email">Preferred Email:</label>
-        <input type="email" id="user-email" />
         <label for="profile-image">Profile Image:</label>
         <input type="file" id="profile-image" accept="image/*" />
         <button id="save-profile-info">Save</button>
+        <button id="modal-logout-button" class="btn btn-danger" style="margin-top: 10px; border-radius: 10px;">Logout</button>
     </div>
 </div>
 
