@@ -372,40 +372,53 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         }
 
         const data = await response.json();
-        console.log("Fetched user data:", data); // Log the fetched user data for debugging
 
         if (data.user) {
             // Display user info and show the logout button
             userInfo.textContent = `Hello, ${data.user.displayName}`;
 
-            // Set user photo if available
-            const userPhoto = document.getElementById('user-photo');
-            if (data.user.photos && data.user.photos.length > 0) {
-                userPhoto.src = data.user.photos[0].value; // Set the source to the user's profile photo URL
-                userPhoto.style.display = 'block'; // Make the image visible
-            } else {
-                userPhoto.style.display = 'none'; // Hide photo if not available
-            }
+            // Get user's initials
+            const initials = data.user.displayName.split(' ').map(name => name.charAt(0)).join('').toUpperCase();
+
+            // Create a circle element for initials
+            const initialsCircle = document.createElement('div');
+            initialsCircle.textContent = initials;
+            initialsCircle.style.width = '40px'; // Circle size
+            initialsCircle.style.height = '40px'; // Circle size
+            initialsCircle.style.borderRadius = '50%'; // Makes it circular
+            initialsCircle.style.backgroundColor = '#007bff'; // Background color (adjust as needed)
+            initialsCircle.style.color = 'white'; // Text color
+            initialsCircle.style.display = 'flex';
+            initialsCircle.style.alignItems = 'center';
+            initialsCircle.style.justifyContent = 'center';
+            initialsCircle.style.fontSize = '16px'; // Adjust font size
+            initialsCircle.style.marginRight = '10px'; // Space between initials and text
+            
+            // Clear previous content and append the circle
+            userInfo.innerHTML = ''; // Clear previous user info
+            userInfo.appendChild(initialsCircle); // Add initials circle to user info
 
             userStatus.style.display = 'flex'; // Show user status
             logoutButton.style.display = 'block'; // Show logout button when logged in
             loginButton.style.display = 'none'; // Hide login button when logged in
-            console.log("User data fetched successfully:", data.user); // Log the user data
+            console.log("User data fetched successfully:", data.user);
         } else {
-            userStatus.style.display = 'flex'; // Ensure user status is visible
-            userInfo.textContent = ''; // Clear user info if no user data
-            logoutButton.style.display = 'none'; // Hide logout button if no user data
-            loginButton.style.display = 'block'; // Show login button if no user data
-            console.log("No user data found, showing login button."); // Log if no user data
+            // Handle the case where there is no user data
+            userStatus.style.display = 'flex';
+            userInfo.textContent = ''; 
+            logoutButton.style.display = 'none'; 
+            loginButton.style.display = 'block';
+            console.log("No user data found, showing login button.");
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
-        userStatus.style.display = 'flex'; // Ensure user status is visible even if there's an error
-        userInfo.textContent = ''; // Clear user info on error
-        logoutButton.style.display = 'none'; // Hide logout button on error
-        loginButton.style.display = 'block'; // Show login button on error
+        userStatus.style.display = 'flex'; 
+        userInfo.textContent = ''; 
+        logoutButton.style.display = 'none'; 
+        loginButton.style.display = 'block'; 
     }
 }
+
 
 
 
