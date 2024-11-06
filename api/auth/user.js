@@ -13,13 +13,22 @@ export default function handler(req, res) {
     console.log("Token received:", token); // Debugging statement
 
     // Verify the token
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
         if (err) {
             console.error("Token verification failed:", err);
             return res.status(401).json({ message: "Invalid token" });
         }
 
         console.log("Token successfully verified:", user); // Debugging statement
-        res.json({ user }); // Respond with user information
+
+        // Fetch user profile from MongoDB here
+        const collection = await connectToMongo();
+        const profile = await collection.findOne({ _id: new ObjectId(user.id) }); // Ensure you fetch the profile using the correct ID
+
+        if (!profile) {
+            return res.status(404).json({ message: "Profile not found" });
+        }
+
+        res.json({ user: profile }); // Respond with user information
     });
 }
