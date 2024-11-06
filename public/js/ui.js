@@ -326,35 +326,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("Current token:", token); // Log the token to see if it exists
 
     if (token) {
-        console.log("User is logged in, fetching user data..."); // Log that user is logged in
-        await fetchUserData(token, userStatus, userInfo, logoutButton, loginButton); // Fetch user data with the token
+        console.log("User is logged in, fetching user data...");
+        await fetchUserData(token, userStatus, userInfo, logoutButton, loginButton);
     } else {
-        // User is not logged in
-        userStatus.style.display = 'flex';  // Ensure the user status display is visible
-        userInfo.textContent = ''; // Clear user info if not logged in
-        logoutButton.style.display = 'none'; // Hide logout button if not logged in
-        loginButton.style.display = 'block'; // Show login button if not logged in
-        console.log("User is not logged in, showing login button."); // Log that the user is not logged in
+        userStatus.style.display = 'flex';
+        userInfo.textContent = '';
+        logoutButton.style.display = 'none';
+        loginButton.style.display = 'block';
+        console.log("User is not logged in, showing login button.");
     }
 
     // Logout button handler
     logoutButton.addEventListener('click', async () => {
-        console.log("Logging out..."); // Log when logout button is clicked
-        localStorage.removeItem('token');  // Clear the token from localStorage
-        userInfo.textContent = ''; // Clear user info
-        logoutButton.style.display = 'none'; // Hide logout button
-        loginButton.style.display = 'block'; // Show login button
-        console.log("User logged out, login button will remain visible."); // Log logout event
+        console.log("Logging out...");
+        localStorage.removeItem('token');
+        userInfo.textContent = '';
+        logoutButton.style.display = 'none';
+        loginButton.style.display = 'block';
+        console.log("User logged out, login button will remain visible.");
 
-        // Redirect to Google's logout endpoint
         const logoutUrl = `https://accounts.google.com/Logout`;
-        window.location.href = logoutUrl; // Redirect to log out of Google
+        window.location.href = logoutUrl;
     });
 
     // Login button handler
     loginButton.addEventListener('click', () => {
-        console.log("Redirecting to login..."); // Log when login button is clicked
-        window.location.href = '/api/auth/login'; // Redirect to your login endpoint
+        console.log("Redirecting to login...");
+        window.location.href = '/api/auth/login';
     });
 });
 
@@ -364,16 +362,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function fetchUserData(token, userStatus, userInfo, logoutButton, loginButton) {
     try {
         const response = await fetch('/api/auth/user', {
-            headers: { 'Authorization': `Bearer ${token}` } // Include the token here
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) {
-            // Check if token has expired or is invalid
             const errorData = await response.json();
             if (response.status === 401 && errorData.error === "Token expired") {
                 console.error("Token expired at:", errorData.expiredAt);
                 alert("Session expired. Please log in again.");
-                // Redirect to login page
                 window.location.href = '/api/auth/login';
                 return;
             }
@@ -383,73 +379,65 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         const data = await response.json();
 
         if (data.user) {
-            // Get user's initials (first two initials)
             const names = data.user.displayName.split(' ').map(name => name.charAt(0)).slice(0, 2).join('').toUpperCase();
-
-            // Create a circle element for initials
             const initialsCircle = document.createElement('div');
             initialsCircle.textContent = names;
-            initialsCircle.style.width = '40px'; // Circle size
-            initialsCircle.style.height = '40px'; // Circle size
-            initialsCircle.style.borderRadius = '50%'; // Makes it circular
-            initialsCircle.style.backgroundColor = '#007bff'; // Background color (adjust as needed)
-            initialsCircle.style.color = 'white'; // Text color
+            initialsCircle.style.width = '40px';
+            initialsCircle.style.height = '40px';
+            initialsCircle.style.borderRadius = '50%';
+            initialsCircle.style.backgroundColor = '#007bff';
+            initialsCircle.style.color = 'white';
             initialsCircle.style.display = 'flex';
             initialsCircle.style.alignItems = 'center';
             initialsCircle.style.justifyContent = 'center';
-            initialsCircle.style.fontSize = '16px'; // Adjust font size
-            initialsCircle.style.marginRight = '10px'; // Space between initials and logout button
-            initialsCircle.style.cursor = 'pointer'; // Change cursor to pointer
-            
-            // Clear previous content and append the circle
-            userInfo.innerHTML = ''; // Clear previous user info
-            userInfo.appendChild(initialsCircle); // Add initials circle to user info
+            initialsCircle.style.fontSize = '16px';
+            initialsCircle.style.marginRight = '10px';
+            initialsCircle.style.cursor = 'pointer';
 
-            // Display current profile image or initials when the modal is opened
+            userInfo.innerHTML = '';
+            userInfo.appendChild(initialsCircle);
+
             const currentProfileImage = document.getElementById('current-profile-image');
             const currentInitials = document.getElementById('current-initials');
 
             if (data.user.profileImage) {
-                currentProfileImage.src = data.user.profileImage; // Set the profile image URL
-                currentProfileImage.style.display = 'block'; // Show the image
-                currentInitials.style.display = 'none'; // Hide initials
+                currentProfileImage.src = data.user.profileImage;
+                currentProfileImage.style.display = 'block';
+                currentInitials.style.display = 'none';
             } else {
-                currentInitials.textContent = names; // Set initials
-                currentInitials.style.display = 'flex'; // Show initials
-                currentProfileImage.style.display = 'none'; // Hide profile image
+                currentInitials.textContent = names;
+                currentInitials.style.display = 'flex';
+                currentProfileImage.style.display = 'none';
             }
 
-            // Add event listener for the initials circle
-            initialsCircle.addEventListener('click', (event) => {
+            initialsCircle.addEventListener('click', () => {
                 const modal = document.getElementById('profile-info-modal');
                 const rect = initialsCircle.getBoundingClientRect();
                 modal.style.position = 'absolute';
-                modal.style.top = `${rect.bottom + window.scrollY}px`; // Position below the circle
-                modal.style.left = `${rect.left}px`; // Align with the left edge of the circle
-                modal.style.display = 'block'; // Show the modal
+                modal.style.top = `${rect.bottom + window.scrollY}px`;
+                modal.style.left = `${rect.left}px`;
+                modal.style.display = 'block';
 
-                // Pre-fill the modal fields with user data
-                document.getElementById('user-name').value = data.user.displayName; // Set the name field
+                document.getElementById('user-name').value = data.user.displayName;
             });
 
-            userStatus.style.display = 'flex'; // Show user status
-            logoutButton.style.display = 'none'; // Hide logout button on main page
-            loginButton.style.display = 'none'; // Hide login button when logged in
+            userStatus.style.display = 'flex';
+            logoutButton.style.display = 'none';
+            loginButton.style.display = 'none';
             console.log("User data fetched successfully:", data.user);
         } else {
-            // Handle the case where there is no user data
             userStatus.style.display = 'flex';
-            userInfo.textContent = ''; 
-            logoutButton.style.display = 'none'; 
+            userInfo.textContent = '';
+            logoutButton.style.display = 'none';
             loginButton.style.display = 'block';
             console.log("No user data found, showing login button.");
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
-        userStatus.style.display = 'flex'; 
-        userInfo.textContent = ''; 
-        logoutButton.style.display = 'none'; 
-        loginButton.style.display = 'block'; 
+        userStatus.style.display = 'flex';
+        userInfo.textContent = '';
+        logoutButton.style.display = 'none';
+        loginButton.style.display = 'block';
     }
 }
 
@@ -463,40 +451,35 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
     const formData = new FormData();
     formData.append('name', userName);
     if (profileImage) {
-        formData.append('image', profileImage); // Add image file if exists
+        formData.append('image', profileImage);
     }
 
-    // Change button text to "Saving..." and disable it
     const saveButton = document.getElementById('save-profile-info');
     saveButton.innerText = 'Saving...';
-    saveButton.disabled = true; // Disable button while saving
+    saveButton.disabled = true;
 
     try {
-        // Send this data to your backend
         const response = await fetch('/api/user/profile', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // Send the token if necessary
-                // Do not set 'Content-Type' here, let the browser do it automatically
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: formData // Sending FormData to include file uploads
+            body: formData
         });
 
-        // Log the response for debugging
         console.log('Response:', response);
         
         if (response.ok) {
             console.log('Profile information saved successfully');
-            document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
+            document.getElementById('profile-info-modal').style.display = 'none';
         } else {
             const contentType = response.headers.get("content-type");
             let errorData;
 
-            // Check if response is JSON
             if (contentType && contentType.includes("application/json")) {
                 errorData = await response.json();
             } else {
-                errorData = { error: 'Unexpected response format' }; // Handle unexpected format
+                errorData = { error: 'Unexpected response format' };
             }
 
             console.error('Error saving profile information:', errorData);
@@ -504,18 +487,16 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
     } catch (error) {
         console.error('Network or server error:', error);
     } finally {
-        // Reset button text and enable it regardless of success or failure
-        saveButton.innerText = 'Save'; // Reset the button text
-        saveButton.disabled = false; // Enable the button again
+        saveButton.innerText = 'Save';
+        saveButton.disabled = false;
     }
 });
-
 
 // ============================
 // SECTION: Close Modal
 // ============================
 document.getElementById('close-modal').addEventListener('click', () => {
-    document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
+    document.getElementById('profile-info-modal').style.display = 'none';
 });
 
 // ============================
@@ -523,54 +504,36 @@ document.getElementById('close-modal').addEventListener('click', () => {
 // ============================
 document.getElementById('modal-logout-button').addEventListener('click', async () => {
     console.log("Logging out from profile modal...");
+    localStorage.removeItem('token');
 
-    // Clear the token from localStorage
-    localStorage.removeItem('token');  
-
-    // Check if elements exist before trying to access them
     if (typeof userInfo !== 'undefined' && userInfo) {
-        userInfo.textContent = ''; // Clear user info
-    } else {
-        console.warn("userInfo not found.");
+        userInfo.textContent = '';
     }
 
     if (typeof logoutButton !== 'undefined' && logoutButton) {
-        logoutButton.style.display = 'none'; // Hide logout button
-    } else {
-        console.warn("logoutButton not found.");
+        logoutButton.style.display = 'none';
     }
 
     if (typeof loginButton !== 'undefined' && loginButton) {
-        loginButton.style.display = 'block'; // Show login button
-    } else {
-        console.warn("loginButton not found.");
+        loginButton.style.display = 'block';
     }
 
     console.log("User logged out, login button will remain visible.");
 
-    // Redirect to Google logout URL to complete logout and return to your homepage
     const googleLogoutUrl = `https://accounts.google.com/Logout`;
-    window.location.href = googleLogoutUrl; // Redirect to Google logout
+    window.location.href = googleLogoutUrl;
 });
-
-
 
 // ============================
 // SECTION: Capture Token and Store in localStorage
 // ============================
 document.addEventListener('DOMContentLoaded', () => {
-    // Capture the token from the URL if it exists
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
     if (token) {
-        // Store the token in localStorage
         localStorage.setItem('token', token);
-
-        // Remove the token from the URL for a cleaner experience
         window.history.replaceState({}, document.title, "/");
-        
-        // Fetch user data immediately after storing the token
         fetchUserData(token, userStatus, userInfo, logoutButton, loginButton);
     }
 });
