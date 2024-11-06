@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
-const jwt = require('jsonwebtoken');  // Ensure JWT is imported
+const jwt = require('jsonwebtoken'); // Make sure jwt is required here
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
@@ -15,7 +15,6 @@ const s3 = new AWS.S3({
 // Multer configuration for file uploads
 const upload = multer({ dest: '/tmp/', limits: { fileSize: 10000000 } }).single('image'); // Handle single image uploads
 
-// MongoDB connection
 let client;
 async function connectToMongo() {
     if (!client) {
@@ -26,47 +25,47 @@ async function connectToMongo() {
     return client.db('roadApp').collection('users'); // Connect to the 'users' collection
 }
 
-// Middleware for JWT authentication
+// Middleware for JWT authentication with enhanced logging
 const authenticateJWT = (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
     
     if (!token) {
-        console.error("Token not provided");
-        return res.sendStatus(401);
+        console.error("Token not provided in the request headers");
+        return res.status(401).json({ error: "Token not provided" });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
         if (err) {
             console.error("Token verification failed:", err.message);
-            return res.sendStatus(403);
+            return res.status(403).json({ error: "Token verification failed" });
         }
 
-        console.log("Decoded token:", user); // Log the full token to inspect its structure
+        console.log("Decoded token:", decodedToken);
 
-        if (!user.id) {
+        // Check if `id` exists in the token payload, or use an alternative if applicable
+        const userId = decodedToken.id || decodedToken.sub; // Or other key based on your auth system
+        if (!userId) {
             console.error("User ID missing in token payload");
-            return res.sendStatus(403);
+            return res.status(403).json({ error: "User ID missing in token payload" });
         }
 
-        req.user = user;  // Attach the user to the request
-        console.log("Authenticated user:", req.user);  // Log user info to confirm `id`
+        req.user = { id: userId }; // Set `req.user` with the decoded `id`
+        console.log("Authenticated user:", req.user); 
         next();
     });
 };
 
-// Update user profile handler
+// Update user profile handler with error handling and enhanced logging
 module.exports = (req, res) => {
-    // Authenticate the user first
     authenticateJWT(req, res, () => {
-        // Handle file uploads after authentication
         upload(req, res, async (err) => {
             if (err) {
                 console.error('Error uploading file:', err.message);
                 return res.status(400).json({ error: err.message });
             }
 
-            const { name } = req.body; // Get name from form data
-            const image = req.file; // Get the uploaded file
+            const { name } = req.body;
+            const image = req.file;
 
             if (!image) {
                 console.error('No image uploaded');
@@ -74,11 +73,11 @@ module.exports = (req, res) => {
             }
 
             try {
-                const fileContent = fs.readFileSync(image.path); // Read the file content
+                const fileContent = fs.readFileSync(image.path);
 
                 const params = {
                     Bucket: process.env.AWS_BUCKET_NAME,
-                    Key: `${Date.now().toString()}-${image.originalname}`, // Unique file name
+                    Key: `${Date.now().toString()}-${image.originalname}`,
                     Body: fileContent,
                     ContentType: image.mimetype
                 };
@@ -89,21 +88,17 @@ module.exports = (req, res) => {
 
                 const collection = await connectToMongo();
 
-                // Get user ID from the authenticated user
-                const userId = req.user.id; 
+                const userId = req.user.id;
                 console.log('User ID:', userId);
 
-                // Update user profile with name and image URL
                 const updateData = {
                     name,
-                    profileImage: s3Data.Location // Save the S3 URL in the update data
+                    profileImage: s3Data.Location
                 };
 
-                // Update user profile in the database
                 const result = await collection.updateOne({ _id: userId }, { $set: updateData });
                 console.log('Update result:', result);
 
-                // Clean up local file after upload
                 fs.unlink(image.path, (unlinkErr) => {
                     if (unlinkErr) console.error('Failed to delete local file:', unlinkErr);
                 });
