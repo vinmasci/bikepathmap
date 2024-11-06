@@ -31,13 +31,38 @@ async function connectToMongo() {
 }
 
 // ============================
-// SECTION: JWT Authentication Middleware
+// SECTION: Ensure Profile Document
 // ============================
-const authenticateJWT = require('./authMiddleware'); // Importing the new middleware
+async function ensureProfileDocument(userId, displayName, googleProfileImage) {
+    const collection = await connectToMongo();
+    const userObjectId = ObjectId.isValid(userId) ? new ObjectId(userId) : userId;
+
+    // Find the existing profile
+    const existingProfile = await collection.findOne({ _id: userObjectId });
+
+    if (!existingProfile) {
+        console.log("Creating new profile document for user:", userId);
+        await collection.insertOne({
+            _id: userObjectId,
+            name: displayName,
+            profileImage: googleProfileImage || "" // Use Google image if available
+        });
+    } else if (!existingProfile.profileImage && googleProfileImage) {
+        console.log("Adding missing profile image for user:", userId);
+        await collection.updateOne(
+            { _id: userObjectId },
+            { $set: { profileImage: googleProfileImage } }
+        );
+    } else {
+        console.log("Profile document already exists and is up-to-date for user:", userId);
+    }
+}
 
 // ============================
 // SECTION: Update or Create User Profile Handler
 // ============================
+const authenticateJWT = require('./authMiddleware'); // Importing the new middleware
+
 module.exports = async (req, res) => {
     authenticateJWT(req, res, async () => {
         upload(req, res, async (err) => {
