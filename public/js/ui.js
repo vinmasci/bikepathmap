@@ -416,20 +416,6 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
     }
 }
 
-
-// ============================
-// SECTION: JWT Authentication Helpers
-// ============================
-
-// Store the token after login
-function login() {
-    fetch('/api/auth/callback')
-        .then(response => response.json())
-        .then(data => {
-            localStorage.setItem('token', data.token);  // Store token in localStorage
-        });
-}
-
 // ============================
 // SECTION: Capture Token and Store in localStorage
 // ============================
@@ -444,5 +430,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Remove the token from the URL for a cleaner experience
         window.history.replaceState({}, document.title, "/");
+        
+        // Fetch user data immediately after storing the token
+        fetchUserData(token, userStatus, userInfo, logoutButton, loginButton);
     }
 });
+
