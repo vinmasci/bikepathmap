@@ -377,9 +377,14 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         }
 
         const data = await response.json();
+        console.log("Fetched user data:", data); // Log the fetched user data
 
         if (data.user) {
+            // Get user's initials (first two initials)
             const names = data.user.displayName.split(' ').map(name => name.charAt(0)).slice(0, 2).join('').toUpperCase();
+            console.log("User initials:", names); // Log initials
+
+            // Create a circle element for initials
             const initialsCircle = document.createElement('div');
             initialsCircle.textContent = names;
             initialsCircle.style.width = '40px';
@@ -400,14 +405,17 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             const currentProfileImage = document.getElementById('current-profile-image');
             const currentInitials = document.getElementById('current-initials');
 
+            // Check if profile image exists and set it
             if (data.user.profileImage) {
-                currentProfileImage.src = data.user.profileImage;
-                currentProfileImage.style.display = 'block';
-                currentInitials.style.display = 'none';
+                console.log("Profile image found:", data.user.profileImage); // Log the image URL
+                currentProfileImage.src = data.user.profileImage; // Set the profile image URL
+                currentProfileImage.style.display = 'block'; // Show the image
+                currentInitials.style.display = 'none'; // Hide initials
             } else {
-                currentInitials.textContent = names;
-                currentInitials.style.display = 'flex';
-                currentProfileImage.style.display = 'none';
+                console.log("No profile image found, displaying initials."); // Log when no image is found
+                currentInitials.textContent = names; // Set initials
+                currentInitials.style.display = 'flex'; // Show initials
+                currentProfileImage.style.display = 'none'; // Hide profile image
             }
 
             initialsCircle.addEventListener('click', () => {
@@ -418,7 +426,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
                 modal.style.left = `${rect.left}px`;
                 modal.style.display = 'block';
 
-                document.getElementById('user-name').value = data.user.displayName;
+                document.getElementById('user-name').value = data.user.displayName; // Set the name field
             });
 
             userStatus.style.display = 'flex';
@@ -426,20 +434,21 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             loginButton.style.display = 'none';
             console.log("User data fetched successfully:", data.user);
         } else {
+            console.log("No user data found, showing login button."); // Log when no user data is found
             userStatus.style.display = 'flex';
-            userInfo.textContent = '';
-            logoutButton.style.display = 'none';
+            userInfo.textContent = ''; 
+            logoutButton.style.display = 'none'; 
             loginButton.style.display = 'block';
-            console.log("No user data found, showing login button.");
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
-        userStatus.style.display = 'flex';
-        userInfo.textContent = '';
-        logoutButton.style.display = 'none';
-        loginButton.style.display = 'block';
+        userStatus.style.display = 'flex'; 
+        userInfo.textContent = ''; 
+        logoutButton.style.display = 'none'; 
+        loginButton.style.display = 'block'; 
     }
 }
+
 
 // ============================
 // SECTION: Save Profile Information
