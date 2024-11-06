@@ -364,14 +364,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function fetchUserData(token, userStatus, userInfo, logoutButton, loginButton) {
     try {
         const response = await fetch('/api/auth/user', {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 'Authorization': `Bearer ${token}` } // Include the token here
         });
 
         if (!response.ok) {
+            // Check if token has expired or is invalid
             const errorData = await response.json();
             if (response.status === 401 && errorData.error === "Token expired") {
                 console.error("Token expired at:", errorData.expiredAt);
                 alert("Session expired. Please log in again.");
+                // Redirect to login page
                 window.location.href = '/api/auth/login';
                 return;
             }
@@ -381,69 +383,75 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         const data = await response.json();
 
         if (data.user) {
-            // Fetch or create the profile document if needed
-            const profileResponse = await fetch(`/api/user/profile/${data.user.id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            // Get user's initials (first two initials)
+            const names = data.user.displayName.split(' ').map(name => name.charAt(0)).slice(0, 2).join('').toUpperCase();
 
-            if (profileResponse.ok) {
-                const profileData = await profileResponse.json();
+            // Create a circle element for initials
+            const initialsCircle = document.createElement('div');
+            initialsCircle.textContent = names;
+            initialsCircle.style.width = '40px'; // Circle size
+            initialsCircle.style.height = '40px'; // Circle size
+            initialsCircle.style.borderRadius = '50%'; // Makes it circular
+            initialsCircle.style.backgroundColor = '#007bff'; // Background color (adjust as needed)
+            initialsCircle.style.color = 'white'; // Text color
+            initialsCircle.style.display = 'flex';
+            initialsCircle.style.alignItems = 'center';
+            initialsCircle.style.justifyContent = 'center';
+            initialsCircle.style.fontSize = '16px'; // Adjust font size
+            initialsCircle.style.marginRight = '10px'; // Space between initials and logout button
+            initialsCircle.style.cursor = 'pointer'; // Change cursor to pointer
+            
+            // Clear previous content and append the circle
+            userInfo.innerHTML = ''; // Clear previous user info
+            userInfo.appendChild(initialsCircle); // Add initials circle to user info
 
-                // Render the profile data (name, initials, image, etc.)
-                const names = profileData.name ? profileData.name.split(' ') : data.user.displayName.split(' ');
-                const initials = names.map(name => name.charAt(0)).slice(0, 2).join('').toUpperCase();
+            // Display current profile image or initials when the modal is opened
+            const currentProfileImage = document.getElementById('current-profile-image');
+            const currentInitials = document.getElementById('current-initials');
 
-                userInfo.innerHTML = ''; 
-                const initialsCircle = document.createElement('div');
-                initialsCircle.textContent = initials;
-                initialsCircle.style.width = '40px';
-                initialsCircle.style.height = '40px';
-                initialsCircle.style.borderRadius = '50%';
-                initialsCircle.style.backgroundColor = '#007bff';
-                initialsCircle.style.color = 'white';
-                initialsCircle.style.display = 'flex';
-                initialsCircle.style.alignItems = 'center';
-                initialsCircle.style.justifyContent = 'center';
-                initialsCircle.style.fontSize = '16px';
-                initialsCircle.style.marginRight = '10px';
-                initialsCircle.style.cursor = 'pointer';
-
-                userInfo.appendChild(initialsCircle);
-
-                const currentProfileImage = document.getElementById('current-profile-image');
-                const currentInitials = document.getElementById('current-initials');
-
-                if (profileData.profileImage) {
-                    currentProfileImage.src = profileData.profileImage;
-                    currentProfileImage.style.display = 'block';
-                    currentInitials.style.display = 'none';
-                } else {
-                    currentInitials.textContent = initials;
-                    currentInitials.style.display = 'flex';
-                    currentProfileImage.style.display = 'none';
-                }
+            if (data.user.profileImage) {
+                currentProfileImage.src = data.user.profileImage; // Set the profile image URL
+                currentProfileImage.style.display = 'block'; // Show the image
+                currentInitials.style.display = 'none'; // Hide initials
             } else {
-                console.error('Error fetching or creating profile document:', await profileResponse.json());
+                currentInitials.textContent = names; // Set initials
+                currentInitials.style.display = 'flex'; // Show initials
+                currentProfileImage.style.display = 'none'; // Hide profile image
             }
 
-            userStatus.style.display = 'flex';
-            logoutButton.style.display = 'none';
-            loginButton.style.display = 'none';
+            // Add event listener for the initials circle
+            initialsCircle.addEventListener('click', (event) => {
+                const modal = document.getElementById('profile-info-modal');
+                const rect = initialsCircle.getBoundingClientRect();
+                modal.style.position = 'absolute';
+                modal.style.top = `${rect.bottom + window.scrollY}px`; // Position below the circle
+                modal.style.left = `${rect.left}px`; // Align with the left edge of the circle
+                modal.style.display = 'block'; // Show the modal
+
+                // Pre-fill the modal fields with user data
+                document.getElementById('user-name').value = data.user.displayName; // Set the name field
+            });
+
+            userStatus.style.display = 'flex'; // Show user status
+            logoutButton.style.display = 'none'; // Hide logout button on main page
+            loginButton.style.display = 'none'; // Hide login button when logged in
+            console.log("User data fetched successfully:", data.user);
         } else {
+            // Handle the case where there is no user data
             userStatus.style.display = 'flex';
-            userInfo.textContent = '';
-            logoutButton.style.display = 'none';
+            userInfo.textContent = ''; 
+            logoutButton.style.display = 'none'; 
             loginButton.style.display = 'block';
+            console.log("No user data found, showing login button.");
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
-        userStatus.style.display = 'flex';
-        userInfo.textContent = '';
-        logoutButton.style.display = 'none';
-        loginButton.style.display = 'block';
+        userStatus.style.display = 'flex'; 
+        userInfo.textContent = ''; 
+        logoutButton.style.display = 'none'; 
+        loginButton.style.display = 'block'; 
     }
 }
-
 
 // ============================
 // SECTION: Save Profile Information
