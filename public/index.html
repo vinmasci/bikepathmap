@@ -92,6 +92,15 @@ body {
     background-color: #34495e; /* Darker background for active tabs */
 }
 
+#profile-info-modal {
+    display: none; /* Initially hidden */
+    background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent background */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Make sure its above other elements */
+    /* Additional styles as needed */
+}
+
 /* Dropdown Tabs (Button Group) */
 #contribute-dropdown {
     display: none; /* Initially hidden */
@@ -490,25 +499,19 @@ async function compressAndUploadImage(file) {
     <button id="login-button" class="btn btn-success" style="margin-left: 10px; border-radius: 10px;">Login</button>
 </div>
 
-<!-- Profile Information Modal -->
-<div id="profile-info-modal" class="modal" style="display: none;">
+<div id="profile-info-modal" style="display: none;">
     <div class="modal-content">
-        <h4>Update Profile Information</h4>
+        <span id="close-modal" style="cursor: pointer;">&times;</span>
+        <h2>Edit Profile</h2>
         <label for="user-name">Name:</label>
-        <input type="text" id="user-name" placeholder="Enter your name">
-
+        <input type="text" id="user-name" />
         <label for="user-email">Preferred Email:</label>
-        <input type="email" id="user-email" placeholder="Enter your email">
-
+        <input type="email" id="user-email" />
         <label for="profile-image">Profile Image:</label>
-        <input type="file" id="profile-image" accept="image/*">
-
+        <input type="file" id="profile-image" accept="image/*" />
         <button id="save-profile-info">Save</button>
-        <button id="close-modal">Close</button>
     </div>
 </div>
-
-
 
 <!-- Include external JS files -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
