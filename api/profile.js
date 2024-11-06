@@ -56,6 +56,12 @@ const authenticateJWT = (req, res, next) => {
 // ============================
 module.exports = async (req, res) => {
     authenticateJWT(req, res, async () => {
+        // Log to verify if `req.user` and `req.user.id` are set
+        if (!req.user || !req.user.id) {
+            console.error("Error: `req.user.id` is undefined. Authentication might have failed.");
+            return res.status(500).json({ error: "`req.user.id` is undefined after authentication" });
+        }
+
         upload(req, res, async (err) => {
             if (err) {
                 console.error('Error uploading file:', err.message);
@@ -67,8 +73,11 @@ module.exports = async (req, res) => {
 
             try {
                 const collection = await connectToMongo();
-                const userId = req.user.id;
+                const userId = req.user.id;  // This should now log correctly if `req.user.id` is set
                 console.log('User ID:', userId);
+
+                // Ensure profile document exists
+                await ensureProfileDocument(userId, collection);
 
                 // Process the image upload if present
                 let profileImageUrl = "";
