@@ -523,16 +523,36 @@ document.getElementById('close-modal').addEventListener('click', () => {
 // ============================
 document.getElementById('modal-logout-button').addEventListener('click', async () => {
     console.log("Logging out from profile modal...");
-    localStorage.removeItem('token');  // Clear the token from localStorage
-    userInfo.textContent = ''; // Clear user info
-    logoutButton.style.display = 'none'; // Hide logout button
-    loginButton.style.display = 'block'; // Show login button
+
+    // Clear the token from localStorage
+    localStorage.removeItem('token');  
+
+    // Check if elements exist before trying to access them
+    if (typeof userInfo !== 'undefined' && userInfo) {
+        userInfo.textContent = ''; // Clear user info
+    } else {
+        console.warn("userInfo not found.");
+    }
+
+    if (typeof logoutButton !== 'undefined' && logoutButton) {
+        logoutButton.style.display = 'none'; // Hide logout button
+    } else {
+        console.warn("logoutButton not found.");
+    }
+
+    if (typeof loginButton !== 'undefined' && loginButton) {
+        loginButton.style.display = 'block'; // Show login button
+    } else {
+        console.warn("loginButton not found.");
+    }
+
     console.log("User logged out, login button will remain visible.");
 
-    // Redirect to your application's logout URL
+    // Redirect to your application's logout URL or homepage
     const logoutUrl = '/'; // Redirect to your homepage or logout route
     window.location.href = logoutUrl; // Redirect to log out of the application
 });
+
 
 // ============================
 // SECTION: Capture Token and Store in localStorage
