@@ -396,6 +396,20 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             userInfo.innerHTML = ''; // Clear previous user info
             userInfo.appendChild(initialsCircle); // Add initials circle to user info
 
+            // Display current profile image or initials when the modal is opened
+            const currentProfileImage = document.getElementById('current-profile-image');
+            const currentInitials = document.getElementById('current-initials');
+
+            if (data.user.profileImage) {
+                currentProfileImage.src = data.user.profileImage; // Set the profile image URL
+                currentProfileImage.style.display = 'block'; // Show the image
+                currentInitials.style.display = 'none'; // Hide initials
+            } else {
+                currentInitials.textContent = names; // Set initials
+                currentInitials.style.display = 'flex'; // Show initials
+                currentProfileImage.style.display = 'none'; // Hide profile image
+            }
+
             // Add event listener for the initials circle
             initialsCircle.addEventListener('click', (event) => {
                 const modal = document.getElementById('profile-info-modal');
@@ -445,6 +459,11 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
         formData.append('image', profileImage); // Add image file if exists
     }
 
+    // Change button text to "Saving..."
+    const saveButton = document.getElementById('save-profile-info');
+    saveButton.innerText = 'Saving...';
+    saveButton.disabled = true; // Disable button while saving
+
     // Send this data to your backend
     const response = await fetch('/api/user/profile', {
         method: 'POST',
@@ -460,6 +479,10 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
     } else {
         console.error('Error saving profile information');
     }
+
+    // Reset button state after save attempt
+    saveButton.innerText = 'Update';
+    saveButton.disabled = false;
 });
 
 // Close modal functionality
@@ -479,7 +502,6 @@ document.getElementById('modal-logout-button').addEventListener('click', async (
     // Redirect to your homepage
     window.location.href = '/'; // Change this to your homepage URL
 });
-
 
 // ============================
 // SECTION: Capture Token and Store in localStorage
