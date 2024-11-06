@@ -390,6 +390,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             initialsCircle.style.justifyContent = 'center';
             initialsCircle.style.fontSize = '16px'; // Adjust font size
             initialsCircle.style.marginRight = '10px'; // Space between initials and logout button
+            initialsCircle.style.cursor = 'pointer'; // Change cursor to pointer
             
             // Clear previous content and append the circle
             userInfo.innerHTML = ''; // Clear previous user info
@@ -413,7 +414,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             });
 
             userStatus.style.display = 'flex'; // Show user status
-            logoutButton.style.display = 'block'; // Show logout button when logged in
+            logoutButton.style.display = 'none'; // Hide logout button on main page
             loginButton.style.display = 'none'; // Hide login button when logged in
             console.log("User data fetched successfully:", data.user);
         } else {
@@ -479,6 +480,7 @@ document.getElementById('modal-logout-button').addEventListener('click', async (
     const logoutUrl = `https://accounts.google.com/Logout`;
     window.location.href = logoutUrl; // Redirect to log out of Google
 });
+
 
 // ============================
 // SECTION: Capture Token and Store in localStorage
