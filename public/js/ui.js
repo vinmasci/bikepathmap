@@ -375,10 +375,15 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
 
         if (data.user) {
             // Display user info and show the logout button
-            userInfo.textContent = `Hello, ${data.user.displayName}`;
+            userInfo.textContent = ''; // Clear existing text
 
-            // Get user's initials
-            const initials = data.user.displayName.split(' ').map(name => name.charAt(0)).join('').toUpperCase();
+            // Get user's initials while filtering out unwanted characters
+            const initials = data.user.displayName
+                .replace(/[^a-zA-Z\s]/g, '') // Remove non-letter characters
+                .split(' ')
+                .map(name => name.charAt(0))
+                .join('')
+                .toUpperCase();
 
             // Create a circle element for initials
             const initialsCircle = document.createElement('div');
@@ -386,7 +391,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             initialsCircle.style.width = '40px'; // Circle size
             initialsCircle.style.height = '40px'; // Circle size
             initialsCircle.style.borderRadius = '50%'; // Makes it circular
-            initialsCircle.style.backgroundColor = '#007bff'; // Background color (adjust as needed)
+            initialsCircle.style.backgroundColor = '#007bff'; // Background color
             initialsCircle.style.color = 'white'; // Text color
             initialsCircle.style.display = 'flex';
             initialsCircle.style.alignItems = 'center';
@@ -394,9 +399,14 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             initialsCircle.style.fontSize = '16px'; // Adjust font size
             initialsCircle.style.marginRight = '10px'; // Space between initials and text
             
-            // Clear previous content and append the circle
-            userInfo.innerHTML = ''; // Clear previous user info
+            // Append the circle and user info
             userInfo.appendChild(initialsCircle); // Add initials circle to user info
+            
+            // Optionally add text for more information if desired
+            const userNameSpan = document.createElement('span');
+            userNameSpan.textContent = `Hello, ${data.user.displayName}`;
+            userNameSpan.style.color = 'white'; // Make sure the text is visible
+            userInfo.appendChild(userNameSpan); // Add the username after the initials circle
 
             userStatus.style.display = 'flex'; // Show user status
             logoutButton.style.display = 'block'; // Show logout button when logged in
@@ -418,8 +428,6 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         loginButton.style.display = 'block'; 
     }
 }
-
-
 
 
 // ============================
