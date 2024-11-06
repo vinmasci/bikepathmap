@@ -1,3 +1,6 @@
+// ============================
+// SECTION: Imports and AWS Configuration
+// ============================
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
@@ -12,8 +15,10 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION
 });
 
-// Multer configuration for file uploads
-const upload = multer({ dest: '/tmp/', limits: { fileSize: 10000000 } }).single('image'); // Handle single image uploads
+// ============================
+// SECTION: Multer and MongoDB Configuration
+// ============================
+const upload = multer({ dest: '/tmp/', limits: { fileSize: 10000000 } }).single('image');
 
 let client;
 async function connectToMongo() {
@@ -25,7 +30,9 @@ async function connectToMongo() {
     return client.db('roadApp').collection('profileDoc'); // Use the profileDoc collection
 }
 
-// Middleware for JWT authentication
+// ============================
+// SECTION: JWT Authentication Middleware
+// ============================
 const authenticateJWT = (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
@@ -44,21 +51,9 @@ const authenticateJWT = (req, res, next) => {
     });
 };
 
-// Ensure profile document exists or create a new one without converting userId to ObjectId
-async function ensureProfileDocument(userId, collection) {
-    try {
-        // Check if the profile exists using the plain userId string
-        const existingProfile = await collection.findOne({ _id: userId });
-        if (!existingProfile) {
-            console.log("Profile not found, creating a new one...");
-            await collection.insertOne({ _id: userId, name: "", profileImage: "" });
-        }
-    } catch (error) {
-        console.error('Error ensuring profile document:', error.message);
-    }
-}
-
-// Update or create user profile handler
+// ============================
+// SECTION: Update or Create User Profile Handler
+// ============================
 module.exports = async (req, res) => {
     authenticateJWT(req, res, async () => {
         upload(req, res, async (err) => {
@@ -74,9 +69,6 @@ module.exports = async (req, res) => {
                 const collection = await connectToMongo();
                 const userId = req.user.id;
                 console.log('User ID:', userId);
-
-                // Ensure profile document exists
-                await ensureProfileDocument(userId, collection);
 
                 // Process the image upload if present
                 let profileImageUrl = "";

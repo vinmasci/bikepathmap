@@ -1,3 +1,6 @@
+// ============================
+// SECTION: Imports and MongoDB Connection
+// ============================
 const jwt = require('jsonwebtoken');
 const passport = require('./setup');
 const { MongoClient, ObjectId } = require('mongodb');
@@ -12,18 +15,28 @@ async function connectToMongo() {
     return client.db('roadApp').collection('profileDoc'); // Connect to the profileDoc collection
 }
 
+// ============================
+// SECTION: Ensure Profile Document
+// ============================
 async function ensureProfileDocument(userId, displayName) {
     const collection = await connectToMongo();
-    const existingProfile = await collection.findOne({ _id: new ObjectId(userId) });
-
+    
+    // Check if userId is a valid ObjectId, otherwise treat it as a string
+    const userObjectId = ObjectId.isValid(userId) ? new ObjectId(userId) : userId;
+    
+    const existingProfile = await collection.findOne({ _id: userObjectId });
+    
     if (!existingProfile) {
         console.log("Creating new profile document for user:", userId);
-        await collection.insertOne({ _id: new ObjectId(userId), name: displayName, profileImage: "" });
+        await collection.insertOne({ _id: userObjectId, name: displayName, profileImage: "" });
     } else {
         console.log("Profile document already exists for user:", userId);
     }
 }
 
+// ============================
+// SECTION: Authentication Callback
+// ============================
 export default function handler(req, res) {
     passport.authenticate('google', { session: false }, async (err, user) => {
         if (err || !user) {
