@@ -16,30 +16,32 @@ async function connectToMongo() {
 }
 
 // ============================
-// SECTION: Ensure Profile Document with Latest Profile Image
+// SECTION: Ensure Profile Document
 // ============================
-async function ensureProfileDocument(userId, displayName, profileImageUrl) {
+async function ensureProfileDocument(userId, displayName, googleProfileImage) {
     const collection = await connectToMongo();
-    
-    // Check if userId is a valid ObjectId, otherwise treat it as a string
     const userObjectId = ObjectId.isValid(userId) ? new ObjectId(userId) : userId;
-    
+
+    // Find the existing profile
     const existingProfile = await collection.findOne({ _id: userObjectId });
-    
+
     if (!existingProfile) {
+        // Create a new document if none exists
         console.log("Creating new profile document for user:", userId);
-        await collection.insertOne({ _id: userObjectId, name: displayName, profileImage: profileImageUrl });
+        await collection.insertOne({
+            _id: userObjectId,
+            name: displayName,
+            profileImage: googleProfileImage || "" // Use Google image if available
+        });
+    } else if (!existingProfile.profileImage && googleProfileImage) {
+        // Update the document if the profile image is missing
+        console.log("Adding missing profile image for user:", userId);
+        await collection.updateOne(
+            { _id: userObjectId },
+            { $set: { profileImage: googleProfileImage } }
+        );
     } else {
-        // Update the profile image if it has changed
-        if (existingProfile.profileImage !== profileImageUrl) {
-            console.log("Updating profile image for user:", userId);
-            await collection.updateOne(
-                { _id: userObjectId },
-                { $set: { profileImage: profileImageUrl } }
-            );
-        } else {
-            console.log("Profile image is already up-to-date for user:", userId);
-        }
+        console.log("Profile document already exists and is up-to-date for user:", userId);
     }
 }
 
@@ -60,8 +62,9 @@ export default function handler(req, res) {
                 { expiresIn: '1h' }
             );
 
-            // Ensure a profile document exists for this user with the latest profile image
-            await ensureProfileDocument(user.id, user.displayName, user.photos[0]?.value || "");
+            // Ensure a profile document exists for this user
+            const googleProfileImage = user.photos && user.photos[0]?.value; // Get Google profile image if available
+            await ensureProfileDocument(user.id, user.displayName, googleProfileImage);
 
             // Redirect to home page with token as URL parameter
             res.redirect(`/?token=${token}`);
