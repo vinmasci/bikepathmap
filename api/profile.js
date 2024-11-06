@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
+const jwt = require('jsonwebtoken');  // Ensure JWT is imported
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
@@ -14,6 +15,7 @@ const s3 = new AWS.S3({
 // Multer configuration for file uploads
 const upload = multer({ dest: '/tmp/', limits: { fileSize: 10000000 } }).single('image'); // Handle single image uploads
 
+// MongoDB connection
 let client;
 async function connectToMongo() {
     if (!client) {
@@ -26,26 +28,34 @@ async function connectToMongo() {
 
 // Middleware for JWT authentication
 const authenticateJWT = (req, res, next) => {
-    const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
-
-    if (token) {
-        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-            if (err) {
-                return res.sendStatus(403); // Forbidden
-            }
-            req.user = user; // Attach the user to the request object
-            next(); // Proceed to the next middleware or route handler
-        });
-    } else {
-        res.sendStatus(401); // Unauthorized
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) {
+        console.error("Token not provided");
+        return res.sendStatus(401);
     }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            console.error("Token verification failed:", err.message);
+            return res.sendStatus(403);
+        }
+
+        if (!user.id) {
+            console.error("User ID missing in token payload");
+            return res.sendStatus(403);
+        }
+
+        req.user = user;  // Attach the user to the request
+        console.log("Authenticated user:", req.user);  // Log user info for verification
+        next();
+    });
 };
 
 // Update user profile handler
 module.exports = (req, res) => {
-    // First, authenticate the user
+    // Authenticate the user first
     authenticateJWT(req, res, () => {
-        // Then, handle file uploads
+        // Handle file uploads after authentication
         upload(req, res, async (err) => {
             if (err) {
                 console.error('Error uploading file:', err.message);
