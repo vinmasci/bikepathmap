@@ -31,10 +31,13 @@ async function connectToMongo() {
 }
 
 // ============================
-// SECTION: Update or Create User Profile Handler
+// SECTION: JWT Authentication Middleware
 // ============================
 const authenticateJWT = require('./authMiddleware'); // Importing the new middleware
 
+// ============================
+// SECTION: Update or Create User Profile Handler
+// ============================
 module.exports = async (req, res) => {
     authenticateJWT(req, res, async () => {
         upload(req, res, async (err) => {
@@ -90,5 +93,4 @@ module.exports = async (req, res) => {
 };
 
 // At the end of profile.js
-module.exports = { connectToMongo }; // Export the function
-
+module.exports.connectToMongo = connectToMongo; // Export the connectToMongo function
