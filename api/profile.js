@@ -89,5 +89,6 @@ module.exports = async (req, res) => {
     });
 };
 
-// Export the connectToMongo function
-module.exports.connectToMongo = connectToMongo; // Add this line to export the function
+// At the end of profile.js
+module.exports = { connectToMongo }; // Export the function
+

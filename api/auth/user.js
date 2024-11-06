@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { connectToMongo } = require('./profile'); // Import the connectToMongo function
+const { connectToMongo } = require('../user/profile'); // Adjusted path to reach profile.js
 const authenticateJWT = require('./authMiddleware'); // Import the authentication middleware
 
 export default function handler(req, res) {
