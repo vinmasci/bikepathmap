@@ -377,68 +377,47 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         }
 
         const data = await response.json();
-        console.log("Fetched user data:", data); // Log the fetched user data
 
         if (data.user) {
-            // Get user's initials (first two initials)
-            const names = data.user.displayName.split(' ').map(name => name.charAt(0)).slice(0, 2).join('').toUpperCase();
-            console.log("User initials:", names); // Log initials
+            console.log("User data fetched:", data.user); // Check the fetched user data
 
-            // Create a circle element for initials
-            const initialsCircle = document.createElement('div');
-            initialsCircle.textContent = names;
-            initialsCircle.style.width = '40px';
-            initialsCircle.style.height = '40px';
-            initialsCircle.style.borderRadius = '50%';
-            initialsCircle.style.backgroundColor = '#007bff';
-            initialsCircle.style.color = 'white';
-            initialsCircle.style.display = 'flex';
-            initialsCircle.style.alignItems = 'center';
-            initialsCircle.style.justifyContent = 'center';
-            initialsCircle.style.fontSize = '16px';
-            initialsCircle.style.marginRight = '10px';
-            initialsCircle.style.cursor = 'pointer';
-
-            userInfo.innerHTML = '';
-            userInfo.appendChild(initialsCircle);
-
+            // Set the profile image and initials
             const currentProfileImage = document.getElementById('current-profile-image');
             const currentInitials = document.getElementById('current-initials');
 
-            // Check if profile image exists and set it
-            if (data.user.profileImage) {
-                console.log("Profile image found:", data.user.profileImage); // Log the image URL
+            // Look for the profile image from MongoDB
+            if (data.user.profileImage && data.user.profileImage !== "") {
+                console.log("Profile image URL from MongoDB:", data.user.profileImage); // Log the profile image URL
                 currentProfileImage.src = data.user.profileImage; // Set the profile image URL
                 currentProfileImage.style.display = 'block'; // Show the image
                 currentInitials.style.display = 'none'; // Hide initials
+                console.log("IMAGE FOUND, DISPLAYING IMAGE"); // Log for image found
             } else {
-                console.log("No profile image found, displaying initials."); // Log when no image is found
+                // Handle initials if no image found
+                console.log("IMAGE NOT FOUND, USING INITIALS"); // Log for image not found
+                const names = data.user.displayName.split(' ').map(name => name.charAt(0)).slice(0, 2).join('').toUpperCase();
                 currentInitials.textContent = names; // Set initials
                 currentInitials.style.display = 'flex'; // Show initials
                 currentProfileImage.style.display = 'none'; // Hide profile image
             }
 
-            initialsCircle.addEventListener('click', () => {
-                const modal = document.getElementById('profile-info-modal');
-                const rect = initialsCircle.getBoundingClientRect();
-                modal.style.position = 'absolute';
-                modal.style.top = `${rect.bottom + window.scrollY}px`;
-                modal.style.left = `${rect.left}px`;
-                modal.style.display = 'block';
+            // Clear previous user info and display the profile image or initials
+            userInfo.innerHTML = ''; // Clear previous user info
+            userInfo.appendChild(currentProfileImage); // Append the profile image
+            userInfo.appendChild(currentInitials); // Append the initials
+            
+            userStatus.style.display = 'flex'; // Show user status
+            logoutButton.style.display = 'none'; // Hide logout button on main page
+            loginButton.style.display = 'none'; // Hide login button when logged in
 
-                document.getElementById('user-name').value = data.user.displayName; // Set the name field
-            });
-
-            userStatus.style.display = 'flex';
-            logoutButton.style.display = 'none';
-            loginButton.style.display = 'none';
             console.log("User data fetched successfully:", data.user);
         } else {
-            console.log("No user data found, showing login button."); // Log when no user data is found
+            // Handle the case where there is no user data
             userStatus.style.display = 'flex';
             userInfo.textContent = ''; 
             logoutButton.style.display = 'none'; 
             loginButton.style.display = 'block';
+            console.log("No user data found, showing login button.");
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
@@ -448,6 +427,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         loginButton.style.display = 'block'; 
     }
 }
+
 
 
 // ============================
