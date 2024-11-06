@@ -44,6 +44,19 @@ const authenticateJWT = (req, res, next) => {
     });
 };
 
+// Ensure profile document exists or create a new one
+async function ensureProfileDocument(userId, collection) {
+    try {
+        const existingProfile = await collection.findOne({ _id: new ObjectId(userId) });
+        if (!existingProfile) {
+            console.log("Profile not found, creating a new one...");
+            await collection.insertOne({ _id: new ObjectId(userId), name: "", profileImage: "" });
+        }
+    } catch (error) {
+        console.error('Error ensuring profile document:', error.message);
+    }
+}
+
 // Update or create user profile handler
 module.exports = async (req, res) => {
     authenticateJWT(req, res, async () => {
@@ -61,17 +74,11 @@ module.exports = async (req, res) => {
                 const userId = req.user.id;
                 console.log('User ID:', userId);
 
-                // Check if profile exists
-                const existingProfile = await collection.findOne({ _id: new ObjectId(userId) });
-                
-                // If no profile exists, create one
-                if (!existingProfile) {
-                    console.log("Profile not found, creating a new one...");
-                    await collection.insertOne({ _id: new ObjectId(userId), name, profileImage: "" });
-                }
+                // Ensure profile document exists
+                await ensureProfileDocument(userId, collection);
 
                 // Process the image upload if present
-                let profileImageUrl = existingProfile ? existingProfile.profileImage : "";
+                let profileImageUrl = "";
                 if (image) {
                     const fileContent = fs.readFileSync(image.path);
                     const params = {
