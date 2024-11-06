@@ -469,16 +469,15 @@ document.getElementById('close-modal').addEventListener('click', () => {
 
 // Logout button in the modal
 document.getElementById('modal-logout-button').addEventListener('click', async () => {
-    console.log("Logging out from profile modal..."); // Log when logout button is clicked
-    localStorage.removeItem('token');  // Clear the token from localStorage
-    userInfo.textContent = ''; // Clear user info
-    logoutButton.style.display = 'none'; // Hide logout button
-    loginButton.style.display = 'block'; // Show login button
-    console.log("User logged out, login button will remain visible."); // Log logout event
+    console.log("Logging out from profile modal...");
+    localStorage.removeItem('token');
+    userInfo.textContent = '';
+    logoutButton.style.display = 'none';
+    loginButton.style.display = 'block';
+    console.log("User logged out, login button will remain visible.");
 
-    // Redirect to Google's logout endpoint
-    const logoutUrl = `https://accounts.google.com/Logout`;
-    window.location.href = logoutUrl; // Redirect to log out of Google
+    // Redirect to your homepage
+    window.location.href = '/'; // Change this to your homepage URL
 });
 
 
