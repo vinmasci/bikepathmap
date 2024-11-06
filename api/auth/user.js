@@ -21,9 +21,10 @@ export default function handler(req, res) {
 
         console.log("Token successfully verified:", user); // Debugging statement
 
-        // Fetch user profile from MongoDB here
-        const collection = await connectToMongo();
-        const profile = await collection.findOne({ _id: new ObjectId(user.id) }); // Ensure you fetch the profile using the correct ID
+// Fetch user profile from MongoDB here
+const collection = await connectToMongo();
+const profile = await collection.findOne({ _id: user.id }); // Use the string directly
+
 
         if (!profile) {
             return res.status(404).json({ message: "Profile not found" });
