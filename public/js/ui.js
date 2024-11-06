@@ -315,36 +315,36 @@ function openSegmentModal(title, routeId) {
 // ============================
 // SECTION: User Login Status
 // ============================
-document.addEventListener('DOMContentLoaded', async () => {
-    const userStatus = document.getElementById('user-status');
-    const userInfo = document.getElementById('user-info');
-    const logoutButton = document.getElementById('logout-button');
-    const loginButton = document.getElementById('login-button');
+const userStatus = document.getElementById('user-status');
+const userInfo = document.getElementById('user-info');
+const logoutButton = document.getElementById('logout-button');
+const loginButton = document.getElementById('login-button');
 
+document.addEventListener('DOMContentLoaded', async () => {
     // Check for token in localStorage and fetch user data if available
     const token = localStorage.getItem('token');
     console.log("Current token:", token); // Log the token to see if it exists
 
     if (token) {
-        console.log("User is logged in, fetching user data..."); // Log that user is logged in
-        await fetchUserData(token, userStatus, userInfo, logoutButton, loginButton); // Fetch user data with the token
+        console.log("User is logged in, fetching user data...");
+        await fetchUserData(token); // Fetch user data with the token
     } else {
         // User is not logged in
         userStatus.style.display = 'flex';  // Ensure the user status display is visible
         userInfo.textContent = ''; // Clear user info if not logged in
         logoutButton.style.display = 'none'; // Hide logout button if not logged in
         loginButton.style.display = 'block'; // Show login button if not logged in
-        console.log("User is not logged in, showing login button."); // Log that the user is not logged in
+        console.log("User is not logged in, showing login button.");
     }
 
     // Logout button handler
     logoutButton.addEventListener('click', async () => {
-        console.log("Logging out..."); // Log when logout button is clicked
-        localStorage.removeItem('token');  // Clear the token from localStorage
+        console.log("Logging out...");
+        localStorage.removeItem('token'); // Clear the token from localStorage
         userInfo.textContent = ''; // Clear user info
         logoutButton.style.display = 'none'; // Hide logout button
         loginButton.style.display = 'block'; // Show login button
-        console.log("User logged out, login button will remain visible."); // Log logout event
+        console.log("User logged out, login button will remain visible.");
 
         // Redirect to Google's logout endpoint
         const logoutUrl = `https://accounts.google.com/Logout`;
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Login button handler
     loginButton.addEventListener('click', () => {
-        console.log("Redirecting to login..."); // Log when login button is clicked
+        console.log("Redirecting to login...");
         window.location.href = '/api/auth/login'; // Redirect to your login endpoint
     });
 });
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ============================
 // SECTION: Fetch User Data with Token
 // ============================
-async function fetchUserData(token, userStatus, userInfo, logoutButton, loginButton) {
+async function fetchUserData(token) {
     try {
         const response = await fetch('/api/auth/user', {
             headers: { 'Authorization': `Bearer ${token}` },  // Include the token here
@@ -383,7 +383,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             initialsCircle.style.width = '40px'; // Circle size
             initialsCircle.style.height = '40px'; // Circle size
             initialsCircle.style.borderRadius = '50%'; // Makes it circular
-            initialsCircle.style.backgroundColor = '#007bff'; // Background color (adjust as needed)
+            initialsCircle.style.backgroundColor = '#007bff'; // Background color
             initialsCircle.style.color = 'white'; // Text color
             initialsCircle.style.display = 'flex';
             initialsCircle.style.alignItems = 'center';
@@ -417,7 +417,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
 }
 
 // ============================
-// SECTION: Capture Token and Store in localStorage
+// SECTION: Capture Token and Store in LocalStorage
 // ============================
 document.addEventListener('DOMContentLoaded', () => {
     // Capture the token from the URL if it exists
@@ -430,9 +430,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Remove the token from the URL for a cleaner experience
         window.history.replaceState({}, document.title, "/");
-        
+
         // Fetch user data immediately after storing the token
-        fetchUserData(token, userStatus, userInfo, logoutButton, loginButton);
+        fetchUserData(token);
     }
 });
-
