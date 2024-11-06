@@ -395,19 +395,23 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             userInfo.innerHTML = ''; // Clear previous user info
             userInfo.appendChild(initialsCircle); // Add initials circle to user info
 
-// Add event listener for the initials circle
-initialsCircle.addEventListener('click', (event) => {
-    const modal = document.getElementById('profile-info-modal');
-    
-    // Get the bounding rectangle of the initials circle
-    const rect = initialsCircle.getBoundingClientRect();
-    
-    // Set the modal position
-    modal.style.position = 'absolute';
-    modal.style.top = `${rect.bottom + window.scrollY}px`; // Position below the circle
-    modal.style.left = `${rect.left}px`; // Align with the left edge of the circle
-    modal.style.display = 'block'; // Show the modal
-});
+            // Add event listener for the initials circle
+            initialsCircle.addEventListener('click', (event) => {
+                const modal = document.getElementById('profile-info-modal');
+
+                // Get the bounding rectangle of the initials circle
+                const rect = initialsCircle.getBoundingClientRect();
+
+                // Set the modal position
+                modal.style.position = 'absolute';
+                modal.style.top = `${rect.bottom + window.scrollY}px`; // Position below the circle
+                modal.style.left = `${rect.left}px`; // Align with the left edge of the circle
+                modal.style.display = 'block'; // Show the modal
+
+                // Pre-fill the modal fields with user data
+                document.getElementById('user-name').value = data.user.displayName; // Set the name field
+                document.getElementById('user-email').value = data.user.email; // Set the email field
+            });
 
             userStatus.style.display = 'flex'; // Show user status
             logoutButton.style.display = 'block'; // Show logout button when logged in
@@ -464,6 +468,7 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
 document.getElementById('close-modal').addEventListener('click', () => {
     document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
 });
+
 
 
 // ============================
