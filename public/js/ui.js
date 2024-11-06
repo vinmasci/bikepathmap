@@ -462,47 +462,45 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
     saveButton.innerText = 'Saving...';
     saveButton.disabled = true; // Disable button while saving
 
-    // Send this data to your backend
-    const response = await fetch('/api/user/profile', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Send the token if necessary
-            // Do not set 'Content-Type' here, let the browser do it automatically
-        },
-        body: formData // Sending FormData to include file uploads
-    });
-    
-    // Log the response for debugging
-    console.log('Response:', response);
-    
-    if (response.ok) {
-        console.log('Profile information saved successfully');
-        document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
-    } else {
-        const contentType = response.headers.get("content-type");
-        let errorData;
-    
-        // Check if response is JSON
-        if (contentType && contentType.includes("application/json")) {
-            errorData = await response.json();
+    try {
+        // Send this data to your backend
+        const response = await fetch('/api/user/profile', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Send the token if necessary
+                // Do not set 'Content-Type' here, let the browser do it automatically
+            },
+            body: formData // Sending FormData to include file uploads
+        });
+
+        // Log the response for debugging
+        console.log('Response:', response);
+        
+        if (response.ok) {
+            console.log('Profile information saved successfully');
+            document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
         } else {
-            errorData = { error: 'Unexpected response format' }; // Handle unexpected format
+            const contentType = response.headers.get("content-type");
+            let errorData;
+
+            // Check if response is JSON
+            if (contentType && contentType.includes("application/json")) {
+                errorData = await response.json();
+            } else {
+                errorData = { error: 'Unexpected response format' }; // Handle unexpected format
+            }
+
+            console.error('Error saving profile information:', errorData);
         }
-    
-        console.error('Error saving profile information:', errorData);
-    }
-
-    // Reset button text and enable it
-    saveButton.innerText = 'Save'; // Reset the button text
-    saveButton.disabled = false; // Enable the button again
-
-    if (response.ok) {
-        console.log('Profile information saved successfully');
-        document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
-    } else {
-        console.error('Error saving profile information');
+    } catch (error) {
+        console.error('Network or server error:', error);
+    } finally {
+        // Reset button text and enable it regardless of success or failure
+        saveButton.innerText = 'Save'; // Reset the button text
+        saveButton.disabled = false; // Enable the button again
     }
 });
+
 
 // ============================
 // SECTION: Close Modal
