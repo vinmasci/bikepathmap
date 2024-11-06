@@ -5,7 +5,7 @@ const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const { MongoClient } = require('mongodb');  // No need for ObjectId now
+const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 // AWS S3 configuration
@@ -31,29 +31,10 @@ async function connectToMongo() {
 }
 
 // ============================
-// SECTION: JWT Authentication Middleware
-// ============================
-const authenticateJWT = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) {
-        console.error("Token not provided");
-        return res.status(401).json({ error: "Token not provided" });
-    }
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
-        if (err) {
-            console.error("Token verification failed:", err.message);
-            return res.status(403).json({ error: "Token verification failed" });
-        }
-        console.log("Token successfully verified:", decodedToken);
-        req.user = { id: decodedToken.id };  // Set decoded ID to req.user
-        next();
-    });
-};
-
-// ============================
 // SECTION: Update or Create User Profile Handler
 // ============================
+const authenticateJWT = require('./authMiddleware'); // Importing the new middleware
+
 module.exports = async (req, res) => {
     authenticateJWT(req, res, async () => {
         upload(req, res, async (err) => {
@@ -69,9 +50,6 @@ module.exports = async (req, res) => {
                 const collection = await connectToMongo();
                 const userId = req.user.id; // This should be the user's ID from the JWT token
                 console.log('User ID:', userId);
-
-                // Ensure profile document exists
-                await ensureProfileDocument(userId, name);
 
                 // Process the image upload if present
                 let profileImageUrl = ""; // Default to empty
@@ -110,3 +88,6 @@ module.exports = async (req, res) => {
         });
     });
 };
+
+// Export the connectToMongo function
+module.exports.connectToMongo = connectToMongo; // Add this line to export the function

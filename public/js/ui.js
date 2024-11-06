@@ -450,6 +450,7 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
 }
 
 
+
 // ============================
 // SECTION: Save Profile Information
 // ============================
