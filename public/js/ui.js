@@ -470,6 +470,17 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
         },
         body: formData // Sending FormData to include file uploads
     });
+    
+    // Log the response for debugging
+    console.log('Response:', response);
+    
+    if (response.ok) {
+        console.log('Profile information saved successfully');
+        document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
+    } else {
+        const errorData = await response.json(); // Attempt to read the error response body
+        console.error('Error saving profile information:', errorData);
+    }    
 
     // Reset button text and enable it
     saveButton.innerText = 'Save'; // Reset the button text
