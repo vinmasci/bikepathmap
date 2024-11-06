@@ -395,6 +395,11 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
             userInfo.innerHTML = ''; // Clear previous user info
             userInfo.appendChild(initialsCircle); // Add initials circle to user info
 
+            // Add event listener for the initials circle to open the profile modal
+            initialsCircle.addEventListener('click', () => {
+                document.getElementById('profile-info-modal').style.display = 'block'; // Show the modal
+            });
+
             userStatus.style.display = 'flex'; // Show user status
             logoutButton.style.display = 'block'; // Show logout button when logged in
             loginButton.style.display = 'none'; // Hide login button when logged in
@@ -415,6 +420,42 @@ async function fetchUserData(token, userStatus, userInfo, logoutButton, loginBut
         loginButton.style.display = 'block'; 
     }
 }
+
+// Save profile information
+document.getElementById('save-profile-info').addEventListener('click', async () => {
+    const userName = document.getElementById('user-name').value;
+    const userEmail = document.getElementById('user-email').value;
+    const profileImage = document.getElementById('profile-image').files[0];
+
+    const formData = new FormData();
+    formData.append('name', userName);
+    formData.append('email', userEmail);
+    if (profileImage) {
+        formData.append('image', profileImage); // Add image file if exists
+    }
+
+    // Send this data to your backend
+    const response = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Send the token if necessary
+        },
+        body: formData // Sending FormData to include file uploads
+    });
+
+    if (response.ok) {
+        console.log('Profile information saved successfully');
+        document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
+    } else {
+        console.error('Error saving profile information');
+    }
+});
+
+// Close modal functionality
+document.getElementById('close-modal').addEventListener('click', () => {
+    document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
+});
+
 
 // ============================
 // SECTION: Capture Token and Store in localStorage

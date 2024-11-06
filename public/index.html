@@ -490,6 +490,25 @@ async function compressAndUploadImage(file) {
     <button id="login-button" class="btn btn-success" style="margin-left: 10px; border-radius: 10px;">Login</button>
 </div>
 
+<!-- Profile Information Modal -->
+<div id="profile-info-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h4>Update Profile Information</h4>
+        <label for="user-name">Name:</label>
+        <input type="text" id="user-name" placeholder="Enter your name">
+
+        <label for="user-email">Preferred Email:</label>
+        <input type="email" id="user-email" placeholder="Enter your email">
+
+        <label for="profile-image">Profile Image:</label>
+        <input type="file" id="profile-image" accept="image/*">
+
+        <button id="save-profile-info">Save</button>
+        <button id="close-modal">Close</button>
+    </div>
+</div>
+
+
 
 <!-- Include external JS files -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
@@ -523,6 +542,7 @@ function closeModal() {
     modal.style.display = 'none';
     modal.classList.remove('show');
 }
+
 </script>
 
 
