@@ -8,9 +8,21 @@ export default function handler(req, res) {
             return res.status(500).json({ error: "Authentication failed" });
         }
         
+        // Log user object to confirm fields
+        console.log("Authenticated user object:", user);
+
+        // Handle potential missing fields with fallback values
+        const userId = user.id || user.sub; // or other field based on the structure
+        const displayName = user.displayName || user.name || "Anonymous";
+
+        if (!userId || !displayName) {
+            console.error("User ID or display name missing from the Google profile.");
+            return res.status(500).json({ error: "Incomplete user profile" });
+        }
+
         try {
             const token = jwt.sign(
-                { id: user.id, displayName: user.displayName },
+                { id: userId, displayName },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
