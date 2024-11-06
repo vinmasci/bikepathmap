@@ -29,6 +29,7 @@ async function connectToMongo() {
 // Middleware for JWT authentication
 const authenticateJWT = (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
+    
     if (!token) {
         console.error("Token not provided");
         return res.sendStatus(401);
@@ -40,13 +41,15 @@ const authenticateJWT = (req, res, next) => {
             return res.sendStatus(403);
         }
 
+        console.log("Decoded token:", user); // Log the full token to inspect its structure
+
         if (!user.id) {
             console.error("User ID missing in token payload");
             return res.sendStatus(403);
         }
 
         req.user = user;  // Attach the user to the request
-        console.log("Authenticated user:", req.user);  // Log user info for verification
+        console.log("Authenticated user:", req.user);  // Log user info to confirm `id`
         next();
     });
 };
