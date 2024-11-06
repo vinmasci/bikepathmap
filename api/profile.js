@@ -20,11 +20,13 @@ async function connectToMongo() {
     if (!client.topology || !client.topology.isConnected()) {
         await client.connect();
     }
+    console.log('MongoDB connected');
     return client.db('roadApp').collection('users'); // Connect to the 'users' collection
 }
 
 // Update user profile
 app.post('/api/user/profile', upload, async (req, res) => {
+    console.log('Received profile update request:', req.body);
     const { name } = req.body;
     const image = req.file; // Get the uploaded file
 
@@ -33,12 +35,14 @@ app.post('/api/user/profile', upload, async (req, res) => {
 
         // Assuming you have a way to identify users, like a userId from the JWT
         const userId = req.user.id; // Get user ID from the authentication middleware
+        console.log('User ID:', userId);
 
         // Initialize an empty update object
         const updateData = { name };
 
         // If there is an image, upload it to S3
         if (image) {
+            console.log('Uploading image to S3:', image.originalname);
             const fileContent = fs.readFileSync(image.path); // Read the file content
 
             const params = {
@@ -57,12 +61,15 @@ app.post('/api/user/profile', upload, async (req, res) => {
         }
 
         // Update user profile in the database
-        await collection.updateOne({ _id: userId }, { $set: updateData });
+        const result = await collection.updateOne({ _id: userId }, { $set: updateData });
+        console.log('Update result:', result);
 
         // Clean up local file after upload
-        fs.unlink(image.path, (unlinkErr) => {
-            if (unlinkErr) console.error('Failed to delete local file:', unlinkErr);
-        });
+        if (image) {
+            fs.unlink(image.path, (unlinkErr) => {
+                if (unlinkErr) console.error('Failed to delete local file:', unlinkErr);
+            });
+        }
 
         res.json({ success: true, message: 'Profile updated successfully' });
     } catch (error) {
@@ -70,6 +77,7 @@ app.post('/api/user/profile', upload, async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to update profile' });
     }
 });
+
 
 // Save profile information functionality in the frontend
 document.getElementById('save-profile-info').addEventListener('click', async () => {
