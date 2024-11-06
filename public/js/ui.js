@@ -548,10 +548,11 @@ document.getElementById('modal-logout-button').addEventListener('click', async (
 
     console.log("User logged out, login button will remain visible.");
 
-    // Redirect to your application's logout URL or homepage
-    const logoutUrl = '/'; // Redirect to your homepage or logout route
-    window.location.href = logoutUrl; // Redirect to log out of the application
+    // Redirect to Google logout URL to complete logout and return to your homepage
+    const googleLogoutUrl = `https://accounts.google.com/Logout`;
+    window.location.href = googleLogoutUrl; // Redirect to Google logout
 });
+
 
 
 // ============================
