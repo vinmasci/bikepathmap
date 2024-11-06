@@ -467,6 +467,7 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}` // Send the token if necessary
+            // Do not set 'Content-Type' here, let the browser do it automatically
         },
         body: formData // Sending FormData to include file uploads
     });
@@ -478,9 +479,18 @@ document.getElementById('save-profile-info').addEventListener('click', async () 
         console.log('Profile information saved successfully');
         document.getElementById('profile-info-modal').style.display = 'none'; // Close modal
     } else {
-        const errorData = await response.json(); // Attempt to read the error response body
+        const contentType = response.headers.get("content-type");
+        let errorData;
+    
+        // Check if response is JSON
+        if (contentType && contentType.includes("application/json")) {
+            errorData = await response.json();
+        } else {
+            errorData = { error: 'Unexpected response format' }; // Handle unexpected format
+        }
+    
         console.error('Error saving profile information:', errorData);
-    }    
+    }
 
     // Reset button text and enable it
     saveButton.innerText = 'Save'; // Reset the button text
