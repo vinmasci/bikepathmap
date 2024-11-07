@@ -23,6 +23,22 @@ const gravelColors = {
 };
 
 // ============================
+// SECTION: Fetch Route ID
+// ============================
+async function fetchRouteId() {
+    try {
+        const response = await fetch('/api/generate-route-id', { method: 'POST' });
+        const data = await response.json();
+        console.log("[fetchRouteId] Received route ID:", data.routeId);
+        return data.routeId;
+    } catch (error) {
+        console.error("[fetchRouteId] Failed to fetch route ID:", error);
+        alert("Error generating route ID. Please try again.");
+        return null;
+    }
+}
+
+// ============================
 // SECTION: Apply Drawing Options
 // ============================
 document.getElementById('applyDrawingOptionsButton').addEventListener('click', function () {
