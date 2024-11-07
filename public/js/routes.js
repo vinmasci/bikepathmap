@@ -278,8 +278,8 @@ function handleSaveConfirmation(gpxData) {
         return;
     }
 
-    // Generate a unique route ID
-    const routeId = new Date().getTime(); // Example of generating a unique ID based on the current timestamp
+    // Generate a unique route ID as a string
+    const routeId = new Date().getTime().toString(); // Convert routeId to string
     console.log("Generated route ID:", routeId);
 
     // Change button text to "Saving..."
@@ -298,7 +298,7 @@ function handleSaveConfirmation(gpxData) {
         lineStyle: selectedLineStyle,
         gravelType: Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value),
         title: routeName,
-        routeId: routeId // Include route ID in metadata as well
+        routeId: routeId // Include route ID in metadata as a string
     };
 
     console.log("Saving route with the following data:", {
@@ -340,6 +340,7 @@ function handleSaveConfirmation(gpxData) {
         confirmSaveBtn.disabled = false;
     });
 }
+
 
 
 // ============================
