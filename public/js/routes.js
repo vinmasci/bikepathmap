@@ -243,6 +243,13 @@ function saveDrawnRoute() {
             feature.properties.gravelType = gravelTypes; 
         });
 
+        // Generate a unique route ID as a string and add to all features
+        const routeId = new Date().getTime().toString();
+        console.log("Generated route ID:", routeId);
+        segmentsGeoJSON.features.forEach(feature => {
+            feature.properties.routeId = routeId; // Include the route ID in the feature properties
+        });
+
         // Convert GeoJSON to GPX
         const gpxData = togpx ? togpx(segmentsGeoJSON) : null; // Make sure gpxData is assigned here
         console.log("GPX Data:", gpxData); // Log GPX data
@@ -257,8 +264,8 @@ function saveDrawnRoute() {
 
         // Set the event listener on confirm button once
         const confirmSaveBtn = document.getElementById('confirmSaveBtn');
-        confirmSaveBtn.removeEventListener('click', () => handleSaveConfirmation(gpxData)); // Remove previous listener
-        confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData)); // Pass gpxData to handler
+        confirmSaveBtn.removeEventListener('click', () => handleSaveConfirmation(gpxData, routeId)); // Remove previous listener
+        confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData, routeId)); // Pass gpxData and routeId to handler
     } else {
         console.warn('No route to save.');
         alert('No route to save.');
@@ -268,7 +275,7 @@ function saveDrawnRoute() {
 // ============================
 // SECTION: Handle Save Confirmation
 // ============================
-function handleSaveConfirmation(gpxData) {
+function handleSaveConfirmation(gpxData, routeId) {
     console.log("Handling save confirmation...");
     const confirmSaveBtn = document.getElementById('confirmSaveBtn');
     const routeName = document.getElementById('routeNameInput').value;
@@ -278,18 +285,13 @@ function handleSaveConfirmation(gpxData) {
         return;
     }
 
-    // Generate a unique route ID as a string
-    const routeId = new Date().getTime().toString(); // Convert routeId to string
-    console.log("Generated route ID:", routeId);
-
     // Change button text to "Saving..."
     confirmSaveBtn.innerText = "Saving...";
     confirmSaveBtn.disabled = true;
 
-    // Add route name and route ID to each segment feature's properties
+    // Add route name to each segment feature's properties
     segmentsGeoJSON.features.forEach(feature => {
         feature.properties.title = routeName;
-        feature.properties.routeId = routeId; // Include the route ID in the feature properties
     });
 
     // Log the data to be sent
