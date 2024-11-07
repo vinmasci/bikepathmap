@@ -23,22 +23,6 @@ const gravelColors = {
 };
 
 // ============================
-// SECTION: Fetch Route ID
-// ============================
-async function fetchRouteId() {
-    try {
-        const response = await fetch('/api/generate-route-id', { method: 'POST' });
-        const data = await response.json();
-        console.log("[fetchRouteId] Received route ID:", data.routeId);
-        return data.routeId;
-    } catch (error) {
-        console.error("[fetchRouteId] Failed to fetch route ID:", error);
-        alert("Error generating route ID. Please try again.");
-        return null;
-    }
-}
-
-// ============================
 // SECTION: Apply Drawing Options
 // ============================
 document.getElementById('applyDrawingOptionsButton').addEventListener('click', function () {
@@ -251,22 +235,12 @@ function resetRoute() {
 // ============================
 async function saveDrawnRoute() {
     console.log("[saveDrawnRoute] Attempting to save drawn route...");
-
-    // First, fetch the routeId from the server
-    const routeId = await fetchRouteId();
-    if (!routeId) {
-        console.error("[saveDrawnRoute] Failed to retrieve route ID.");
-        return;
-    }
-
-    console.log("[saveDrawnRoute] Retrieved route ID:", routeId);
     
     if (segmentsGeoJSON.features.length > 0) {
         const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
 
         segmentsGeoJSON.features.forEach((feature, index) => {
             feature.properties.gravelType = gravelTypes;
-            feature.properties.routeId = routeId; // Add routeId to each feature
         });
 
         const gpxData = togpx ? togpx(segmentsGeoJSON) : null;
@@ -279,8 +253,8 @@ async function saveDrawnRoute() {
         openRouteNameModal();
 
         const confirmSaveBtn = document.getElementById('confirmSaveBtn');
-        confirmSaveBtn.removeEventListener('click', () => handleSaveConfirmation(gpxData, routeId));
-        confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData, routeId));
+        confirmSaveBtn.removeEventListener('click', handleSaveConfirmation);
+        confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData));
     } else {
         console.warn("[saveDrawnRoute] No route to save.");
         alert('No route to save.');
@@ -290,10 +264,9 @@ async function saveDrawnRoute() {
 // ============================
 // SECTION: Handle Save Confirmation
 // ============================
-function handleSaveConfirmation(gpxData, routeId) {
+function handleSaveConfirmation(gpxData) {
     console.log("[handleSaveConfirmation] Handling save confirmation...");
     console.log("[handleSaveConfirmation] GPX Data:", gpxData);
-    console.log("[handleSaveConfirmation] Route ID:", routeId);
 
     const confirmSaveBtn = document.getElementById('confirmSaveBtn');
     const routeName = document.getElementById('routeNameInput').value;
@@ -319,8 +292,7 @@ function handleSaveConfirmation(gpxData, routeId) {
         color: selectedColor,
         lineStyle: selectedLineStyle,
         gravelType: Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value),
-        title: routeName,
-        routeId: routeId
+        title: routeName
     };
     console.log("[handleSaveConfirmation] Metadata:", metadata);
 
@@ -348,7 +320,7 @@ function handleSaveConfirmation(gpxData, routeId) {
             closeRouteNameModal();
             resetRouteData();
         } else {
-            alert('Error saving route: ' + data.error);
+            alert('Error saving route: ' + data.message);
         }
     })
     .catch(error => {
@@ -360,6 +332,7 @@ function handleSaveConfirmation(gpxData, routeId) {
         confirmSaveBtn.disabled = false;
     });
 }
+
 
 // ============================
 // SECTION: Reset Route Data
