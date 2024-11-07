@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     const { points } = req.body;
 
     // Check if points array exists and contains enough data
