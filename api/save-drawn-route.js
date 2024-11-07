@@ -17,6 +17,9 @@ module.exports = async (req, res) => {
         return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
 
+    // Log the incoming request body for debugging
+    console.log('Request Body:', req.body);
+
     // Ensure the body contains the necessary data
     const { gpxData, geojson, metadata } = req.body;
     if (!gpxData || !geojson || !metadata) {

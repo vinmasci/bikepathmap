@@ -234,6 +234,8 @@ function resetRoute() {
 // SECTION: Save Drawn Route (with route name prompt)
 // ============================
 function saveDrawnRoute() {
+    console.log("Attempting to save drawn route...");
+    
     if (segmentsGeoJSON.features.length > 0) {
         const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
         
@@ -243,6 +245,8 @@ function saveDrawnRoute() {
 
         // Convert GeoJSON to GPX
         const gpxData = togpx ? togpx(segmentsGeoJSON) : null; // Make sure gpxData is assigned here
+        console.log("GPX Data:", gpxData); // Log GPX data
+
         if (!gpxData) {
             console.error("GPX conversion failed. 'togpx' is not defined.");
             return;
@@ -256,6 +260,7 @@ function saveDrawnRoute() {
         confirmSaveBtn.removeEventListener('click', () => handleSaveConfirmation(gpxData)); // Remove previous listener
         confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData)); // Pass gpxData to handler
     } else {
+        console.warn('No route to save.');
         alert('No route to save.');
     }
 }
@@ -264,6 +269,7 @@ function saveDrawnRoute() {
 // SECTION: Handle Save Confirmation
 // ============================
 function handleSaveConfirmation(gpxData) {
+    console.log("Handling save confirmation...");
     const confirmSaveBtn = document.getElementById('confirmSaveBtn');
     const routeName = document.getElementById('routeNameInput').value;
 
@@ -281,6 +287,20 @@ function handleSaveConfirmation(gpxData) {
         feature.properties.title = routeName;
     });
 
+    // Log the data to be sent
+    const metadata = {
+        color: selectedColor,
+        lineStyle: selectedLineStyle,
+        gravelType: Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value),
+        title: routeName
+    };
+
+    console.log("Saving route with the following data:", {
+        gpxData,
+        geojson: segmentsGeoJSON,
+        metadata
+    });
+
     // Send drawn route data to the backend API
     fetch('/api/save-drawn-route', {
         method: 'POST',
@@ -288,16 +308,15 @@ function handleSaveConfirmation(gpxData) {
         body: JSON.stringify({
             gpxData: gpxData, // Use gpxData from function parameter
             geojson: segmentsGeoJSON,
-            metadata: {
-                color: selectedColor,
-                lineStyle: selectedLineStyle,
-                gravelType: Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value),
-                title: routeName
-            }
+            metadata: metadata
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log("Response from API:", response);
+        return response.json();
+    })
     .then(data => {
+        console.log("Data returned from API:", data);
         if (data.success) {
             alert('Route saved successfully!');
             closeRouteNameModal();
@@ -316,6 +335,7 @@ function handleSaveConfirmation(gpxData) {
         confirmSaveBtn.disabled = false;
     });
 }
+
 
 // ============================
 // SECTION: Reset Route Data
