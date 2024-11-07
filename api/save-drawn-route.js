@@ -26,6 +26,9 @@ module.exports = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Invalid input data' });
     }
 
+    // Log received metadata, especially the routeId
+    console.log('Received metadata:', metadata);
+
     try {
         const collection = await connectToMongo();
 
@@ -36,6 +39,9 @@ module.exports = async (req, res) => {
             metadata,
             createdAt: new Date() // Optionally add a timestamp
         });
+
+        // Log the result of the insert operation
+        console.log('Insert Result:', result);
 
         if (result.insertedId) {
             res.status(200).json({ success: true, message: 'Route saved successfully!', routeId: result.insertedId });
