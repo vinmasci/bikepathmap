@@ -1,7 +1,6 @@
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
-// MongoDB connection setup
 let client;
 
 async function connectToMongo() {
@@ -9,7 +8,7 @@ async function connectToMongo() {
         client = new MongoClient(process.env.MONGODB_URI_DRAWN, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
     }
-    return client.db('drawnRoutes').collection('drawnRoutes'); // Connect to the 'drawnRoutes' collection
+    return client.db('drawnRoutes').collection('drawnRoutes');
 }
 
 module.exports = async (req, res) => {
@@ -26,8 +25,13 @@ module.exports = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Invalid input data' });
     }
 
-    // Log received metadata, especially the routeId
-    console.log('Received metadata:', metadata);
+    // Log metadata to check for routeId
+    console.log('Metadata:', metadata);
+
+    // Check if routeId is present
+    if (!metadata.routeId) {
+        return res.status(400).json({ success: false, message: 'No route ID provided.' });
+    }
 
     try {
         const collection = await connectToMongo();
@@ -39,9 +43,6 @@ module.exports = async (req, res) => {
             metadata,
             createdAt: new Date() // Optionally add a timestamp
         });
-
-        // Log the result of the insert operation
-        console.log('Insert Result:', result);
 
         if (result.insertedId) {
             res.status(200).json({ success: true, message: 'Route saved successfully!', routeId: result.insertedId });
