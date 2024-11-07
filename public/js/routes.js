@@ -233,50 +233,40 @@ function resetRoute() {
 // ============================
 // SECTION: Save Drawn Route (with route name prompt)
 // ============================
-function saveDrawnRoute() {
+async function saveDrawnRoute() {
     console.log("[saveDrawnRoute] Attempting to save drawn route...");
 
-    // Check if there are any features to save
-    if (segmentsGeoJSON.features.length > 0) {
-        console.log("[saveDrawnRoute] Features found:", segmentsGeoJSON.features);
+    // First, fetch the routeId from the server
+    const routeId = await fetchRouteId();
+    if (!routeId) {
+        console.error("[saveDrawnRoute] Failed to retrieve route ID.");
+        return;
+    }
 
-        // Get selected gravel types
+    console.log("[saveDrawnRoute] Retrieved route ID:", routeId);
+    
+    if (segmentsGeoJSON.features.length > 0) {
         const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
-        console.log("[saveDrawnRoute] Selected gravel types:", gravelTypes);
 
         segmentsGeoJSON.features.forEach((feature, index) => {
             feature.properties.gravelType = gravelTypes;
-            console.log(`[saveDrawnRoute] Feature ${index} gravelType set to`, feature.properties.gravelType);
+            feature.properties.routeId = routeId; // Add routeId to each feature
         });
 
-        // Generate a unique route ID as a string and add to all features
-        const routeId = new Date().getTime().toString();
-        console.log("[saveDrawnRoute] Generated route ID:", routeId);
-        
-        segmentsGeoJSON.features.forEach((feature, index) => {
-            feature.properties.routeId = routeId;
-            console.log(`[saveDrawnRoute] Feature ${index} routeId set to`, feature.properties.routeId);
-        });
-
-        // Convert GeoJSON to GPX
         const gpxData = togpx ? togpx(segmentsGeoJSON) : null;
-        console.log("[saveDrawnRoute] GPX Data generated:", gpxData);
-
         if (!gpxData) {
-            console.error("[saveDrawnRoute] GPX conversion failed. 'togpx' is not defined or returned null.");
+            console.error("[saveDrawnRoute] GPX conversion failed.");
             return;
         }
 
-        // Open the modal and prepare for route name input
         console.log("[saveDrawnRoute] Opening route name modal.");
         openRouteNameModal();
 
-        // Set the event listener on confirm button once
         const confirmSaveBtn = document.getElementById('confirmSaveBtn');
-        confirmSaveBtn.removeEventListener('click', () => handleSaveConfirmation(gpxData, routeId)); // Remove previous listener
-        confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData, routeId)); // Pass gpxData and routeId to handler
+        confirmSaveBtn.removeEventListener('click', () => handleSaveConfirmation(gpxData, routeId));
+        confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData, routeId));
     } else {
-        console.warn("[saveDrawnRoute] No features found. Alerting user.");
+        console.warn("[saveDrawnRoute] No route to save.");
         alert('No route to save.');
     }
 }
