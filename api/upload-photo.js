@@ -20,7 +20,7 @@ const upload = multer({ dest: '/tmp/', limits: { fileSize: 10000000 } }).array('
 let client;
 async function connectToMongo() {
     if (!client) {
-        client = new MongoClient(process.env.MONGODB_URI);
+        client = new MongoClient(process.env.MONGODB_URI_PHOTO);
         await client.connect();
     }
     console.log('MongoDB connected');
