@@ -5,7 +5,7 @@ let client;
 
 async function connectToMongo() {
     if (!client) {
-        console.log("[API] Initializing MongoDB Client");
+        console.log("[API] Initializing MongoDB Client - New Update Checkpoint");
         client = new MongoClient(process.env.MONGODB_URI_DRAWN, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
         console.log("[API] MongoDB Client Connected");
@@ -14,7 +14,7 @@ async function connectToMongo() {
 }
 
 module.exports = async (req, res) => {
-    console.log("[API] Received request to /api/save-drawn-route");
+    console.log("[API] Received request to /api/save-drawn-route - New Update Checkpoint");
 
     if (req.method !== 'POST') {
         console.warn("[API] Invalid request method:", req.method);
@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
         if (!gpxData) console.error("[API] Missing gpxData.");
         if (!geojson) console.error("[API] Missing geojson.");
         if (!metadata) console.error("[API] Missing metadata.");
-        return res.status(400).json({ success: false, message: 'Invalid input data' });
+        return res.status(400).json({ success: false, message: 'Invalid input data - New Update Checkpoint' });
     }
 
     try {
@@ -42,19 +42,19 @@ module.exports = async (req, res) => {
             metadata,
             createdAt: new Date()
         };
-        console.log("[API] Inserting data into MongoDB:", JSON.stringify(insertData, null, 2));
+        console.log("[API] Inserting data into MongoDB - New Update Checkpoint:", JSON.stringify(insertData, null, 2));
 
         const result = await collection.insertOne(insertData);
 
         if (result.insertedId) {
-            console.log("[API] Route saved successfully with ID:", result.insertedId);
+            console.log("[API] Route saved successfully with ID - New Update Checkpoint:", result.insertedId);
             res.status(200).json({ success: true, message: 'Route saved successfully!', id: result.insertedId });
         } else {
             console.error("[API] Failed to insert route into MongoDB.");
             res.status(500).json({ success: false, message: 'Failed to save route' });
         }
     } catch (error) {
-        console.error("[API] Error saving drawn route:", error.message);
+        console.error("[API] Error saving drawn route - New Update Checkpoint:", error.message);
         res.status(500).json({ success: false, message: 'Failed to save drawn route' });
     }
 };

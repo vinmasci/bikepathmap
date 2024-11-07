@@ -168,13 +168,15 @@ async function handlePhotoUpload() {
 // =========================
 // SECTION: Save Route Modal 
 // =========================
+
 // Define the function to open the route name modal
 function openRouteNameModal() {
     const modal = document.getElementById('routeNameModal');
     if (modal) {
         modal.style.display = 'block'; // Make the modal visible
+        console.log("[openRouteNameModal] Route name modal opened successfully.");
     } else {
-        console.error('routeNameModal not found in the DOM.');
+        console.error("[openRouteNameModal] routeNameModal not found in the DOM.");
     }
 }
 
@@ -183,10 +185,12 @@ function closeRouteNameModal() {
     const modal = document.getElementById('routeNameModal');
     if (modal) {
         modal.style.display = 'none'; // Hide the modal
+        console.log("[closeRouteNameModal] Route name modal closed successfully.");
     } else {
-        console.error('routeNameModal not found in the DOM.');
+        console.error("[closeRouteNameModal] routeNameModal not found in the DOM.");
     }
 }
+
 
 // ============================
 // SECTION: Drop down panels
@@ -311,47 +315,3 @@ function openSegmentModal(title, routeId) {
     // Render comments for the segment
     renderComments();
 }
-
-// ============================
-// SECTION: User Login Status
-// ============================
-document.addEventListener('DOMContentLoaded', async () => {
-    const userStatus = document.getElementById('user-status');
-    const userInfo = document.getElementById('user-info');
-    const logoutButton = document.getElementById('logout-button');
-    const loginButton = document.getElementById('login-button');
-
-    // Check for token in localStorage and fetch user data if available
-    const token = localStorage.getItem('token');
-    console.log("Current token:", token); // Log the token to see if it exists
-
-    if (token) {
-        console.log("User is logged in, fetching user data...");
-        await fetchUserData(token, userStatus, userInfo, logoutButton, loginButton);
-    } else {
-        userStatus.style.display = 'flex';
-        userInfo.textContent = '';
-        logoutButton.style.display = 'none';
-        loginButton.style.display = 'block';
-        console.log("User is not logged in, showing login button.");
-    }
-
-    // Logout button handler
-    logoutButton.addEventListener('click', async () => {
-        console.log("Logging out...");
-        localStorage.removeItem('token');
-        userInfo.textContent = '';
-        logoutButton.style.display = 'none';
-        loginButton.style.display = 'block';
-        console.log("User logged out, login button will remain visible.");
-
-        const logoutUrl = `https://accounts.google.com/Logout`;
-        window.location.href = logoutUrl;
-    });
-
-    // Login button handler
-    loginButton.addEventListener('click', () => {
-        console.log("Redirecting to login...");
-        window.location.href = '/api/auth/login';
-    });
-});
