@@ -9,7 +9,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Load API routes from the "api" directory
 app.use('/api', require('./api/delete-drawn-route'));  // Adjust as necessary for each route
-app.use('/api', require('./api/get-drawn-route'));
+app.use('/api', require('./api/get-drawn-routes'));
 app.use('/api', require('./api/save-drawn-route'));
 app.use('/api', require('./api/snap-to-road'));
 app.use('/api', require('./api/get-photos'));
