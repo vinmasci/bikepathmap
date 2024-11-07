@@ -234,32 +234,41 @@ function resetRoute() {
 // SECTION: Save Drawn Route (with route name prompt)
 // ============================
 function saveDrawnRoute() {
-    console.log("Attempting to save drawn route...");
-    
+    console.log("[saveDrawnRoute] Attempting to save drawn route...");
+
+    // Check if there are any features to save
     if (segmentsGeoJSON.features.length > 0) {
+        console.log("[saveDrawnRoute] Features found:", segmentsGeoJSON.features);
+
+        // Get selected gravel types
         const gravelTypes = Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value);
-        
-        segmentsGeoJSON.features.forEach(feature => {
-            feature.properties.gravelType = gravelTypes; 
+        console.log("[saveDrawnRoute] Selected gravel types:", gravelTypes);
+
+        segmentsGeoJSON.features.forEach((feature, index) => {
+            feature.properties.gravelType = gravelTypes;
+            console.log(`[saveDrawnRoute] Feature ${index} gravelType set to`, feature.properties.gravelType);
         });
 
         // Generate a unique route ID as a string and add to all features
         const routeId = new Date().getTime().toString();
-        console.log("Generated route ID:", routeId);
-        segmentsGeoJSON.features.forEach(feature => {
-            feature.properties.routeId = routeId; // Include the route ID in the feature properties
+        console.log("[saveDrawnRoute] Generated route ID:", routeId);
+        
+        segmentsGeoJSON.features.forEach((feature, index) => {
+            feature.properties.routeId = routeId;
+            console.log(`[saveDrawnRoute] Feature ${index} routeId set to`, feature.properties.routeId);
         });
 
         // Convert GeoJSON to GPX
-        const gpxData = togpx ? togpx(segmentsGeoJSON) : null; // Make sure gpxData is assigned here
-        console.log("GPX Data:", gpxData); // Log GPX data
+        const gpxData = togpx ? togpx(segmentsGeoJSON) : null;
+        console.log("[saveDrawnRoute] GPX Data generated:", gpxData);
 
         if (!gpxData) {
-            console.error("GPX conversion failed. 'togpx' is not defined.");
+            console.error("[saveDrawnRoute] GPX conversion failed. 'togpx' is not defined or returned null.");
             return;
         }
 
         // Open the modal and prepare for route name input
+        console.log("[saveDrawnRoute] Opening route name modal.");
         openRouteNameModal();
 
         // Set the event listener on confirm button once
@@ -267,7 +276,7 @@ function saveDrawnRoute() {
         confirmSaveBtn.removeEventListener('click', () => handleSaveConfirmation(gpxData, routeId)); // Remove previous listener
         confirmSaveBtn.addEventListener('click', () => handleSaveConfirmation(gpxData, routeId)); // Pass gpxData and routeId to handler
     } else {
-        console.warn('No route to save.');
+        console.warn("[saveDrawnRoute] No features found. Alerting user.");
         alert('No route to save.');
     }
 }
@@ -276,55 +285,58 @@ function saveDrawnRoute() {
 // SECTION: Handle Save Confirmation
 // ============================
 function handleSaveConfirmation(gpxData, routeId) {
-    console.log("Handling save confirmation...");
+    console.log("[handleSaveConfirmation] Handling save confirmation...");
+    console.log("[handleSaveConfirmation] GPX Data:", gpxData);
+    console.log("[handleSaveConfirmation] Route ID:", routeId);
+
     const confirmSaveBtn = document.getElementById('confirmSaveBtn');
     const routeName = document.getElementById('routeNameInput').value;
+    console.log("[handleSaveConfirmation] Route name entered:", routeName);
 
     if (!routeName) {
+        console.warn("[handleSaveConfirmation] No route name provided. Alerting user.");
         alert('Please enter a road/path name for your route.');
         return;
     }
 
-    // Change button text to "Saving..."
     confirmSaveBtn.innerText = "Saving...";
     confirmSaveBtn.disabled = true;
 
     // Add route name to each segment feature's properties
-    segmentsGeoJSON.features.forEach(feature => {
+    segmentsGeoJSON.features.forEach((feature, index) => {
         feature.properties.title = routeName;
+        console.log(`[handleSaveConfirmation] Feature ${index} title set to`, feature.properties.title);
     });
 
-    // Log the data to be sent
+    // Construct metadata and log it
     const metadata = {
         color: selectedColor,
         lineStyle: selectedLineStyle,
         gravelType: Array.from(document.querySelectorAll('input[name="gravelType"]:checked')).map(input => input.value),
         title: routeName,
-        routeId: routeId // Include route ID in metadata as a string
+        routeId: routeId
     };
-
-    console.log("Saving route with the following data:", {
-        gpxData,
-        geojson: segmentsGeoJSON,
-        metadata
-    });
+    console.log("[handleSaveConfirmation] Metadata:", metadata);
 
     // Send drawn route data to the backend API
+    const payload = JSON.stringify({
+        gpxData: gpxData,
+        geojson: segmentsGeoJSON,
+        metadata: metadata
+    });
+    console.log("[handleSaveConfirmation] Payload to be sent:", payload);
+
     fetch('/api/save-drawn-route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            gpxData: gpxData,
-            geojson: segmentsGeoJSON,
-            metadata: metadata
-        })
+        body: payload
     })
     .then(response => {
-        console.log("Response from API:", response);
+        console.log("[handleSaveConfirmation] Response from API:", response);
         return response.json();
     })
     .then(data => {
-        console.log("Data returned from API:", data);
+        console.log("[handleSaveConfirmation] Data returned from API:", data);
         if (data.success) {
             alert('Route saved successfully!');
             closeRouteNameModal();
@@ -334,7 +346,7 @@ function handleSaveConfirmation(gpxData, routeId) {
         }
     })
     .catch(error => {
-        console.error('Error saving route:', error);
+        console.error("[handleSaveConfirmation] Error saving route:", error);
         alert('An error occurred while saving the route.');
     })
     .finally(() => {
@@ -342,8 +354,6 @@ function handleSaveConfirmation(gpxData, routeId) {
         confirmSaveBtn.disabled = false;
     });
 }
-
-
 
 // ============================
 // SECTION: Reset Route Data
