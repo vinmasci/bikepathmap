@@ -1,55 +1,46 @@
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
-const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+let client;
 
 async function connectToMongo() {
-    if (!client.topology || !client.topology.isConnected()) {
+    if (!client) {
+        client = new MongoClient(process.env.MONGODB_URI_DRAWN, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
     }
-    return client.db('roadApp').collection('drawnRoutes');
+    return client.db('drawnRoutes').collection('drawnRoutes');  // Update to the correct database and collection
 }
 
 module.exports = async (req, res) => {
     try {
         const collection = await connectToMongo();
-        
-        // Fetch all routes from the MongoDB collection
         const routes = await collection.find({}).toArray();
 
-        // Log the raw routes before processing them
         console.log("Raw routes from MongoDB:", JSON.stringify(routes, null, 2));
 
-// Simplify route formatting
-const formattedRoutes = routes.map(route => {
-    const formattedFeatures = route.geojson.features.map(feature => {
-        return {
-            ...feature,
-            properties: {
-                ...feature.properties,
-                title: feature.properties.title || "Untitled Route",  // Default title if not set
-                color: feature.properties.color || "#000000",  // Default color if not set
-                lineStyle: feature.properties.lineStyle || "solid",  // Default line style if not set
-                routeId: route._id.toString()  // Include routeId in each feature's properties
-            }
-        };
-    });
+        const formattedRoutes = routes.map(route => {
+            const formattedFeatures = route.geojson.features.map(feature => ({
+                ...feature,
+                properties: {
+                    ...feature.properties,
+                    title: feature.properties.title || "Untitled Route",
+                    color: feature.properties.color || "#000000",
+                    lineStyle: feature.properties.lineStyle || "solid",
+                    routeId: route._id.toString()
+                }
+            }));
 
-    return {
-        routeId: route._id.toString(),
-        geojson: {
-            type: "FeatureCollection",
-            features: formattedFeatures
-        },
-        gravelType: route.gravelType  // Return the gravel type
-    };
-});
+            return {
+                routeId: route._id.toString(),
+                geojson: {
+                    type: "FeatureCollection",
+                    features: formattedFeatures
+                },
+                gravelType: route.gravelType
+            };
+        });
 
-
-        // Log the formatted routes before sending them to the client
         console.log("Formatted routes being sent:", JSON.stringify(formattedRoutes, null, 2));
-
-        // Send the formatted routes to the client
         res.status(200).json({ routes: formattedRoutes });
     } catch (error) {
         console.error('Error retrieving routes:', error);

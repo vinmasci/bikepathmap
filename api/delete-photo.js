@@ -5,10 +5,10 @@ let client;
 
 async function connectToMongo() {
     if (!client) {
-        client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        client = new MongoClient(process.env.MONGODB_URI_PHOTO, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
     }
-    return client.db('photoApp').collection('photos');
+    return client.db('photoApp').collection('photoApp');
 }
 
 module.exports = async (req, res) => {

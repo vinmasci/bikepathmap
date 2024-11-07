@@ -7,6 +7,7 @@ require('dotenv').config();
 
 // AWS S3 configuration
 const s3 = new AWS.S3({
+    endpoint: process.env.DO_SPACES_ENDPOINT,  // DigitalOcean Spaces endpoint
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION
@@ -23,7 +24,7 @@ async function connectToMongo() {
         await client.connect();
     }
     console.log('MongoDB connected');
-    return client.db('photoApp').collection('photos');  // Use your MongoDB collection name
+    return client.db('photoApp').collection('photoApp');  // Use your MongoDB collection name
 }
 
 module.exports = (req, res) => {

@@ -1,15 +1,18 @@
 const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
-const client = new MongoClient(process.env.MONGODB_URI);
+let client;
 
 async function connectToMongo() {
-    await client.connect();
-    return client.db('roadApp').collection('drawnRoutes');
+    if (!client) {
+        client = new MongoClient(process.env.MONGODB_URI_DRAWN, { useNewUrlParser: true, useUnifiedTopology: true });
+        await client.connect();
+    }
+    return client.db('drawnRoutes').collection('drawnRoutes'); // Update to the correct database and collection
 }
 
 module.exports = async (req, res) => {
-    const routeId = req.query.routeId; // Assuming routeId is passed in as a string representing _id
+    const routeId = req.query.routeId;
 
     if (!routeId) {
         return res.status(400).json({ success: false, message: "No route ID provided." });
@@ -17,7 +20,7 @@ module.exports = async (req, res) => {
 
     try {
         const collection = await connectToMongo();
-        const filter = { _id: new ObjectId(routeId) }; // Match by _id with ObjectId conversion
+        const filter = { _id: new ObjectId(routeId) };
 
         console.log("Attempting to delete with filter:", filter);
         const result = await collection.deleteOne(filter);
