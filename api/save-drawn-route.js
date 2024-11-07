@@ -19,6 +19,7 @@ module.exports = async (req, res) => {
         return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
 
+    // Get gpxData, geojson, and metadata from the request body
     const { gpxData, geojson, metadata } = req.body;
     if (!gpxData || !geojson || !metadata) {
         console.error("[API] Invalid input data. Missing gpxData, geojson, or metadata.");
@@ -38,8 +39,8 @@ module.exports = async (req, res) => {
         const result = await collection.insertOne(insertData);
 
         if (result.insertedId) {
-            console.log("[API] Route saved successfully.");
-            res.status(200).json({ success: true, message: 'Route saved successfully!', routeId: result.insertedId });
+            console.log("[API] Route saved successfully with identifier:", result.insertedId);
+            res.status(200).json({ success: true, message: 'Route saved successfully!', identifier: result.insertedId });
         } else {
             console.error("[API] Failed to insert route into MongoDB.");
             res.status(500).json({ success: false, message: 'Failed to save route' });
