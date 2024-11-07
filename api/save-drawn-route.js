@@ -5,8 +5,10 @@ let client;
 
 async function connectToMongo() {
     if (!client) {
+        console.log("[API] Initializing MongoDB Client");
         client = new MongoClient(process.env.MONGODB_URI_DRAWN, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
+        console.log("[API] MongoDB Client Connected");
     }
     return client.db('drawnRoutes').collection('drawnRoutes');
 }
@@ -19,21 +21,28 @@ module.exports = async (req, res) => {
         return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
 
+    console.log("[API] Request body received:", JSON.stringify(req.body, null, 2));
+
     const { gpxData, geojson, metadata } = req.body;
+    
     if (!gpxData || !geojson || !metadata) {
-        console.error("[API] Invalid input data. Missing gpxData, geojson, or metadata.");
+        if (!gpxData) console.error("[API] Missing gpxData.");
+        if (!geojson) console.error("[API] Missing geojson.");
+        if (!metadata) console.error("[API] Missing metadata.");
         return res.status(400).json({ success: false, message: 'Invalid input data' });
     }
 
     try {
+        console.log("[API] Connecting to MongoDB...");
         const collection = await connectToMongo();
+
         const insertData = {
             gpxData,
             geojson,
             metadata,
             createdAt: new Date()
         };
-        console.log("[API] Inserting data into MongoDB:", insertData);
+        console.log("[API] Inserting data into MongoDB:", JSON.stringify(insertData, null, 2));
 
         const result = await collection.insertOne(insertData);
 
@@ -45,7 +54,7 @@ module.exports = async (req, res) => {
             res.status(500).json({ success: false, message: 'Failed to save route' });
         }
     } catch (error) {
-        console.error("[API] Error saving drawn route:", error);
+        console.error("[API] Error saving drawn route:", error.message);
         res.status(500).json({ success: false, message: 'Failed to save drawn route' });
     }
 };
