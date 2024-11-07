@@ -9,23 +9,38 @@ async function connectToMongo() {
         client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
     }
-    return client.db('drawnRoutes').collection('drawnRoutes');  // Update to your collection
+    return client.db('drawnRoutes').collection('drawnRoutes'); // Connect to the 'drawnRoutes' collection
 }
 
 module.exports = async (req, res) => {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ success: false, message: 'Method not allowed' });
+    }
+
+    // Ensure the body contains the necessary data
+    const { gpxData, geojson, metadata } = req.body;
+    if (!gpxData || !geojson || !metadata) {
+        return res.status(400).json({ success: false, message: 'Invalid input data' });
+    }
+
     try {
         const collection = await connectToMongo();
 
-        // Fetch all routes from the MongoDB collection
-        const routes = await collection.find({}).toArray();
+        // Insert the drawn route into the collection
+        const result = await collection.insertOne({
+            gpxData,
+            geojson,
+            metadata,
+            createdAt: new Date() // Optionally add a timestamp
+        });
 
-        // Log the raw routes before processing them
-        console.log("Raw routes from MongoDB:", JSON.stringify(routes, null, 2));
-
-        // Send the formatted routes to the client
-        res.status(200).json({ routes });
+        if (result.insertedId) {
+            res.status(200).json({ success: true, message: 'Route saved successfully!', routeId: result.insertedId });
+        } else {
+            res.status(500).json({ success: false, message: 'Failed to save route' });
+        }
     } catch (error) {
-        console.error('Error retrieving routes:', error);
-        res.status(500).json({ error: 'Failed to retrieve routes' });
+        console.error('Error saving drawn route:', error);
+        res.status(500).json({ success: false, message: 'Failed to save drawn route' });
     }
 };
