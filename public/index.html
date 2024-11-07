@@ -491,35 +491,6 @@ async function compressAndUploadImage(file) {
     </div>
 </div>
 
-<!-- User Status Display -->
-<div id="user-status" style="position: absolute; top: 10px; left: 10px; background-color: transparent; color: black; padding: 10px; border-radius: 5px; display: flex; align-items: center;">
-    <img id="user-photo" src="" alt="User Photo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; display: none;">
-    <span id="user-info"></span>
-    <button id="logout-button" class="btn btn-danger" style="margin-left: 10px; border-radius: 10px; display: none;">Logout</button>
-    <button id="login-button" class="btn btn-success" style="margin-left: 10px; border-radius: 10px;">Login</button>
-</div>
-
-<!-- Profile Info Modal -->
-<div id="profile-info-modal" style="display: none;">
-    <div class="modal-content">
-        <span id="close-modal" style="cursor: pointer;">&times;</span>
-        <p><b>Edit Profile</b></p>
-        
-        <!-- Current Profile Image Display -->
-        <div id="current-profile-image-container" style="margin-bottom: 10px;">
-            <img id="current-profile-image" src="" alt="Current Profile" style="width: 40px; height: 40px; border-radius: 50%; display: none;">
-            <div id="current-initials" style="width: 40px; height: 40px; border-radius: 50%; background-color: #007bff; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; display: none;"></div>
-        </div>
-
-        <label for="user-name">Name:</label>
-        <input type="text" id="user-name" />
-        <label for="profile-image">Profile Image:</label>
-        <input type="file" id="profile-image" accept="image/*" />
-        <button id="save-profile-info" class="btn btn-success" style="margin-top: 10px; border-radius: 10px;">Update</button>
-        <button id="modal-logout-button" class="btn btn-danger" style="margin-top: 10px; border-radius: 10px;">Logout</button>
-    </div>
-</div>
-
 <!-- Include external JS files -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
