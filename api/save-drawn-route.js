@@ -22,15 +22,19 @@ module.exports = async (req, res) => {
     // Ensure the body contains the necessary data
     const { gpxData, geojson, metadata } = req.body;
     if (!gpxData || !geojson || !metadata) {
+        console.error('Invalid input data. Missing gpxData, geojson, or metadata.');
         return res.status(400).json({ success: false, message: 'Invalid input data' });
     }
 
-    // Log metadata to check for routeId
-    console.log('Metadata:', metadata);
+    // Log metadata and type of routeId to check if it's correctly passed as a string
+    console.log('Metadata received:', metadata);
+    console.log('Route ID type:', typeof metadata.routeId);
+    console.log('Route ID value:', metadata.routeId);
 
-    // Check if routeId is present
-    if (!metadata.routeId) {
-        return res.status(400).json({ success: false, message: 'No route ID provided.' });
+    // Check if routeId is present and correctly formatted
+    if (!metadata.routeId || typeof metadata.routeId !== 'string') {
+        console.error('Route ID is missing or not a string.');
+        return res.status(400).json({ success: false, message: 'No route ID provided or route ID is not a string.' });
     }
 
     try {
@@ -45,8 +49,10 @@ module.exports = async (req, res) => {
         });
 
         if (result.insertedId) {
+            console.log('Route saved successfully with routeId:', result.insertedId);
             res.status(200).json({ success: true, message: 'Route saved successfully!', routeId: result.insertedId });
         } else {
+            console.error('Failed to insert route into MongoDB.');
             res.status(500).json({ success: false, message: 'Failed to save route' });
         }
     } catch (error) {
